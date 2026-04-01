@@ -1,5 +1,7 @@
 {
   "version": 1,
+  "project": "product-ive",
+  "updated": "2026-04-01",
   "skills": {
     "react-native-animations": {
       "source": "pluginagentmarketplace/custom-plugin-react-native",
@@ -45,6 +47,31 @@
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "computedHash": "a804b4e848059822638c390359976f7021380bcefb1469d473aa4e9202c15ecb"
+    },
+    "building-native-ui": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "installed-2026-04-01"
+    },
+    "upgrading-expo": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "installed-2026-04-01"
+    },
+    "expo-cicd-workflows": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "installed-2026-04-01"
+    },
+    "expo-deployment": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "installed-2026-04-01"
+    },
+    "native-data-fetching": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "computedHash": "installed-2026-04-01"
     }
   }
 }

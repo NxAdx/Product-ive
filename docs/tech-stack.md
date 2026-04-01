@@ -50,7 +50,7 @@
 
 ## AI Agent Skills (Installed)
 
-### From Saral Lekhan Plus (copied)
+### Community Skills (9 skills)
 | Skill | Source | Purpose |
 |-------|--------|---------|
 | `react-native-animations` | pluginagentmarketplace | Animation patterns |
@@ -62,7 +62,6 @@
 | `ui-ux-pro-max` | nextlevelbuilder | UI/UX design intelligence |
 | `vercel-react-best-practices` | vercel-labs | React best practices |
 | `vercel-react-native-skills` | vercel-labs | RN best practices |
-| `android-updater-patterns` | custom | APK updater patterns |
 
 ### From Expo Official (expo/skills)
 | Skill | Purpose |

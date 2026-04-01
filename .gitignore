@@ -1,43 +1,92 @@
-# Dependencies
+# ============================================
+# Product+ive .gitignore
+# ============================================
+
+# ----- SENSITIVE / PRIVATE PROJECT FILES -----
+# These contain internal strategy, AI agent configs,
+# proprietary docs, and screenshots — never push to public repo
+docs/
+.agents/
+.agent/
+ss/
+skills-lock.json
+
+# ----- Dependencies -----
 node_modules/
 .expo/
 
-# Build outputs
+# ----- Build Outputs -----
 dist/
 android/app/build/
+ios/build/
 *.apk
 *.aab
+*.ipa
 
-# Secrets & Credentials
+# ----- Secrets & Credentials -----
 google-services.json
+GoogleService-Info.plist
 *.keystore
 *.jks
 keystore_base64.txt
-.env*
+.env
+.env.*
+.env.local
+.env.production
 security/
 
-# Never commit these
+# ----- Crypto & Certs -----
 *.pem
 *.p12
 *.cert
+*.key
 
-# IDE
+# ----- IDE -----
 .idea/
 .vscode/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
-# OS
+# ----- OS -----
 .DS_Store
+.DS_Store?
+._*
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Gradle
+# ----- Gradle & Android -----
 .gradle/
 .gradle-home/
+local.properties
+android/.gradle/
+android/build/
+android/app/release/
 
-# Temporary
+# ----- iOS -----
+ios/Pods/
+ios/build/
+*.xcworkspace
+*.xcuserdata
+
+# ----- Temporary -----
 tmp/
+temp/
 *.log
+*.tmp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Build tools
+# ----- Build Tools -----
 *.tsbuildinfo
+coverage/
+.jest/
+
+# ----- EAS -----
+.eas/
+
+# ----- Metro Bundler -----
+.metro-health-check*
