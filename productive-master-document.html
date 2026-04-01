@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product+ive — Product Strategy & UX Master Document</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF8; --bg2: #F3F1ED; --bg3: #ECEAE5;
+  --ink: #1A1916; --ink2: #4A4844; --ink3: #8A8784;
+  --acc: #1A1916; --acc2: #3D3D3A;
+  --pos: #22A06B; --pos-l: #D6F0E4;
+  --focus: #2563EB; --focus-l: #DBEAFE;
+  --learn: #7C3AED; --learn-l: #EDE9FE;
+  --study: #D97706; --study-l: #FEF3C7;
+  --rule: rgba(26,25,22,0.09);
+  --fd: 'Syne', sans-serif;
+  --fb: 'Plus Jakarta Sans', sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--fb); background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.75; display: flex; }
+
+/* SIDEBAR */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 252px; background: var(--bg2); border-right: 1px solid var(--rule); overflow-y: auto; padding: 32px 0; z-index: 100; display: flex; flex-direction: column; }
+.sb-brand { padding: 0 24px 24px; border-bottom: 1px solid var(--rule); margin-bottom: 12px; }
+.sb-title { font-family: var(--fd); font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+.sb-sub { font-family: var(--fm); font-size: 9px; color: var(--ink3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+.sb-sec { padding: 14px 24px 5px; font-family: var(--fm); font-size: 9px; color: var(--ink3); letter-spacing: 0.12em; text-transform: uppercase; }
+.sb-link { display: block; padding: 6px 24px; font-size: 13px; color: var(--ink2); text-decoration: none; border-left: 2px solid transparent; transition: all .15s; }
+.sb-link:hover { color: var(--ink); background: rgba(26,25,22,0.04); }
+.sb-link.a { color: var(--ink); border-left-color: var(--ink); background: rgba(26,25,22,0.05); font-weight: 500; }
+.sb-foot { margin-top: auto; padding: 16px 24px 0; border-top: 1px solid var(--rule); font-family: var(--fm); font-size: 9px; color: var(--ink3); line-height: 1.8; }
+
+/* MAIN */
+.main { margin-left: 252px; padding: 72px 72px 100px; max-width: 920px; }
+
+/* HERO */
+.hero { background: var(--ink); color: #fff; border-radius: 20px; padding: 64px 56px 56px; margin-bottom: 72px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+.hero-eyebrow { font-family: var(--fm); font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: rgba(255,255,255,0.3); }
+.hero-title { font-family: var(--fd); font-size: 64px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.0; margin-bottom: 8px; }
+.hero-title span { color: rgba(255,255,255,0.35); }
+.hero-sub { font-size: 16px; color: rgba(255,255,255,0.55); max-width: 480px; line-height: 1.7; margin-bottom: 36px; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.hero-tag { padding: 4px 12px; border-radius: 9999px; font-family: var(--fm); font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase; border: 1px solid; }
+.ht-pos { color: #6EE7B7; border-color: rgba(110,231,183,0.3); background: rgba(110,231,183,0.08); }
+.ht-neu { color: rgba(255,255,255,0.45); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); }
+
+/* SECTIONS */
+.section { margin-bottom: 72px; scroll-margin-top: 20px; }
+.sec-num { font-family: var(--fm); font-size: 9px; color: var(--ink3); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 8px; }
+.sec-title { font-family: var(--fd); font-size: 32px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+.sec-sub { font-size: 15px; color: var(--ink2); line-height: 1.7; max-width: 600px; margin-bottom: 36px; }
+.divider { height: 1px; background: var(--rule); margin: 72px 0; }
+
+p { font-size: 14px; color: var(--ink2); line-height: 1.75; margin-bottom: 12px; }
+h3 { font-family: var(--fd); font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 36px 0 12px; }
+h4 { font-size: 12px; font-weight: 700; font-family: var(--fm); letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink3); margin: 20px 0 8px; }
+ul, ol { padding-left: 18px; margin-bottom: 12px; }
+li { font-size: 14px; color: var(--ink2); line-height: 1.75; margin-bottom: 4px; }
+strong { color: var(--ink); font-weight: 600; }
+code { font-family: var(--fm); background: rgba(26,25,22,0.07); padding: 2px 6px; border-radius: 4px; font-size: 11px; color: var(--ink); }
+blockquote { border-left: 3px solid var(--ink); padding: 10px 18px; background: var(--bg2); border-radius: 0 8px 8px 0; margin: 16px 0; font-style: italic; font-size: 14px; color: var(--ink2); }
+
+/* CALLOUT */
+.callout { padding: 16px 20px; border-radius: 12px; margin: 16px 0; font-size: 14px; line-height: 1.7; display: flex; gap: 12px; }
+.ci { font-size: 16px; flex-shrink: 0; }
+.c-pos { background: var(--pos-l); border: 1px solid rgba(34,160,107,0.25); color: #0A5235; }
+.c-focus { background: var(--focus-l); border: 1px solid rgba(37,99,235,0.2); color: #1E3A8A; }
+.c-learn { background: var(--learn-l); border: 1px solid rgba(124,58,237,0.2); color: #4C1D95; }
+.c-study { background: var(--study-l); border: 1px solid rgba(217,119,6,0.2); color: #78350F; }
+.c-neutral { background: var(--bg2); border: 1px solid var(--rule); color: var(--ink2); }
+.c-dark { background: var(--ink); border: none; color: rgba(255,255,255,0.75); }
+
+/* BADGE */
+.badge { display: inline-flex; padding: 3px 10px; border-radius: 9999px; font-family: var(--fm); font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 4px; }
+.bp { background: var(--pos-l); color: var(--pos); border: 1px solid rgba(34,160,107,0.25); }
+.bf { background: var(--focus-l); color: var(--focus); border: 1px solid rgba(37,99,235,0.2); }
+.bl { background: var(--learn-l); color: var(--learn); border: 1px solid rgba(124,58,237,0.2); }
+.bs { background: var(--study-l); color: var(--study); border: 1px solid rgba(217,119,6,0.2); }
+.bn { background: var(--bg3); color: var(--ink3); border: 1px solid var(--rule); }
+.b0 { background: var(--ink); color: #fff; border: none; }
+
+/* TABLE */
+.tbl { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+.tbl th { font-family: var(--fm); font-size: 9px; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; padding: 9px 12px; text-align: left; border-bottom: 2px solid var(--rule); background: var(--bg2); }
+.tbl td { padding: 10px 12px; color: var(--ink2); border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.6; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: rgba(26,25,22,0.02); }
+
+/* STEP */
+.steps { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+.step { display: flex; gap: 14px; padding: 16px 18px; background: var(--bg2); border: 1px solid var(--rule); border-radius: 12px; }
+.step-n { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--fm); font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+.step-t { font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 3px; }
+.step-d { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+
+/* RULE LOGIC BLOCKS */
+.logic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.logic-card { padding: 20px; border-radius: 14px; border: 1px solid var(--rule); background: var(--bg2); }
+.lc-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.lc-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.lc-name { font-family: var(--fd); font-size: 14px; font-weight: 700; }
+.lc-type { font-family: var(--fm); font-size: 9px; color: var(--ink3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 1px; }
+.lc-body { font-size: 12px; color: var(--ink2); line-height: 1.65; }
+
+/* HIGHLIGHT BOX */
+.hbox { padding: 24px 28px; border-radius: 14px; margin: 16px 0; }
+.hb-dark { background: var(--ink); }
+.hb-dark .hb-title { font-family: var(--fd); font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.hb-dark .hb-body { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7; }
+.hb-pos { background: var(--pos-l); border: 1px solid rgba(34,160,107,0.2); }
+.hb-pos .hb-title { font-family: var(--fd); font-size: 15px; font-weight: 700; color: #0A5235; margin-bottom: 6px; }
+.hb-pos .hb-body { font-size: 14px; color: #145233; line-height: 1.7; }
+
+/* SCREEN MAP */
+.screen-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin: 16px 0; }
+.screen-card { padding: 18px; border-radius: 14px; border: 2px solid var(--rule); background: var(--bg2); }
+.sc-num { font-family: var(--fm); font-size: 9px; color: var(--ink3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+.sc-name { font-family: var(--fd); font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.sc-desc { font-size: 12px; color: var(--ink2); line-height: 1.65; }
+
+/* FLOW MAP */
+.engine-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+.engine-card { padding: 16px; border-radius: 12px; border: 1px solid var(--rule); background: var(--bg2); }
+.ec-title { font-weight: 600; font-size: 13px; color: var(--ink); margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+.ec-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.ec-body { font-size: 12px; color: var(--ink2); line-height: 1.6; }
+.ec-reuse { font-family: var(--fm); font-size: 9px; margin-top: 8px; padding: 3px 8px; border-radius: 9999px; display: inline-block; }
+
+pre { background: var(--ink); border-radius: 12px; padding: 18px 20px; overflow-x: auto; margin: 14px 0; position: relative; }
+pre code { background: none; padding: 0; font-size: 11px; color: rgba(255,255,255,0.78); line-height: 1.75; }
+.pre-lang { position: absolute; top: 8px; right: 14px; font-family: var(--fm); font-size: 8px; color: rgba(255,255,255,0.25); letter-spacing: 0.1em; text-transform: uppercase; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-title">Product<span style="color:var(--pos)">+</span>ive</div>
+    <div class="sb-sub">Strategy & UX Master Doc · v1.0</div>
+  </div>
+  <div class="sb-sec">Foundation</div>
+  <a href="#core" class="sb-link a">Core Idea</a>
+  <a href="#vision" class="sb-link">Vision & Tagline</a>
+  <a href="#user" class="sb-link">Target User</a>
+  <div class="sb-sec">Product</div>
+  <a href="#screens" class="sb-link">Screen Map</a>
+  <a href="#home" class="sb-link">Screen 1 — Home</a>
+  <a href="#todo" class="sb-link">Screen 2 — Todo</a>
+  <a href="#meter" class="sb-link">Screen 3 — Meter</a>
+  <a href="#catlist" class="sb-link">Screen 4 — Category List</a>
+  <a href="#rulepage" class="sb-link">Screen 5 — Rule Page</a>
+  <div class="sb-sec">Logic Engine</div>
+  <a href="#engines" class="sb-link">Reusable Logic Engines</a>
+  <a href="#rulemapping" class="sb-link">Rule → Engine Mapping</a>
+  <a href="#positivity" class="sb-link">Positivity Meter Logic</a>
+  <div class="sb-sec">Design</div>
+  <a href="#design" class="sb-link">Design Language</a>
+  <a href="#nav" class="sb-link">Navigation System</a>
+  <a href="#theme" class="sb-link">Light / Dark Theme</a>
+  <div class="sb-sec">Execution</div>
+  <a href="#flows" class="sb-link">User Flows</a>
+  <a href="#notifications" class="sb-link">Notification Strategy</a>
+  <a href="#milestones" class="sb-link">Milestones</a>
+  <a href="#masterp" class="sb-link">Master Prompt</a>
+  <div class="sb-foot">Product+ive · Internal v1.0<br>April 2026 · Cross-Platform</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Product Strategy & UX Master Document · v1.0</div>
+  <div class="hero-title">Product<span>+</span>ive</div>
+  <div class="hero-sub">A science-backed productivity companion that teaches you proven mental rules, tracks your sessions, and rewards you with a growing Positivity Meter for every habit you build.</div>
+  <div class="hero-tags">
+    <span class="hero-tag ht-pos">Positivity Meter</span>
+    <span class="hero-tag ht-pos">20 Rules · 4 Categories</span>
+    <span class="hero-tag ht-neu">React Native · Expo</span>
+    <span class="hero-tag ht-neu">Light & Dark Theme</span>
+    <span class="hero-tag ht-neu">Notification-Driven</span>
+    <span class="hero-tag ht-neu">Offline · No Account</span>
+  </div>
+</div>
+
+<!-- CORE IDEA -->
+<div class="section" id="core">
+  <div class="sec-num">01 / Foundation</div>
+  <div class="sec-title">The Core Idea</div>
+  <div class="sec-sub">What Product+ive is, the gap it fills, and why the Positivity Meter is the product's soul.</div>
+
+  <div class="hbox hb-dark">
+    <div class="hb-title">One-Line Pitch</div>
+    <div class="hb-body">Product+ive is an interactive rulebook for your brain — it teaches you the 20 most proven productivity, focus, learning, and study rules, then actively coaches you through each one with timers, trackers, and habit nudges, all feeding into a single Positivity Score that grows the more you show up.</div>
+  </div>
+
+  <h3>The Problem</h3>
+  <p>Millions of people have read about the Pomodoro Technique, the Feynman Method, or Spaced Repetition — but reading about a rule and actually practising it are completely different things. There is no app that bridges the gap between <em>knowing</em> a productivity rule and <em>doing</em> it with guided assistance, session tracking, and positive reinforcement.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0">
+    <div style="padding:20px;border-radius:12px;border:1px solid var(--rule);background:var(--bg2)">
+      <div style="font-family:var(--fm);font-size:9px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">❌ Without Product+ive</div>
+      <div style="font-size:13px;color:var(--ink2);line-height:1.7">You watch a YouTube video about Pomodoro. You try it once, forget the timer, get distracted, and never build the habit. The rule stays in your notes app, unused.</div>
+    </div>
+    <div style="padding:20px;border-radius:12px;border:1.5px solid rgba(34,160,107,0.3);background:var(--pos-l)">
+      <div style="font-family:var(--fm);font-size:9px;color:var(--pos);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">✓ With Product+ive</div>
+      <div style="font-size:13px;color:#0A5235;line-height:1.7">You open the app, tap Pomodoro, start a 25-min guided session. The app notifies you when to break. Completing it adds to your Positivity Meter. You come back tomorrow because the streak is real.</div>
+    </div>
+  </div>
+
+  <h3>The Three Pillars</h3>
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div><div class="step-t">Learn — A living library of productivity science</div><div class="step-d">20 rules across 4 categories. Each rule has a description, a how-it-works explanation, and an active "Start Rule" mode. Users browse by category on the home screen visual grid.</div></div></div>
+    <div class="step"><div class="step-n">2</div><div><div class="step-t">Do — Guided rule sessions with logic engines</div><div class="step-d">Rules are not just text — they are interactive. Pomodoro launches a countdown timer. Spaced Repetition schedules your reviews. Eat the Frog prompts you to identify your hardest task. Each rule has purpose-built logic, built from reusable engines.</div></div></div>
+    <div class="step"><div class="step-n">3</div><div><div class="step-t">Grow — The Positivity Meter rewards every action</div><div class="step-d">Every completed session, every task crossed off, every rule practised earns Positivity Points. The meter fills visually and tracks your momentum. It is the emotional spine of the app — the reason to come back.</div></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- VISION -->
+<div class="section" id="vision">
+  <div class="sec-num">02 / Foundation</div>
+  <div class="sec-title">Vision, Tagline & Logo</div>
+
+  <div class="callout c-pos"><div class="ci">🎯</div><div><strong>Vision:</strong> To make productivity science accessible and actionable for every student, professional, and self-improver — one rule at a time, one session at a time.</div></div>
+
+  <h3>Tagline Options</h3>
+  <table class="tbl">
+    <tr><th>Tagline</th><th>Tone</th><th>Recommended</th></tr>
+    <tr><td><strong>"Rules that work. Habits that last."</strong></td><td>Aspirational</td><td><span class="badge bp">Primary</span></td></tr>
+    <tr><td>"Science-backed. You-powered."</td><td>Confident</td><td><span class="badge bn">Alt</span></td></tr>
+    <tr><td>"Your brain, upgraded."</td><td>Bold</td><td><span class="badge bn">Alt</span></td></tr>
+    <tr><td>"Do the rule. Feel the difference."</td><td>Action-forward</td><td><span class="badge bn">Alt</span></td></tr>
+  </table>
+
+  <h3>Logo Reading — PRO+ive</h3>
+  <p>The logo is a clever typographic puzzle: <strong>PRO</strong> + a duck-mascot with clock hands + <strong>+ive</strong> = <strong>PRODUCTIVE</strong>. The duck body replaces the letters "DUCT" while a clock (productivity = time) overlays it. The <strong>+</strong> is both the positive symbol and the app's defining character — positivity is built into the name and the icon. This is the app's personality: smart, a bit playful, deeply intentional.</p>
+
+  <div class="callout c-neutral"><div class="ci">🦆</div><div><strong>Mascot Note for UI designer:</strong> The duck can appear as a subtle mascot character in onboarding, empty states, and achievement moments (e.g. when the Positivity Meter reaches a milestone). Keep it minimal — silhouette only, consistent with the logo style. It humanises the app without making it childish.</div></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- USER -->
+<div class="section" id="user">
+  <div class="sec-num">03 / Foundation</div>
+  <div class="sec-title">Target User</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0">
+    <div style="padding:18px;border-radius:12px;border:1px solid var(--rule);background:var(--bg2)">
+      <div style="font-family:var(--fm);font-size:9px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">Primary</div>
+      <div style="font-family:var(--fd);font-size:15px;font-weight:700;margin-bottom:6px">The Student</div>
+      <div style="font-size:12px;color:var(--ink2);line-height:1.65">Age 16–26. Needs study techniques that actually work (Active Recall, SQ3R, Spaced Repetition). Wants a reason to stay consistent. The Positivity Meter is their streak.</div>
+    </div>
+    <div style="padding:18px;border-radius:12px;border:1px solid var(--rule);background:var(--bg2)">
+      <div style="font-family:var(--fm);font-size:9px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">Secondary</div>
+      <div style="font-family:var(--fd);font-size:15px;font-weight:700;margin-bottom:6px">The Self-Improver</div>
+      <div style="font-size:12px;color:var(--ink2);line-height:1.65">Age 22–35. Reads productivity books, wants to practise not just collect rules. Uses Focus & Productivity categories. Loves the 2-Minute Rule and Eat the Frog for daily work.</div>
+    </div>
+    <div style="padding:18px;border-radius:12px;border:1px solid var(--rule);background:var(--bg2)">
+      <div style="font-family:var(--fm);font-size:9px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">Tertiary</div>
+      <div style="font-family:var(--fd);font-size:15px;font-weight:700;margin-bottom:6px">The Professional</div>
+      <div style="font-size:12px;color:var(--ink2);line-height:1.65">Age 28–45. Busy, focused on ROI. Parkinson's Law, 80/20, 1-3-5 Rule matter to them. Wants the app to be minimal and fast — no friction.</div>
+    </div>
+  </div>
+
+  <h3>Universal Pain Points</h3>
+  <ul>
+    <li><strong>Rule-knowledge gap:</strong> They know the rules exist but can't make them stick in daily life</li>
+    <li><strong>No feedback loop:</strong> Productivity apps track tasks but don't reward the <em>method</em> you used</li>
+    <li><strong>Category confusion:</strong> They don't know which technique to use for which problem</li>
+    <li><strong>No momentum signal:</strong> They need something visual to show their progress is real</li>
+  </ul>
+</div>
+
+<div class="divider"></div>
+
+<!-- SCREEN MAP -->
+<div class="section" id="screens">
+  <div class="sec-num">04 / Product</div>
+  <div class="sec-title">Screen Architecture</div>
+  <div class="sec-sub">5 core screens — each with a clear job to do. Navigation uses a minimal 3-item bottom bar.</div>
+
+  <div class="screen-grid" style="grid-template-columns:repeat(5,1fr)">
+    <div class="screen-card" style="border-color:rgba(26,25,22,0.4)">
+      <div class="sc-num">Screen 1</div>
+      <div class="sc-name">Home</div>
+      <div class="sc-desc">Visual 2×2 category grid. Theme toggle (top right). About button (top left). Bottom nav.</div>
+    </div>
+    <div class="screen-card">
+      <div class="sc-num">Screen 2</div>
+      <div class="sc-name">Todo</div>
+      <div class="sc-desc">Task list with rule-aware task types. Add via + nav button. Feeds into Positivity Meter.</div>
+    </div>
+    <div class="screen-card" style="border-color:rgba(34,160,107,0.4)">
+      <div class="sc-num">Screen 3</div>
+      <div class="sc-name">Positivity Meter</div>
+      <div class="sc-desc">Live score visualisation. History. Milestones and duck mascot celebrations.</div>
+    </div>
+    <div class="screen-card">
+      <div class="sc-num">Screen 4</div>
+      <div class="sc-name">Category List</div>
+      <div class="sc-desc">Full-width pill rows, each with a dark circle → arrow button. Shows all rules per category.</div>
+    </div>
+    <div class="screen-card">
+      <div class="sc-num">Screen 5</div>
+      <div class="sc-name">Rule Page</div>
+      <div class="sc-desc">The active rule session. Start button, live engine, info button top-right for description.</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SCREEN 1 — HOME -->
+<div class="section" id="home">
+  <div class="sec-num">05 / Screen 1</div>
+  <div class="sec-title">Home Screen</div>
+
+  <div class="callout c-neutral"><div class="ci">📱</div><div>From the screenshot: Pure black background. Large 2×2 white rounded-rectangle cards dominate the center. Floating pill nav at the bottom (Home · + · Compass). The cards are blank in the prototype — they will hold category icons and labels.</div></div>
+
+  <h3>What Goes in Each of the 4 Cards</h3>
+  <table class="tbl">
+    <tr><th>Card</th><th>Category</th><th>Icon Style</th><th>Accent Colour</th><th>Rule Count</th></tr>
+    <tr><td>Top-Left</td><td><span class="badge bl">Learning & Memory</span></td><td>Brain / lightbulb silhouette</td><td>Purple #7C3AED</td><td>4 rules</td></tr>
+    <tr><td>Top-Right</td><td><span class="badge bf">Focus & Sessions</span></td><td>Stopwatch / timer ring</td><td>Blue #2563EB</td><td>3 rules</td></tr>
+    <tr><td>Bottom-Left</td><td><span class="badge bp">Productivity</span></td><td>Lightning bolt / rocket</td><td>Green #22A06B</td><td>5 rules</td></tr>
+    <tr><td>Bottom-Right</td><td><span class="badge bs">Study Techniques</span></td><td>Open book / pen</td><td>Amber #D97706</td><td>8 rules</td></tr>
+  </table>
+
+  <h3>Card Visual Design (for UI Designer)</h3>
+  <ul>
+    <li><strong>Light mode:</strong> White card (#FFFFFF), soft grey border, category colour as a large 56px icon top-left + category name bottom-left in bold, rule count bottom-right in light grey</li>
+    <li><strong>Dark mode:</strong> Card is #1A1A1A (off-black, not pure black — distinguishes from background), category colour becomes the icon fill, text is white</li>
+    <li><strong>Tap interaction:</strong> Card scales down 0.97 on press with a spring-back animation (Reanimated 3). Navigates to Screen 4 (Category List)</li>
+    <li><strong>No glassmorphism here — this is opaque and bold</strong></li>
+  </ul>
+
+  <h3>Top Bar</h3>
+  <ul>
+    <li><strong>Top-left:</strong> About button — circular icon button (ⓘ) opens a bottom sheet with app description, version, and duck mascot illustration</li>
+    <li><strong>Top-right:</strong> Theme toggle — circular button, sun icon (light) / moon icon (dark). Switches entire app theme instantly. State persisted via AsyncStorage.</li>
+    <li><strong>Centred between them (optional):</strong> "Product+ive" wordmark in the app's brand font</li>
+  </ul>
+
+  <h3>Bottom Navigation</h3>
+  <p>Floating pill-shaped nav bar (as in screenshot): white fill, subtle border, bottom-centred. Three items: <strong>Home icon</strong> (left) · <strong>+ icon in filled black circle</strong> (centre, elevated) · <strong>Compass/meter icon</strong> (right). The centre + always opens the Todo creation flow. Left = Home screen. Right = Positivity Meter screen.</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- SCREEN 2 — TODO -->
+<div class="section" id="todo">
+  <div class="sec-num">06 / Screen 2</div>
+  <div class="sec-title">Todo Screen</div>
+  <div class="sec-sub">A smart task list that understands which rules you're using — not just a checkbox app.</div>
+
+  <div class="callout c-pos"><div class="ci">✅</div><div><strong>Key Design Principle:</strong> Every task in Product+ive is optionally <em>rule-aware</em>. When you create a task, you can tag it with a rule (e.g. "Eat the Frog") — and the app knows how to treat it. An Eat the Frog task is automatically moved to the top and marked as your hardest task of the day.</div></div>
+
+  <h3>Task Creation Flow (via + button)</h3>
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div><div class="step-t">Bottom sheet slides up</div><div class="step-d">Triggered by tapping the + nav button. Contains a large text field "What do you need to do?" and an optional "Attach a Rule" picker.</div></div></div>
+    <div class="step"><div class="step-n">2</div><div><div class="step-t">(Optional) Attach a rule</div><div class="step-d">Horizontal scroll pill selector: "None · Eat the Frog · 2-Minute Rule · 1-3-5 Rule · Pomodoro · …". Selecting a rule shows a one-line description of how it affects the task.</div></div></div>
+    <div class="step"><div class="step-n">3</div><div><div class="step-t">Set a due time (optional)</div><div class="step-d">Simple time picker. If 2-Minute Rule is attached and no time set, app will notify after 2 mins of task creation to do it now.</div></div></div>
+    <div class="step"><div class="step-n">4</div><div><div class="step-t">Task created → sorted intelligently</div><div class="step-d">Eat the Frog tasks → top of list. 2-Minute tasks → marked with a clock badge. 1-3-5 tasks → sorted into Big (1) / Medium (3) / Small (5) sections.</div></div></div>
+  </div>
+
+  <h3>Todo List Layout</h3>
+  <table class="tbl">
+    <tr><th>Section</th><th>Contents</th><th>Rule Trigger</th></tr>
+    <tr><td><strong>🐸 Frog of the Day</strong></td><td>1 hardest task — highlighted with accent border</td><td>Eat the Frog rule</td></tr>
+    <tr><td><strong>⚡ Quick (2 min)</strong></td><td>Tasks tagged as 2-Minute. Show elapsed time.</td><td>2-Minute Rule</td></tr>
+    <tr><td><strong>Today (1-3-5)</strong></td><td>1 Big · 3 Medium · 5 Small task slots</td><td>1-3-5 Rule</td></tr>
+    <tr><td><strong>General</strong></td><td>All other tasks. Standard checkbox rows.</td><td>No rule attached</td></tr>
+  </table>
+
+  <h3>Positivity Points from Todos</h3>
+  <ul>
+    <li>Completing any task: <strong>+5 points</strong></li>
+    <li>Completing a rule-tagged task: <strong>+10 points</strong></li>
+    <li>Completing all tasks in a day: <strong>+20 bonus points</strong></li>
+    <li>Completing the Eat the Frog task before 10am: <strong>+15 bonus points</strong></li>
+  </ul>
+</div>
+
+<div class="divider"></div>
+
+<!-- SCREEN 3 — POSITIVITY METER -->
+<div class="section" id="meter">
+  <div class="sec-num">07 / Screen 3</div>
+  <div class="sec-title">Positivity Meter Screen</div>
+  <div class="sec-sub">The emotional centre of the app. Visual, satisfying, and addictive.</div>
+
+  <div class="callout c-pos"><div class="ci">📈</div><div><strong>Core Philosophy:</strong> The Positivity Meter is NOT a productivity score. It is a <em>consistency score</em>. It rewards showing up, not perfection. You earn points for starting a session, completing it, doing your tasks, practising a rule. The metric resets weekly — a fresh start is always available.</div></div>
+
+  <h3>Screen Layout</h3>
+  <ul>
+    <li><strong>Top:</strong> Large circular progress ring — fills clockwise as score increases. Current score (e.g. 340) in centre, max (e.g. 500) shown below as thin label</li>
+    <li><strong>Duck mascot:</strong> Small animated duck sits at the current fill point of the ring — it walks as the ring fills. At milestones (25%, 50%, 75%, 100%) it does a little celebration animation</li>
+    <li><strong>Below ring:</strong> Three stat cards — Sessions Completed · Tasks Done · Rules Practised</li>
+    <li><strong>Activity log:</strong> Chronological feed of point events ("Completed Pomodoro session +20 pts", "Finished Eat the Frog task +10 pts") with timestamps</li>
+    <li><strong>Bottom:</strong> Weekly streak calendar — 7 dots, filled for active days</li>
+  </ul>
+
+  <h3>Scoring System</h3>
+  <table class="tbl">
+    <tr><th>Action</th><th>Points</th><th>Notes</th></tr>
+    <tr><td>Start any rule session</td><td>+5</td><td>Reward for beginning, not just finishing</td></tr>
+    <tr><td>Complete a timed rule session (Pomodoro, etc.)</td><td>+20</td><td>Per completed block</td></tr>
+    <tr><td>Complete a non-timed rule session</td><td>+15</td><td>e.g. Feynman Technique, Mind Mapping</td></tr>
+    <tr><td>Complete a Todo task</td><td>+5</td><td>Base completion</td></tr>
+    <tr><td>Complete a rule-tagged task</td><td>+10</td><td>Methodology matters</td></tr>
+    <tr><td>Daily all-tasks-done bonus</td><td>+20</td><td>Only once per day</td></tr>
+    <tr><td>7-day streak maintained</td><td>+50</td><td>Weekly milestone</td></tr>
+    <tr><td>First time using each rule</td><td>+25</td><td>Discovery bonus</td></tr>
+    <tr><td>Complete all 20 rules (lifetime)</td><td>+100</td><td>Explorer achievement</td></tr>
+  </table>
+
+  <h3>Milestones & Celebrations</h3>
+  <table class="tbl">
+    <tr><th>Score</th><th>Level Name</th><th>Reward</th></tr>
+    <tr><td>0–99</td><td>Getting Started 🌱</td><td>App unlocks encouraging message from duck</td></tr>
+    <tr><td>100–249</td><td>Building Momentum 🔥</td><td>Duck animation plays, new rule suggestions appear</td></tr>
+    <tr><td>250–499</td><td>In the Zone ⚡</td><td>Colour accent on meter changes, badge earned</td></tr>
+    <tr><td>500–999</td><td>Rule Master 🧠</td><td>Special duck animation, all categories highlighted</td></tr>
+    <tr><td>1000+</td><td>Productively Positive 🏆</td><td>Duck wears graduation cap. Special screen moment.</td></tr>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- SCREEN 4 — CATEGORY LIST -->
+<div class="section" id="catlist">
+  <div class="sec-num">08 / Screen 4</div>
+  <div class="sec-title">Category List Screen</div>
+  <div class="sec-sub">The rule selection screen — exactly matches Image 2 in the reference screenshots.</div>
+
+  <div class="callout c-neutral"><div class="ci">📋</div><div>From the screenshot: Black background. Full-width white pill rows, each with a large dark circle → arrow button on the far right. 6 rows visible. This is the cleanest, most direct screen in the app — function over decoration.</div></div>
+
+  <h3>Row Anatomy (for UI Designer)</h3>
+  <ul>
+    <li><strong>Row background:</strong> White (#FFFFFF light mode) / #1A1A1A (dark mode). Large border-radius (~24px pill shape)</li>
+    <li><strong>Left side:</strong> Category colour dot (8px) + Rule name (16px, medium weight) + one-line description (12px, grey, truncated with ellipsis)</li>
+    <li><strong>Right side:</strong> Black circle with white → arrow icon. Circle is 48px, sits at vertical centre, slightly overlaps the row's right edge for that protruding visual effect seen in the screenshot</li>
+    <li><strong>Row height:</strong> ~72px — generous touch target</li>
+    <li><strong>Tap anywhere on row:</strong> navigates to Screen 5 (Rule Page). Tap on circle = same action.</li>
+    <li><strong>Row spacing:</strong> 10px gap between rows</li>
+  </ul>
+
+  <h3>Rules Per Category</h3>
+  <table class="tbl">
+    <tr><th>Category</th><th>Rules</th><th>Count</th></tr>
+    <tr><td><span class="badge bl">Learning & Memory</span></td><td>1-4-7 Rule · Feynman Technique · 80/20 Rule · Spaced Repetition (SRS)</td><td>4</td></tr>
+    <tr><td><span class="badge bf">Focus & Sessions</span></td><td>20-20-20 Rule · Pomodoro Technique · 90-Minute Ultradian Rule</td><td>3</td></tr>
+    <tr><td><span class="badge bp">Productivity</span></td><td>2-Minute Rule · 5-Second Rule · Eat the Frog · Parkinson's Law · 1-3-5 Rule</td><td>5</td></tr>
+    <tr><td><span class="badge bs">Study Techniques</span></td><td>Active Recall · Cornell Note Method · Interleaving · Mind Mapping · SQ3R · Blurting · Elaborative Interrogation · Chunking</td><td>8</td></tr>
+  </table>
+
+  <h3>Header</h3>
+  <p>Each Category List screen has a header with: Back arrow (←) · Category name in large bold · Category icon · Rule count badge (e.g. "8 rules").</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- SCREEN 5 — RULE PAGE -->
+<div class="section" id="rulepage">
+  <div class="sec-num">09 / Screen 5</div>
+  <div class="sec-title">Rule Page — The Active Session Screen</div>
+  <div class="sec-sub">Where the productivity science actually happens. This is the most important screen in the app.</div>
+
+  <h3>Screen Layout</h3>
+  <div class="steps">
+    <div class="step"><div class="step-n">◀</div><div><div class="step-t">Header</div><div class="step-d">Back arrow (left) · Rule name in large type (centre) · Info button ⓘ (right, opens description bottom sheet)</div></div></div>
+    <div class="step"><div class="step-n">⚙</div><div><div class="step-t">Rule Engine Area (dominant — ~60% of screen)</div><div class="step-d">The active logic component for this rule. Could be a countdown timer, a checklist, a prompt sequence, or a scheduling view — depending on the rule. See Logic Engines section for each variant.</div></div></div>
+    <div class="step"><div class="step-n">▶</div><div><div class="step-t">Start / Stop Controls</div><div class="step-d">Large primary button: "Start Session" (black fill, white text). Once started: "Pause" and "End Session" appear. Completing a session awards Positivity Points and shows a brief celebration moment.</div></div></div>
+    <div class="step"><div class="step-n">📊</div><div><div class="step-t">Your History (below fold)</div><div class="step-d">Mini card showing: total sessions with this rule · last session date · total time spent. Encourages revisiting rules.</div></div></div>
+  </div>
+
+  <h3>Info Button → Description Bottom Sheet</h3>
+  <p>Tapping the ⓘ button slides up a bottom sheet containing:</p>
+  <ul>
+    <li><strong>Rule name</strong> in large bold</li>
+    <li><strong>One-paragraph "What it is"</strong> explanation</li>
+    <li><strong>"Why it works"</strong> — the science behind it (1–2 sentences)</li>
+    <li><strong>"Best for"</strong> — use cases (e.g. "Best for: learning new subjects, exam prep")</li>
+    <li><strong>Category badge</strong></li>
+  </ul>
+</div>
+
+<div class="divider"></div>
+
+<!-- LOGIC ENGINES -->
+<div class="section" id="engines">
+  <div class="sec-num">10 / Logic Engine</div>
+  <div class="sec-title">Reusable Logic Engines</div>
+  <div class="sec-sub">The core of Product+ive's engineering. Instead of building 20 unique rule UIs from scratch, we define 6 reusable engines that all 20 rules map to. Build each engine once — then configure it per rule.</div>
+
+  <div class="callout c-dark" style="background:var(--ink)"><div class="ci" style="color:#fff">🔧</div><div style="color:rgba(255,255,255,0.75)"><strong style="color:#fff">Engineering Principle:</strong> Every rule gets a <code style="background:rgba(255,255,255,0.1);color:#fff">RuleConfig</code> object defining which engine to use and what parameters to pass. The engine component reads the config — no rule-specific code is needed except the config itself.</div></div>
+
+  <h3>Engine 1 — Countdown Timer Engine</h3>
+  <div class="logic-card" style="margin-bottom:14px;border-left:3px solid var(--focus)">
+    <div class="lc-header">
+      <div class="lc-icon" style="background:var(--focus-l)">⏱</div>
+      <div><div class="lc-name" style="color:var(--focus)">CountdownTimerEngine</div><div class="lc-type">For time-boxed focus sessions</div></div>
+    </div>
+    <div class="lc-body">
+      <strong>Parameters:</strong> <code>workDuration</code>, <code>breakDuration</code>, <code>cycles</code>, <code>autoStartBreak</code>, <code>label</code><br><br>
+      <strong>UI:</strong> Large circular countdown ring + minutes:seconds display + Start/Pause/Skip controls + cycle indicator (e.g. "Round 2 of 4")<br><br>
+      <strong>Behaviour:</strong> Counts down, vibrates on completion, auto-transitions to break if configured, awards points per completed cycle<br><br>
+      <strong>Notifications:</strong> Local notification 60s before end ("Session ending soon"), notification on break start, notification when break ends
+    </div>
+  </div>
+
+  <h3>Engine 2 — Interval / Reminder Engine</h3>
+  <div class="logic-card" style="margin-bottom:14px;border-left:3px solid var(--focus)">
+    <div class="lc-header">
+      <div class="lc-icon" style="background:var(--focus-l)">🔔</div>
+      <div><div class="lc-name" style="color:var(--focus)">IntervalReminderEngine</div><div class="lc-type">For periodic action reminders</div></div>
+    </div>
+    <div class="lc-body">
+      <strong>Parameters:</strong> <code>intervalMinutes</code>, <code>actionPrompt</code>, <code>sessionDuration</code>, <code>requiresConfirmation</code><br><br>
+      <strong>UI:</strong> Active session timer (total elapsed) + notification card showing when next action is due + confirmation button ("Done ✓")<br><br>
+      <strong>Behaviour:</strong> Sends a notification every <code>intervalMinutes</code>. User confirms the action was done. Tracks compliance rate over session.<br><br>
+      <strong>Used for:</strong> 20-20-20 Rule (every 20 mins: look 20ft away for 20s)
+    </div>
+  </div>
+
+  <h3>Engine 3 — Prompt & Guided Task Engine</h3>
+  <div class="logic-card" style="margin-bottom:14px;border-left:3px solid var(--pos)">
+    <div class="lc-header">
+      <div class="lc-icon" style="background:var(--pos-l)">📝</div>
+      <div><div class="lc-name" style="color:var(--pos)">GuidedPromptEngine</div><div class="lc-type">For step-by-step methodology guides</div></div>
+    </div>
+    <div class="lc-body">
+      <strong>Parameters:</strong> <code>steps[]</code> (each with title, prompt, inputType), <code>completionMessage</code><br><br>
+      <strong>UI:</strong> Step progress indicator (pill dots at top) + current step title + instruction card + user input area (text / checkbox / free-write) + Next button<br><br>
+      <strong>Behaviour:</strong> User moves through each step linearly. Final step shows summary of what they wrote. Session saved to history.<br><br>
+      <strong>Used for:</strong> Feynman Technique, Cornell Note Method, SQ3R Method, Mind Mapping setup, Elaborative Interrogation
+    </div>
+  </div>
+
+  <h3>Engine 4 — Smart Task Sorter Engine</h3>
+  <div class="logic-card" style="margin-bottom:14px;border-left:3px solid var(--pos)">
+    <div class="lc-header">
+      <div class="lc-icon" style="background:var(--pos-l)">🗂</div>
+      <div><div class="lc-name" style="color:var(--pos)">SmartTaskSorterEngine</div><div class="lc-type">For task prioritisation rules</div></div>
+    </div>
+    <div class="lc-body">
+      <strong>Parameters:</strong> <code>sortMode</code> ("frog" | "135" | "pareto"), <code>slots</code> (e.g. {big:1, medium:3, small:5}), <code>prompt</code><br><br>
+      <strong>UI:</strong> Task input fields organised into rule-defined slots. "Frog" shows 1 highlighted task slot. "1-3-5" shows three sections. "80/20" shows a two-column split (vital few vs trivial many).<br><br>
+      <strong>Behaviour:</strong> User fills the slots. App saves these as today's task structure. Feeds directly into the Todo screen with rule-tagged tasks. Completing all slots awards bonus points.<br><br>
+      <strong>Used for:</strong> Eat the Frog, 1-3-5 Rule, 80/20 Rule (partial — for task selection)
+    </div>
+  </div>
+
+  <h3>Engine 5 — Spaced Repetition Scheduler Engine</h3>
+  <div class="logic-card" style="margin-bottom:14px;border-left:3px solid var(--learn)">
+    <div class="lc-header">
+      <div class="lc-icon" style="background:var(--learn-l)">🧠</div>
+      <div><div class="lc-name" style="color:var(--learn)">SpacedRepetitionEngine</div><div class="lc-type">For memory and review scheduling</div></div>
+    </div>
+    <div class="lc-body">
+      <strong>Parameters:</strong> <code>intervals[]</code> (e.g. [1,3,7,14,30] days), <code>topic</code>, <code>notifyBeforeMinutes</code><br><br>
+      <strong>UI:</strong> Topic input + review schedule display (a visual timeline showing Day 1, Day 3, Day 7... dots) + "Mark as Reviewed" button for current session + upcoming review notifications<br><br>
+      <strong>Behaviour:</strong> User enters a topic they just learned. App schedules notifications at the spaced intervals (1 day, 3 days, 7 days, 14 days, 30 days). Each review check-in earns points. SM-2 algorithm optional in v2.<br><br>
+      <strong>Used for:</strong> Spaced Repetition (SRS), 1-4-7 Rule (simplified 3-step variant: 1/4/7 days)
+    </div>
+  </div>
+
+  <h3>Engine 6 — Awareness / Reflection Engine</h3>
+  <div class="logic-card" style="margin-bottom:14px;border-left:3px solid var(--study)">
+    <div class="lc-header">
+      <div class="lc-icon" style="background:var(--study-l)">🪞</div>
+      <div><div class="lc-name" style="color:var(--study)">AwarenessReflectionEngine</div><div class="lc-type">For habit awareness and deadline setting</div></div>
+    </div>
+    <div class="lc-body">
+      <strong>Parameters:</strong> <code>reflectionPrompts[]</code>, <code>deadlineMode</code> (boolean), <code>countdownTarget</code><br><br>
+      <strong>UI:</strong> Reflection cards the user swipes through + optional deadline input + commitment button ("I commit to this deadline")<br><br>
+      <strong>Behaviour:</strong> Guides user to set self-imposed deadlines (Parkinson's Law) or take a 5-second action (5-Second Rule). For 5-Second Rule: shows a 5-4-3-2-1 countdown after user taps "I need to do something" — they must act before it hits 0.<br><br>
+      <strong>Used for:</strong> Parkinson's Law, 5-Second Rule
+    </div>
+  </div>
+
+  <h3>Engine 7 — Free-Write / Recall Engine</h3>
+  <div class="logic-card" style="margin-bottom:14px;border-left:3px solid var(--study)">
+    <div class="lc-header">
+      <div class="lc-icon" style="background:var(--study-l)">✍️</div>
+      <div><div class="lc-name" style="color:var(--study)">FreeWriteRecallEngine</div><div class="lc-type">For memory retrieval and note-taking techniques</div></div>
+    </div>
+    <div class="lc-body">
+      <strong>Parameters:</strong> <code>mode</code> ("blurt" | "recall" | "chunk"), <code>topicPrompt</code>, <code>timerMode</code> (optional), <code>revealAfterSeconds</code><br><br>
+      <strong>UI:</strong> Topic input → blank text area with "Write everything you remember" prompt → optional timer → Reveal button (shows what was in source material vs what they wrote)<br><br>
+      <strong>Behaviour:</strong> For Active Recall / Blurting: user writes freely, then compares. For Chunking: user breaks a topic into sub-sections with bullet points. Session saved to history. Can share/export as text.<br><br>
+      <strong>Used for:</strong> Active Recall, Blurting Method, Chunking, Interleaving (mode variant)
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- RULE MAPPING -->
+<div class="section" id="rulemapping">
+  <div class="sec-num">11 / Logic Engine</div>
+  <div class="sec-title">Rule → Engine Mapping</div>
+  <div class="sec-sub">Every rule, which engine it uses, and its key configuration. Build 7 engines, configure 20 rules.</div>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Rule</th><th>Category</th><th>Engine</th><th>Key Config</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Pomodoro Technique</strong></td><td><span class="badge bf">Focus</span></td><td><code>CountdownTimerEngine</code></td><td>work=25min, break=5min, cycles=4, longBreak=15min after 4</td></tr>
+      <tr><td><strong>90-Minute Ultradian Rule</strong></td><td><span class="badge bf">Focus</span></td><td><code>CountdownTimerEngine</code></td><td>work=90min, break=20min, cycles=1–3, label="Ultradian Block"</td></tr>
+      <tr><td><strong>20-20-20 Rule</strong></td><td><span class="badge bf">Focus</span></td><td><code>IntervalReminderEngine</code></td><td>interval=20min, prompt="Look 20 feet away for 20 seconds", sessionDuration=user-set (e.g. 2hr), requiresConfirmation=true</td></tr>
+      <tr><td><strong>Feynman Technique</strong></td><td><span class="badge bl">Learning</span></td><td><code>GuidedPromptEngine</code></td><td>steps: [Enter topic, Write explanation in plain language, Identify gaps, Simplify & review]</td></tr>
+      <tr><td><strong>Cornell Note Method</strong></td><td><span class="badge bs">Study</span></td><td><code>GuidedPromptEngine</code></td><td>steps: [Choose topic, Take cue-column notes, Write summary, Self-quiz from cues]</td></tr>
+      <tr><td><strong>SQ3R Method</strong></td><td><span class="badge bs">Study</span></td><td><code>GuidedPromptEngine</code></td><td>steps: [Survey, Question, Read, Recite, Review] — each a timed step</td></tr>
+      <tr><td><strong>Mind Mapping</strong></td><td><span class="badge bs">Study</span></td><td><code>GuidedPromptEngine</code></td><td>steps: [Central topic, 5+ branches, Sub-branches, Connect related nodes, Review map]</td></tr>
+      <tr><td><strong>Elaborative Interrogation</strong></td><td><span class="badge bs">Study</span></td><td><code>GuidedPromptEngine</code></td><td>steps: [Enter a fact, Ask "Why is this true?", Write your reasoning, Ask "How does this connect?"]</td></tr>
+      <tr><td><strong>Spaced Repetition (SRS)</strong></td><td><span class="badge bl">Learning</span></td><td><code>SpacedRepetitionEngine</code></td><td>intervals=[1,3,7,14,30] days</td></tr>
+      <tr><td><strong>1-4-7 Rule</strong></td><td><span class="badge bl">Learning</span></td><td><code>SpacedRepetitionEngine</code></td><td>intervals=[1,4,7] days, simpler variant</td></tr>
+      <tr><td><strong>Eat the Frog</strong></td><td><span class="badge bp">Productivity</span></td><td><code>SmartTaskSorterEngine</code></td><td>sortMode="frog", prompt="What is your most important / hardest task today?"</td></tr>
+      <tr><td><strong>1-3-5 Rule</strong></td><td><span class="badge bp">Productivity</span></td><td><code>SmartTaskSorterEngine</code></td><td>sortMode="135", slots={big:1, medium:3, small:5}</td></tr>
+      <tr><td><strong>80/20 Rule</strong></td><td><span class="badge bl">Learning</span></td><td><code>SmartTaskSorterEngine</code></td><td>sortMode="pareto", prompt="Which 20% of your tasks/efforts drive 80% of the result?"</td></tr>
+      <tr><td><strong>Parkinson's Law</strong></td><td><span class="badge bp">Productivity</span></td><td><code>AwarenessReflectionEngine</code></td><td>deadlineMode=true, prompt="Set a tighter-than-comfortable deadline for this task"</td></tr>
+      <tr><td><strong>5-Second Rule</strong></td><td><span class="badge bp">Productivity</span></td><td><code>AwarenessReflectionEngine</code></td><td>deadlineMode=false, countdownTarget=5, prompt="Think of something you're avoiding. Tap to start countdown."</td></tr>
+      <tr><td><strong>Active Recall</strong></td><td><span class="badge bs">Study</span></td><td><code>FreeWriteRecallEngine</code></td><td>mode="recall", topicPrompt="What are you studying?", timerMode=optional</td></tr>
+      <tr><td><strong>Blurting Method</strong></td><td><span class="badge bs">Study</span></td><td><code>FreeWriteRecallEngine</code></td><td>mode="blurt", timerMode=true (10min), prompt="Write everything you remember — don't stop"</td></tr>
+      <tr><td><strong>Chunking</strong></td><td><span class="badge bs">Study</span></td><td><code>FreeWriteRecallEngine</code></td><td>mode="chunk", prompt="Break this topic into its core chunks/sub-topics"</td></tr>
+      <tr><td><strong>Interleaving</strong></td><td><span class="badge bs">Study</span></td><td><code>FreeWriteRecallEngine</code></td><td>mode="interleave", prompt="List 3+ subjects to mix", uses CountdownTimerEngine as sub-component to rotate subjects every 15–20min</td></tr>
+      <tr><td><strong>2-Minute Rule</strong></td><td><span class="badge bp">Productivity</span></td><td><code>CountdownTimerEngine</code> (micro)</td><td>work=2min, cycles=1, label="Do it now", no break phase</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout c-neutral"><div class="ci">💡</div><div><strong>Engineering note for developers:</strong> Define a <code>RuleConfig</code> TypeScript interface. Each rule is a JSON config object — no rule-specific React components needed. The engine components are generic and accept <code>config: RuleConfig</code> as a prop. New rules can be added by adding a config object — zero new UI code required.</div></div>
+
+  <pre><code>// RuleConfig TypeScript interface
+interface RuleConfig {
+  id: string                   // e.g. "pomodoro"
+  name: string                 // Display name
+  category: CategoryId         // "learning" | "focus" | "productivity" | "study"
+  engine: EngineType           // "countdown" | "interval" | "guided" | "sorter" | "spaced" | "awareness" | "freewrite"
+  description: string          // Short description (2–3 sentences)
+  whyItWorks: string           // The science behind it
+  bestFor: string[]            // e.g. ["exam prep", "deep work"]
+  engineConfig: CountdownConfig | IntervalConfig | GuidedConfig | ...  // Engine-specific params
+  pointsPerCompletion: number  // Default 15–20
+  discoveryBonus: number       // 25 points first time
+}
+
+// Example: Pomodoro
+const pomodoroConfig: RuleConfig = {
+  id: "pomodoro",
+  name: "Pomodoro Technique",
+  category: "focus",
+  engine: "countdown",
+  description: "Work in focused 25-minute blocks, then take a 5-minute break. After 4 rounds, take a longer 15–30 minute break.",
+  whyItWorks: "Time-boxing reduces cognitive overhead and makes large tasks feel manageable. Scheduled breaks prevent mental fatigue.",
+  bestFor: ["deep work", "studying", "writing", "coding"],
+  engineConfig: {
+    workDuration: 25 * 60,
+    breakDuration: 5 * 60,
+    longBreakDuration: 15 * 60,
+    longBreakAfterCycles: 4,
+    cycles: 4,
+    autoStartBreak: false,
+  },
+  pointsPerCompletion: 20,
+  discoveryBonus: 25,
+}</code></pre>
+  <div class="pre-lang">TypeScript</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- POSITIVITY METER LOGIC -->
+<div class="section" id="positivity">
+  <div class="sec-num">12 / Logic Engine</div>
+  <div class="sec-title">Positivity Meter — Technical Logic</div>
+
+  <h3>Data Model</h3>
+  <pre><code>// Stored in AsyncStorage / SQLite (expo-sqlite)
+interface PositivityState {
+  weeklyScore: number           // Resets every Monday at 00:00
+  lifetimeScore: number         // Never resets
+  currentLevel: LevelId         // "seed" | "momentum" | "zone" | "master" | "positive"
+  weeklyStreak: number          // Days active this week (0–7)
+  longestStreak: number         // Lifetime record
+  rulesUsed: string[]           // IDs of rules ever used
+  sessionHistory: Session[]     // Last 100 sessions
+  taskHistory: TaskCompletion[] // Last 200 task completions
+  achievements: AchievementId[] // Earned achievements
+}
+
+interface Session {
+  id: string
+  ruleId: string
+  startedAt: number  // Unix timestamp
+  completedAt: number | null
+  pointsEarned: number
+  engineData: any    // Engine-specific data (cycles completed, steps done, etc.)
+}
+
+// Points are emitted via an event system:
+// PointsEventEmitter.emit('points', { amount: 20, source: 'session', ruleId: 'pomodoro' })
+// Positivity store listens and updates state + triggers animations</code></pre>
+  <div class="pre-lang">TypeScript</div>
+
+  <h3>Animation Logic</h3>
+  <ul>
+    <li>When points are earned: the meter ring animates to new fill position (spring animation, Reanimated 3)</li>
+    <li>Points counter increments with a rolling number animation (interpolated from old to new value over 800ms)</li>
+    <li>Duck mascot bounces when points arrive</li>
+    <li>At level thresholds: full-screen celebration modal with confetti (react-native-confetti-cannon), duck animation, and achievement card</li>
+  </ul>
+</div>
+
+<div class="divider"></div>
+
+<!-- DESIGN LANGUAGE -->
+<div class="section" id="design">
+  <div class="sec-num">13 / Design</div>
+  <div class="sec-title">Design Language</div>
+  <div class="sec-sub">Monochromatic base (black + white) with category colours as semantic accents. Clean, spacious, and confident.</div>
+
+  <div class="callout c-neutral"><div class="ci">🎨</div><div>From the screenshots: The app is strikingly minimal. Pure black backgrounds, pure white cards, single black-circle action buttons. The design lets the colour of the category be the only accent. This is the right call — the rules are the content; the UI should not compete.</div></div>
+
+  <h3>Colour System</h3>
+  <table class="tbl">
+    <tr><th>Token</th><th>Light Mode</th><th>Dark Mode</th><th>Usage</th></tr>
+    <tr><td><code>background</code></td><td>#FFFFFF</td><td>#000000</td><td>Screen background</td></tr>
+    <tr><td><code>surface</code></td><td>#FFFFFF</td><td>#1A1A1A</td><td>Cards, rows, bottom sheets</td></tr>
+    <tr><td><code>surface-2</code></td><td>#F5F5F5</td><td>#242424</td><td>Secondary surfaces, input backgrounds</td></tr>
+    <tr><td><code>ink</code></td><td>#1A1916</td><td>#FFFFFF</td><td>Primary text</td></tr>
+    <tr><td><code>ink-2</code></td><td>#6B6B6B</td><td>#9A9A9A</td><td>Secondary text, descriptions</td></tr>
+    <tr><td><code>action-fill</code></td><td>#1A1916</td><td>#FFFFFF</td><td>Action button fills (the dark circle → button)</td></tr>
+    <tr><td><code>action-text</code></td><td>#FFFFFF</td><td>#1A1916</td><td>Text/icons inside action buttons</td></tr>
+    <tr><td><code>border</code></td><td>rgba(0,0,0,0.08)</td><td>rgba(255,255,255,0.08)</td><td>Card borders, dividers</td></tr>
+    <tr><td><code>learn-accent</code></td><td>#7C3AED</td><td>#A78BFA</td><td>Learning & Memory category</td></tr>
+    <tr><td><code>focus-accent</code></td><td>#2563EB</td><td>#60A5FA</td><td>Focus & Sessions category</td></tr>
+    <tr><td><code>prod-accent</code></td><td>#22A06B</td><td>#34D399</td><td>Productivity category</td></tr>
+    <tr><td><code>study-accent</code></td><td>#D97706</td><td>#FBBF24</td><td>Study Techniques category</td></tr>
+    <tr><td><code>positivity</code></td><td>#22A06B</td><td>#34D399</td><td>Positivity Meter fill, score highlights</td></tr>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- NAVIGATION -->
+<div class="section" id="nav">
+  <div class="sec-num">14 / Design</div>
+  <div class="sec-title">Navigation System</div>
+
+  <h3>Bottom Nav (3 Items — Floating Pill)</h3>
+  <table class="tbl">
+    <tr><th>Position</th><th>Icon</th><th>Action</th><th>Active State</th></tr>
+    <tr><td>Left</td><td>House / Home icon</td><td>Navigate to Home (Screen 1)</td><td>Icon fills black / white-on-black</td></tr>
+    <tr><td>Centre</td><td>+ in elevated black circle</td><td>Open Todo create bottom sheet</td><td>Always "active" — it's always elevated</td></tr>
+    <tr><td>Right</td><td>Compass / dial gauge icon</td><td>Navigate to Positivity Meter (Screen 3)</td><td>Icon fills black / white-on-black</td></tr>
+  </table>
+
+  <h3>Stack Navigation (Screen depth)</h3>
+  <p>Home → tap category card → Category List (Screen 4) → tap rule row → Rule Page (Screen 5). Standard stack push/pop with back arrows. Todo screen is accessed via + button (bottom sheet or separate route). Positivity Meter via compass icon.</p>
+
+  <h3>Top Bar (Home Screen only)</h3>
+  <ul>
+    <li><strong>Top-left:</strong> Circular About button (ⓘ) — 40px, outline style</li>
+    <li><strong>Top-right:</strong> Circular Theme Toggle — sun/moon icon — 40px, outline style</li>
+    <li><strong>Optional centre:</strong> App wordmark "Product+ive" — if space allows; otherwise no header text</li>
+  </ul>
+</div>
+
+<div class="divider"></div>
+
+<!-- THEME -->
+<div class="section" id="theme">
+  <div class="sec-num">15 / Design</div>
+  <div class="sec-title">Light / Dark Theme</div>
+
+  <div class="callout c-neutral"><div class="ci">🌓</div><div>From the screenshots, the app is shown in dark mode (pure black background, white cards). Light mode inverts this — white background, off-white cards, dark text. The toggle is top-right on the home screen. Theme state persists via AsyncStorage and can optionally follow system preference.</div></div>
+
+  <h3>Theme Toggle Logic</h3>
+  <pre><code>// theme/ThemeContext.tsx
+type ThemeMode = 'light' | 'dark' | 'system'
+
+const ThemeContext = createContext({ mode: 'dark', toggleTheme: () => {} })
+
+export const ThemeProvider = ({ children }) => {
+  const [mode, setMode] = useAsyncState('theme_mode', 'dark')  // persisted
+  const systemMode = useColorScheme()  // 'light' | 'dark'
+  const resolvedMode = mode === 'system' ? systemMode : mode
+
+  return (
+    &lt;ThemeContext.Provider value={{ mode: resolvedMode, toggleTheme: () =>
+      setMode(prev => prev === 'dark' ? 'light' : 'dark')
+    }}&gt;
+      {children}
+    &lt;/ThemeContext.Provider&gt;
+  )
+}</code></pre>
+  <div class="pre-lang">TypeScript / React Native</div>
+
+  <h3>Animation</h3>
+  <p>Theme switch uses a fade transition (opacity: 1→0→1 over 200ms) or a radial reveal from the toggle button position (more impressive but optional for v1). All color values use the ThemeContext hook — no hardcoded colors anywhere in the component tree.</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- USER FLOWS -->
+<div class="section" id="flows">
+  <div class="sec-num">16 / Execution</div>
+  <div class="sec-title">Key User Flows</div>
+
+  <h3>Flow 1 — First-Time User</h3>
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div><div class="step-t">Onboarding (3 screens)</div><div class="step-d">Screen 1: "Rules that work, habits that last" + app concept. Screen 2: "Your Positivity Meter grows as you practise" + meter intro. Screen 3: Pick your first category to explore. Duck mascot appears on each screen.</div></div></div>
+    <div class="step"><div class="step-n">2</div><div><div class="step-t">Land on Home</div><div class="step-d">4 category cards visible. A pulsing highlight on the category they picked in onboarding. Tooltip arrow pointing to it.</div></div></div>
+    <div class="step"><div class="step-n">3</div><div><div class="step-t">First Rule Session</div><div class="step-d">User taps a category → sees rule list → taps a rule → reads description → taps "Start Session". First session earns discovery bonus (+25 pts). Meter animates for first time.</div></div></div>
+  </div>
+
+  <h3>Flow 2 — Daily Return User</h3>
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div><div class="step-t">Morning notification</div><div class="step-d">"🐸 Time to eat your frog! Your most important task is waiting." — deep links into Eat the Frog rule.</div></div></div>
+    <div class="step"><div class="step-n">2</div><div><div class="step-t">App opens to Home</div><div class="step-d">Yesterday's score still visible in a small top banner. Today's meter starts fresh but streak counter is maintained.</div></div></div>
+    <div class="step"><div class="step-n">3</div><div><div class="step-t">Runs Pomodoro session(s)</div><div class="step-d">Earns +20 pts per cycle. During break, app suggests a complementary rule ("Try the 20-20-20 rule during your break").</div></div></div>
+    <div class="step"><div class="step-n">4</div><div><div class="step-t">Closes 2-min tasks from todo</div><div class="step-d">Earns +10 per rule-tagged task. Meter fills. Duck bounces.</div></div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- NOTIFICATIONS -->
+<div class="section" id="notifications">
+  <div class="sec-num">17 / Execution</div>
+  <div class="sec-title">Notification Strategy</div>
+
+  <table class="tbl">
+    <tr><th>Type</th><th>Trigger</th><th>Message</th><th>Action</th></tr>
+    <tr><td>Session end</td><td>Timer reaches 0</td><td>"Pomodoro complete! Take a 5-min break 🎉 +20 pts earned"</td><td>Opens app at break timer</td></tr>
+    <tr><td>Break end</td><td>Break timer reaches 0</td><td>"Break's over — ready for Round 2?"</td><td>Opens app at next work block</td></tr>
+    <tr><td>20-20-20 reminder</td><td>Every 20 mins during active session</td><td>"👀 20-20-20 check — look 20 feet away for 20 seconds"</td><td>Confirms action in-app</td></tr>
+    <tr><td>Spaced Repetition review</td><td>Scheduled review day</td><td>"📖 Time to review [Topic Name] — it's Day 3 of your SRS schedule"</td><td>Opens rule session</td></tr>
+    <tr><td>Morning motivation</td><td>Daily at user-set time (default 8am)</td><td>"🐸 Good morning! Have you identified your Frog today?"</td><td>Opens Eat the Frog rule</td></tr>
+    <tr><td>Streak reminder</td><td>If no session by 8pm</td><td>"You're on a 5-day streak 🔥 Don't break it — even 2 minutes counts"</td><td>Opens app at home</td></tr>
+    <tr><td>2-Minute task</td><td>Task created with 2-min rule, 30min elapsed</td><td>"⚡ This task takes 2 minutes. Have you done it yet?"</td><td>Opens Todo</td></tr>
+  </table>
+
+  <div class="callout c-pos"><div class="ci">💚</div><div><strong>Notification Principle:</strong> All notifications are opt-in at the category level. Users choose which types they want during onboarding. Never send more than 3 notifications per day per user. Notifications should feel like a helpful friend, not a nagging boss.</div></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- MILESTONES -->
+<div class="section" id="milestones">
+  <div class="sec-num">18 / Execution</div>
+  <div class="sec-title">Build Milestones</div>
+
+  <table class="tbl">
+    <tr><th>Phase</th><th>Milestone</th><th>What Ships</th></tr>
+    <tr><td>Phase 0</td><td>Foundation (Weeks 1–2)</td><td>Project scaffold, navigation, theme system (light/dark), RuleConfig data file with all 20 rules</td></tr>
+    <tr><td>Phase 1</td><td>Core Screens (Weeks 3–5)</td><td>Home (category cards), Category List screen, Rule Page (info sheet + Start button + mock engine)</td></tr>
+    <tr><td>Phase 2</td><td>Engines (Weeks 6–9)</td><td>All 7 reusable engines built and wired to all 20 rules. CountdownTimerEngine first (covers Pomodoro + 2-Minute + 90-min)</td></tr>
+    <tr><td>Phase 3</td><td>Todo + Positivity (Weeks 10–12)</td><td>Todo screen with rule-tagging, Positivity Meter screen, scoring system, points animation</td></tr>
+    <tr><td>Phase 4</td><td>Notifications (Week 13)</td><td>expo-notifications integration, notification types, user preference settings</td></tr>
+    <tr><td>Phase 5</td><td>Polish (Week 14–15)</td><td>Duck mascot animations, milestone celebrations, onboarding flow, about screen</td></tr>
+    <tr><td>Phase 6</td><td>App Store (Week 16)</td><td>Beta testing, crash fixes, App Store / Play Store submission</td></tr>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- MASTER PROMPT -->
+<div class="section" id="masterp">
+  <div class="sec-num">19 / Reference</div>
+  <div class="sec-title">Master Prompt</div>
+  <div class="sec-sub">Copy this verbatim to restore full Product+ive context in any AI session.</div>
+
+  <pre><code>ROLE: You are a Senior Product Engineer and UI/UX Architect working on
+"Product+ive" — a cross-platform React Native productivity app for iOS and Android.
+
+PRODUCT OVERVIEW:
+Product+ive is a science-backed productivity companion that teaches users 20 proven
+productivity, focus, learning, and study rules, lets them run guided interactive sessions
+for each rule, and tracks their progress via a Positivity Meter that fills as they
+complete sessions and tasks. The app is monochromatic (black/white base) with category
+colour accents, has a duck mascot (from the PRO+ive logo), and uses a minimal 3-item
+floating pill bottom nav.
+
+THE 20 RULES (4 CATEGORIES):
+Learning & Memory: 1-4-7 Rule, Feynman Technique, 80/20 Rule, Spaced Repetition (SRS)
+Focus & Sessions: 20-20-20 Rule, Pomodoro Technique, 90-Minute Ultradian Rule
+Productivity: 2-Minute Rule, 5-Second Rule, Eat the Frog, Parkinson's Law, 1-3-5 Rule
+Study Techniques: Active Recall, Cornell Note Method, Interleaving, Mind Mapping,
+                  SQ3R Method, Blurting Method, Elaborative Interrogation, Chunking
+
+5 SCREENS:
+1. Home — 2×2 category card grid + top-left About button + top-right theme toggle
+2. Todo — Rule-aware task list with Eat the Frog / 1-3-5 / 2-Minute sections
+3. Positivity Meter — Circular progress ring, scoring history, duck mascot, milestones
+4. Category List — Full-width pill rows per rule (matches screenshot: black bg, white rows,
+   black circle → arrow button on right)
+5. Rule Page — Engine UI + Start Session button + info button (top right) for description
+
+7 REUSABLE LOGIC ENGINES (all rules map to one of these):
+1. CountdownTimerEngine — Pomodoro, 90-min Ultradian, 2-Minute Rule
+2. IntervalReminderEngine — 20-20-20 Rule
+3. GuidedPromptEngine — Feynman, Cornell, SQ3R, Mind Mapping, Elaborative Interrogation
+4. SmartTaskSorterEngine — Eat the Frog, 1-3-5, 80/20
+5. SpacedRepetitionEngine — SRS, 1-4-7 Rule
+6. AwarenessReflectionEngine — Parkinson's Law, 5-Second Rule
+7. FreeWriteRecallEngine — Active Recall, Blurting, Chunking, Interleaving
+
+POSITIVITY METER SCORING:
+Start session: +5 | Complete timed session: +20 | Complete non-timed: +15
+Complete task: +5 | Complete rule-tagged task: +10 | All tasks done: +20 bonus
+First-time rule use: +25 discovery bonus | 7-day streak: +50
+
+DESIGN:
+- Visual language: from screenshots — pure black bg (#000000), white pill cards,
+  black filled circle with white arrow as action button. Floating pill bottom nav.
+- Colors: background #000000 dark / #FFFFFF light. Cards #1A1A1A dark / #FFFFFF light.
+  Category accents: Learning=#7C3AED, Focus=#2563EB, Productivity=#22A06B, Study=#D97706.
+- Theme: light/dark toggle top-right of home screen. Persisted via AsyncStorage.
+- Typography: clean sans-serif (Syne for display, Plus Jakarta Sans for UI).
+- No glassmorphism. Clean, opaque, confident.
+
+TECH STACK:
+React Native + Expo (SDK 51), expo-router, react-native-reanimated 3,
+expo-sqlite (sessions + tasks), AsyncStorage (theme + settings),
+expo-notifications (all notification types), react-native-confetti-cannon (celebrations).
+
+KEY RULES:
+- All 20 rules defined as RuleConfig JSON objects — no rule-specific React components.
+- Engines are generic components that accept config as props.
+- Points system uses an event emitter — PointsEventEmitter.emit('points', {...}).
+- Duck mascot appears in: onboarding, empty states, milestone celebrations, about screen.
+- Notification limit: max 3 per day per user, all opt-in at category level.
+
+CURRENT STATUS: Product strategy complete. Design system defined. Ready to scaffold.
+App logo: PRO+ive with duck mascot replacing "DUCT" in "PRODUCTIVE".</code></pre>
+  <div class="pre-lang">Master Prompt — Copy Verbatim</div>
+
+</div>
+</div>
+</body>
+</html>
