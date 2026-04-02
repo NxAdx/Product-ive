@@ -24,7 +24,7 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
   const [reflectionCount, setReflectionCount] = useState(0);
 
   // Get reflection prompts from rule config
-  const prompts = rule.engineConfig.prompts || [
+  const currentPrompts = rule.engineConfig.prompts || [
     'What am I working on right now?',
     'What is my intention for this task?',
     'What would make this task feel complete?',
@@ -51,19 +51,20 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
     ],
   };
 
-  const activePrompts = ruleSpecificPrompts[rule.id] || prompts;
+  const activePrompts = ruleSpecificPrompts[rule.id] || currentPrompts;
   const currentPrompt = activePrompts[promptIndex % activePrompts.length];
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (sessionStarted) {
       // Show a new prompt every 2 minutes by default, or custom interval
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       interval = setInterval(() => {
         showPrompt();
       }, rule.engineConfig.interval || 2 * 60 * 1000);
     }
     return () => clearInterval(interval);
-  }, [sessionStarted, promptIndex, rule.engineConfig.interval]);
+  }, [sessionStarted, promptIndex, rule.engineConfig.interval, rule.engineConfig.prompts]);
 
   const showPrompt = () => {
     setPromptIndex(prev => prev + 1);

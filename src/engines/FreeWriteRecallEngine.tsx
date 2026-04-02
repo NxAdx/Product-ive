@@ -4,7 +4,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { usePositivityStore } from '../store/positivityStore';
-import { Play, CheckCircle, RotateCcw } from 'lucide-react-native';
+import { Play, Pause, CheckCircle } from 'lucide-react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 interface EngineProps {
