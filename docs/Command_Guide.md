@@ -1,67 +1,66 @@
-# Product+ive — Command Guide
+﻿# Product+ive - Command Guide
 
-> CLI reference for development.
+> Last Updated: 2026-04-02 (IST)
 
----
+## Setup
+
+```bash
+# Install locked dependencies
+npm ci
+```
 
 ## Development
 
 ```bash
-# Install dependencies
-npm install
+# Start Expo dev server
+npm run start
 
-# Start development server
-npx expo start
-
-# Start on Android
-npx expo run:android
-
-# Start on iOS
-npx expo run:ios
-
-# Clear cache and restart
-npx expo start --clear
+# Platform shortcuts
+npm run android
+npm run ios
+npm run web
 ```
 
-## Build
+## Quality checks
 
 ```bash
-# Build Android APK (local)
-npx expo run:android --variant release
+# CI-equivalent lint scope
+npx eslint app src --max-warnings=0
 
-# Build with EAS
-eas build --platform android --profile production
+# Project lint script
+npm run lint
 
-# Build APK locally
+# Type check
+npx tsc --noEmit
+
+# Expo environment sanity checks
+npx expo-doctor
+```
+
+## Export and build checks
+
+```bash
+# Web export
+npx expo export --platform web --clear
+
+# Multi-platform export
+npx expo export --platform all --clear
+
+# Android release (requires native android project + toolchain)
 cd android && ./gradlew assembleRelease
 ```
 
-## Lint & Format
+## Testing (current state)
 
 ```bash
-# Run ESLint
-npx eslint src/
-
-# Run TypeScript check
-npx tsc --noEmit
-
-# Run Prettier
-npx prettier --write "src/**/*.{ts,tsx}"
+# Current placeholder test script
+npm test -- --coverage --ci
 ```
 
-## Database
+Note: A real Jest/RNTL suite is still pending implementation.
 
-```bash
-# SQLite is embedded — no external setup needed
-# Schema managed via src/db/schema.ts
-```
+## Environment
 
-## Testing
-
-```bash
-# Run unit tests
-npm test
-
-# Run with coverage
-npm test -- --coverage
-```
+- Node.js >= 20.19.4 (22 LTS recommended)
+- npm 10.x+
+- Java 17 for Android builds

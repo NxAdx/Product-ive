@@ -30,7 +30,6 @@ export default function TodoScreen() {
   const activeTodos = todos.filter(t => !t.completed);
   const completedTodos = todos.filter(t => t.completed);
 
-  const highPriorityCount = activeTodos.filter(t => t.priority === 'high').length;
   const frogTask = activeTodos.find(t => t.priority === 'high');
 
   return (

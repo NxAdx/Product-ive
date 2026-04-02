@@ -1,15 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { CheckCircle, Lightbulb, RotateCcw } from 'lucide-react-native';
+
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
-import { Lightbulb, CheckCircle, RotateCcw } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useTheme } from '../theme/ThemeContext';
 
 interface EngineProps {
   rule: RuleConfig;
   color: string;
 }
+
+const DEFAULT_PROMPTS = [
+  'What am I working on right now?',
+  'What is my intention for this task?',
+  'What would make this task feel complete?',
+  'Am I procrastinating? What is holding me back?',
+  'What is one thing I can finish in the next 5 minutes?',
+  'How focused am I on this task (1-10)?',
+  'What is distracting me from progress?',
+];
+
+const RULE_SPECIFIC_PROMPTS: Record<string, string[]> = {
+  parkinsons_law: [
+    'What is my real deadline for this task?',
+    'What is the minimum viable version of this?',
+    'How much time do I actually need?',
+    'What can I cut without losing quality?',
+    'What is my time constraint?',
+  ],
+  '5_second_rule': [
+    'What action should I take right now?',
+    '5... 4... 3... 2... 1... Go!',
+    'What is stopping me from starting?',
+    'What is the next micro-action?',
+    'Can I start in the next 5 seconds?',
+  ],
+};
 
 /**
  * AwarenessReflectionEngine
@@ -23,73 +51,34 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
   const [promptIndex, setPromptIndex] = useState(0);
   const [reflectionCount, setReflectionCount] = useState(0);
 
-  // Get reflection prompts from rule config
-  const currentPrompts = rule.engineConfig.prompts || [
-    'What am I working on right now?',
-    'What is my intention for this task?',
-    'What would make this task feel complete?',
-    'Am I procrastinating? What\'s holding me back?',
-    'What\'s ONE thing I can finish in the next 5 minutes?',
-    'How focused am I on this task (1-10)?',
-    'What\'s distracting me from progress?',
-  ];
-
-  const ruleSpecificPrompts: { [key: string]: string[] } = {
-    parkinsons_law: [
-      'What is my REAL deadline for this task?',
-      'What\'s the minimum viable version of this?',
-      'How much time do I actually need? (Not want)',
-      'What can I cut without losing quality?',
-      'What\'s my time constraint?',
-    ],
-    five_second_rule: [
-      'What action should I take RIGHT NOW?',
-      '5... 4... 3... 2... 1... GO!',
-      'What\'s stopping me from starting?',
-      'What\'s the next micro-action?',
-      'Can I start in the next 5 seconds?',
-    ],
-  };
-
-  const activePrompts = ruleSpecificPrompts[rule.id] || currentPrompts;
+  const currentPrompts = rule.engineConfig.prompts || DEFAULT_PROMPTS;
+  const activePrompts = RULE_SPECIFIC_PROMPTS[rule.id] || currentPrompts;
   const currentPrompt = activePrompts[promptIndex % activePrompts.length];
 
+  const showPrompt = useCallback(() => {
+    setReflectionCount((count) => count + 1);
+    setPromptIndex((prev) => {
+      const prompt = activePrompts[prev % activePrompts.length];
+      Alert.alert('Reflection Prompt', prompt, [{ text: 'Noted', onPress: () => {} }]);
+      return prev + 1;
+    });
+  }, [activePrompts]);
+
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     if (sessionStarted) {
-      // Show a new prompt every 2 minutes by default, or custom interval
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      interval = setInterval(() => {
-        showPrompt();
-      }, rule.engineConfig.interval || 2 * 60 * 1000);
+      intervalId = setInterval(showPrompt, rule.engineConfig.interval || 2 * 60 * 1000);
     }
-    return () => clearInterval(interval);
-  }, [sessionStarted, promptIndex, rule.engineConfig.interval, rule.engineConfig.prompts]);
-
-  const showPrompt = () => {
-    setPromptIndex(prev => prev + 1);
-    setReflectionCount(count => count + 1);
-    setLastPromptTime(new Date());
-
-    // Show an alert with the prompt
-    Alert.alert(
-      '💭 Reflection Prompt',
-      currentPrompt,
-      [
-        { 
-          text: 'Noted', 
-          onPress: () => {
-            // Self-reflection happened
-          }
-        }
-      ]
-    );
-  };
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [sessionStarted, showPrompt, rule.engineConfig.interval]);
 
   const handleStart = () => {
     setSessionStarted(true);
     session.startSession(rule.id);
-    // Show first prompt after short delay
     setTimeout(showPrompt, 500);
   };
 
@@ -101,7 +90,7 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
     session.endSession();
     setSessionStarted(false);
     Alert.alert(
-      '✨ Session Complete',
+      'Session Complete',
       `You had ${reflectionCount} moments of reflection. Great awareness!`,
       [{ text: 'OK', onPress: () => {} }]
     );
@@ -113,47 +102,40 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
     return (
       <View style={styles.intentScreen}>
         <View style={styles.intentContent}>
-          <Text style={[styles.intentTitle, { color: t.ink }]}>
-            {rule.name}
-          </Text>
-          <Text style={[styles.intentDesc, { color: t.inkMid }]}>
-            {rule.description}
-          </Text>
+          <Text style={[styles.intentTitle, { color: t.ink }]}>{rule.name}</Text>
+          <Text style={[styles.intentDesc, { color: t.inkMid }]}>{rule.description}</Text>
 
-          {/* Key Points */}
           {rule.engineConfig.keyPoints && (
             <View style={styles.keyPoints}>
               {rule.engineConfig.keyPoints.map((point: string, idx: number) => (
                 <View key={idx} style={styles.keyPoint}>
-                  <Text style={[styles.keyPointDot, { color }]}>•</Text>
-                  <Text style={[styles.keyPointText, { color: t.ink }]}>
-                    {point}
-                  </Text>
+                  <Text style={[styles.keyPointDot, { color }]}>*</Text>
+                  <Text style={[styles.keyPointText, { color: t.ink }]}>{point}</Text>
                 </View>
               ))}
             </View>
           )}
 
-          {/* How It Works */}
-          <View style={[styles.howWorks, { 
-            backgroundColor: t.isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-            borderColor: t.border
-          }]}>
+          <View
+            style={[
+              styles.howWorks,
+              {
+                backgroundColor: t.isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                borderColor: t.border,
+              },
+            ]}
+          >
             <Lightbulb size={20} color={color} />
             <View>
-              <Text style={[styles.howTitle, { color: t.ink }]}>
-                How it works
-              </Text>
+              <Text style={[styles.howTitle, { color: t.ink }]}>How it works</Text>
               <Text style={[styles.howDesc, { color: t.inkMid }]}>
-                You&apos;ll receive reflection prompts every {rule.engineConfig.interval ? `${Math.round(rule.engineConfig.interval / 60)} minutes` : '2 minutes'} to build awareness
+                You will receive reflection prompts every{' '}
+                {rule.engineConfig.interval ? `${Math.round(rule.engineConfig.interval / 60)} minutes` : '2 minutes'}
               </Text>
             </View>
           </View>
 
-          <Pressable 
-            onPress={handleStart}
-            style={[styles.startBtn, { backgroundColor: color }]}
-          >
+          <Pressable onPress={handleStart} style={[styles.startBtn, { backgroundColor: color }]}>
             <Text style={styles.startBtnText}>Begin {rule.name}</Text>
           </Pressable>
         </View>
@@ -163,76 +145,66 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
 
   return (
     <View style={styles.sessionScreen}>
-      {/* Current Prompt Display */}
-      <Animated.View 
+      <Animated.View
         entering={FadeInDown}
-        style={[styles.promptDisplay, { 
-          backgroundColor: color + '15',
-          borderColor: color + '40'
-        }]}
+        style={[
+          styles.promptDisplay,
+          {
+            backgroundColor: `${color}15`,
+            borderColor: `${color}40`,
+          },
+        ]}
       >
         <Lightbulb size={32} color={color} />
-        <Text style={[styles.promptText, { color: t.ink }]}>
-          {currentPrompt}
-        </Text>
-        <Text style={[styles.promptSub, { color: t.inkMid }]}>
-          Take a moment to reflect...
-        </Text>
+        <Text style={[styles.promptText, { color: t.ink }]}>{currentPrompt}</Text>
+        <Text style={[styles.promptSub, { color: t.inkMid }]}>Take a moment to reflect...</Text>
       </Animated.View>
 
-      {/* Stats */}
-      <View style={[styles.statsBox, { 
-        backgroundColor: t.isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
-        borderColor: t.border
-      }]}>
+      <View
+        style={[
+          styles.statsBox,
+          {
+            backgroundColor: t.isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
+            borderColor: t.border,
+          },
+        ]}
+      >
         <View style={styles.statRow}>
           <View style={styles.stat}>
-            <Text style={[styles.statValue, { color }]}>
-              {reflectionCount}
-            </Text>
-            <Text style={[styles.statLabel, { color: t.inkMid }]}>
-              Reflections
-            </Text>
+            <Text style={[styles.statValue, { color }]}>{reflectionCount}</Text>
+            <Text style={[styles.statLabel, { color: t.inkMid }]}>Reflections</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.stat}>
-            <Text style={[styles.statValue, { color }]}>
-              {session.phase === 'work' ? '🟢' : '⏸️'}
-            </Text>
-            <Text style={[styles.statLabel, { color: t.inkMid }]}>
-              Status
-            </Text>
+            <Text style={[styles.statValue, { color }]}>{session.phase === 'work' ? 'ON' : 'PAUSED'}</Text>
+            <Text style={[styles.statLabel, { color: t.inkMid }]}>Status</Text>
           </View>
         </View>
       </View>
 
-      {/* Controls */}
       <View style={styles.controls}>
-        <Pressable 
+        <Pressable
           onPress={handleManualPrompt}
-          style={[styles.secondaryBtn, { 
-            backgroundColor: t.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
-            borderColor: t.border
-          }]}
+          style={[
+            styles.secondaryBtn,
+            {
+              backgroundColor: t.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+              borderColor: t.border,
+            },
+          ]}
         >
           <RotateCcw size={18} color={t.ink} />
-          <Text style={[styles.secondaryBtnText, { color: t.ink }]}>
-            New Prompt
-          </Text>
+          <Text style={[styles.secondaryBtnText, { color: t.ink }]}>New Prompt</Text>
         </Pressable>
 
-        <Pressable 
-          onPress={handleEnd}
-          style={[styles.endBtn, { backgroundColor: color }]}
-        >
+        <Pressable onPress={handleEnd} style={[styles.endBtn, { backgroundColor: color }]}>
           <CheckCircle size={18} color="#FFF" />
           <Text style={styles.endBtnText}>End Session</Text>
         </Pressable>
       </View>
 
-      {/* Motivational Message */}
       <Text style={[styles.motivational, { color: t.inkDim }]}>
-        Each reflection builds your self-awareness muscle 💪
+        Each reflection builds your self-awareness muscle.
       </Text>
     </View>
   );
@@ -397,5 +369,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     fontStyle: 'italic',
-  }
+  },
 });

@@ -55,7 +55,7 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
       completed: false,
       ruleIds: [rule.id],
       priority: 'high' as const,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       dueDate: undefined,
       completedAt: undefined,
     };
@@ -71,7 +71,7 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
   const handleCompleteTask = (taskId: string) => {
     setSessionTasks(sessionTasks.map(t =>
       t.id === taskId
-        ? { ...t, completed: true, completedAt: new Date() }
+        ? { ...t, completed: true, completedAt: new Date().toISOString() }
         : t
     ));
     

@@ -1,52 +1,46 @@
-# Product+ive — Testing Strategy
+﻿# Product+ive - Testing Strategy
 
-> **Last Updated:** 2026-04-01
+> Last Updated: 2026-04-02 (IST)
 
----
+## Current Reality
 
-## Testing Layers
+- There is no real automated test suite yet.
+- `npm test` currently runs a placeholder script.
+- CI executes the placeholder test command, so it does not currently verify app behavior.
 
-| Layer | Tool | Coverage Target |
-|-------|------|-----------------|
-| Unit Tests | Jest + React Native Testing Library | ≥80% |
-| Component Tests | RNTL (render, fireEvent, queries) | All screens |
-| Integration Tests | Jest | Engine ↔ Points flow |
-| E2E Tests | Maestro (future) | Critical user flows |
+## Target Testing Stack
 
-## Critical Test Cases
+- Unit/component tests: Jest + React Native Testing Library
+- Integration tests: Jest (store + engine interactions)
+- E2E smoke tests: Maestro or Detox (later phase)
 
-### Engines
-- CountdownTimerEngine: timer starts, pauses, resumes, completes, awards points
-- IntervalReminderEngine: notifications fire at correct intervals
-- GuidedPromptEngine: step progression, data persistence
-- SmartTaskSorterEngine: correct slot assignments (frog/135/pareto)
-- SpacedRepetitionEngine: correct scheduling intervals
-- AwarenessReflectionEngine: countdown trigger, deadline setting
-- FreeWriteRecallEngine: text input, timer mode, session save
+## Priority Test Plan
 
-### Positivity Meter
-- Points accumulate correctly per action type
-- Weekly reset on Monday 00:00
-- Streak calculation (consecutive active days)
-- Level thresholds trigger correctly
-- Discovery bonus (+25) fires only once per rule
+### Priority 1 (must add first)
 
-### Todo
-- Task creation with/without rule tag
-- Eat the Frog task sorts to top
-- 2-Minute tasks show clock badge
-- 1-3-5 tasks sort into sections
-- Completion awards correct points
+1. Engine behavior tests
+   - timer start/pause/end
+   - interval prompt scheduling
+   - guided prompt progression
+2. Store logic tests
+   - positivity scoring and streak updates
+   - todo add/toggle/remove flows
+3. Route-level smoke tests for key screens
+   - home
+   - todo
+   - rule detail
 
-### Theme
-- Toggle switches all colours
-- Persistence across app restart
-- No flash of wrong theme on launch
+### Priority 2
 
-## Running Tests
+1. Notifications scheduling logic tests
+2. SQLite repository tests once persistence layer is added
+3. Regression tests for onboarding and navigation edge cases
 
-```bash
-npm test                    # Run all tests
-npm test -- --coverage      # With coverage report
-npm test -- --watch         # Watch mode
-```
+## Proposed CI gate after tests are added
+
+- `npm ci`
+- `npx eslint app src --max-warnings=0`
+- `npx tsc --noEmit`
+- `npm test -- --coverage --ci`
+
+Once real tests exist, add a minimum coverage threshold in CI.

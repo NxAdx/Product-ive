@@ -1,88 +1,50 @@
-# Product+ive — CI/CD Guide
+﻿# Product+ive - CI/CD Guide
 
-> **Last Updated:** 2026-04-01
+> Last Updated: 2026-04-02 (IST)
 
----
+## Workflow file
 
-## Overview
+- `.github/workflows/ci-cd.yml`
 
-GitHub Actions-based CI/CD pipeline for automated builds, testing, and APK generation.
+## Trigger rules
 
-## Branch Strategy
+- Push: `main`, `develop`
+- Pull request: `main`, `develop`
 
-| Branch | Purpose |
-|--------|---------|
-| `main` | Production-ready code |
-| `develop` | Integration branch |
-| `feature/*` | New features |
-| `fix/*` | Bug fixes |
-| `chore/*` | Maintenance, deps, docs |
+## Runtime and tooling
 
-## Pipeline Stages
+- Runner: `ubuntu-latest`
+- Node: `22`
+- Java: Temurin `17`
+- Action runtime migration flag: `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
 
-### On Pull Request (→ develop)
-1. **Lint** — ESLint check
-2. **Type Check** — `tsc --noEmit`
-3. **Test** — Jest with coverage threshold (≥80%)
-4. **Build Validation** — Expo export check
+## Job 1: Lint, TypeCheck and Test
 
-### On Push (→ main)
-1. All PR checks above
-2. **Android APK Build** — `./gradlew assembleRelease`
-3. **Artifact Upload** — APK as GitHub release asset
-4. **Dependency Audit** — `npm audit`
+1. `actions/checkout@v4`
+2. `actions/setup-node@v4` (`node-version: 22`, npm cache)
+3. `npm ci`
+4. `npx eslint app src --max-warnings=0`
+5. `npx tsc --noEmit`
+6. `npm test -- --coverage --ci`
+7. `npm audit --audit-level=high` (non-blocking)
 
-## GitHub Actions Workflow
+## Job 2: Build Android APK
 
-```yaml
-name: CI/CD
+Runs only when:
+- event is push
+- branch is `main`
+- job 1 passed
 
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
+Steps:
+1. `actions/checkout@v4`
+2. `actions/setup-java@v4` (Temurin 17)
+3. `actions/setup-node@v4` (Node 22)
+4. `npm ci`
+5. `cd android && ./gradlew assembleRelease`
+6. Upload artifact with `actions/upload-artifact@v4`
 
-jobs:
-  lint-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - run: npx eslint src/
-      - run: npx tsc --noEmit
-      - run: npm test -- --coverage
+## Notes
 
-  build-android:
-    needs: lint-and-test
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - run: npm ci
-      - run: cd android && ./gradlew assembleRelease
-      - uses: actions/upload-artifact@v4
-        with:
-          name: app-release
-          path: android/app/build/outputs/apk/release/
-```
-
-## Release Process
-
-1. Merge `develop` → `main` via PR
-2. CI builds APK automatically
-3. Create GitHub Release with version tag
-4. Upload APK as release asset
-5. Update `docs/RELEASES/vX.Y.Z.md` with changelog
+- Current `npm test` script is a placeholder; CI still executes it but it does not provide real coverage.
+- Add real test setup before relying on coverage gating.
+- Local Node below 20.19.4 can still run but emits engine warnings with RN 0.83.

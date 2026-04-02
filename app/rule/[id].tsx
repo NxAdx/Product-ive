@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { getRuleById } from '../../src/data/rules';
@@ -53,7 +53,9 @@ export default function RuleScreen() {
       default: 
         return (
           <View style={styles.placeholder}>
-            <Text style={{color: t.inkMid}}>Engine '{rule.engine}' not yet implemented for {rule.name}.</Text>
+            <Text style={{color: t.inkMid}}>
+              Engine &apos;{rule.engine}&apos; not yet implemented for {rule.name}.
+            </Text>
           </View>
         );
     }

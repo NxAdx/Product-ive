@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Stack, SplashScreen, useRouter } from 'expo-router';
+import { Stack, SplashScreen } from 'expo-router';
 import { ThemeProvider } from '../src/theme/ThemeContext';
 import { useFonts } from 'expo-font';
 import {
@@ -14,7 +14,6 @@ import {
 import {
   DMMono_400Regular,
   DMMono_500Medium,
-  DMMono_700Bold,
 } from '@expo-google-fonts/dm-mono';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,7 +24,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const router = useRouter();
   const [isReady, setIsReady] = useState(false);
   const [initialRouteName, setInitialRouteName] = useState<'(tabs)' | 'onboarding' | null>(null);
 
@@ -37,7 +35,6 @@ export default function RootLayout() {
     DMSans_700Bold,
     DMMono_400Regular,
     DMMono_500Medium,
-    DMMono_700Bold,
   });
 
   useEffect(() => {
@@ -45,7 +42,7 @@ export default function RootLayout() {
       try {
         const onboarded = await AsyncStorage.getItem('onboarded');
         setInitialRouteName(onboarded ? '(tabs)' : 'onboarding');
-      } catch (e) {
+      } catch {
         setInitialRouteName('onboarding');
       } finally {
         setIsReady(true);

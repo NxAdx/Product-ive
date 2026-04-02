@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { CATEGORIES } from '../../src/data/categories';
 import { CategoryCard } from '../../src/components/CategoryCard';
-import { Menu, User, Settings } from 'lucide-react-native';
+import { User, Settings } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Home() {

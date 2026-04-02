@@ -1,85 +1,95 @@
-# Product+ive — Feature List
+﻿# Product+ive - Feature List
 
-> **Last Updated:** 2026-04-01
+> Last Updated: 2026-04-02 (IST)
 
----
+## Core Screens
 
-## Core Features
+### Home
 
-### Screen 1: Home
-- [ ] 2×2 category grid (4 visual cards with icons)
-- [ ] Theme toggle (sun/moon, top-right)
-- [ ] About button (ⓘ, top-left)
-- [ ] Floating pill bottom nav (Home | + | Meter)
-- [ ] Press animation (scale 0.97 spring-back)
+- [x] 2x2 category grid (4 cards)
+- [ ] Theme toggle button (theme system exists, direct UI toggle is pending)
+- [ ] About action wiring (icon exists, action pending)
+- [x] Floating bottom nav (Home, Tasks, Explore, Meter)
+- [x] Card press animation with spring feedback
 
-### Screen 2: Todo
-- [ ] Task creation via + button (bottom sheet)
-- [ ] Rule-aware task tagging (horizontal pill picker)
-- [ ] Frog of the Day section (Eat the Frog)
-- [ ] Quick 2-min section (2-Minute Rule)
-- [ ] 1-3-5 section (Big/Medium/Small slots)
-- [ ] General tasks section
-- [ ] Positivity points on completion
+### Todo
 
-### Screen 3: Positivity Meter
-- [ ] Circular progress ring (fills clockwise)
-- [ ] 3 stat cards (Sessions, Tasks, Rules)
-- [ ] Activity log (chronological point feed)
-- [ ] Weekly streak calendar (7 dots)
-- [ ] Milestone celebrations
-- [ ] Duck mascot at ring fill point
+- [x] Task creation from in-screen input form
+- [ ] Rule-aware task tagging UI picker (state supports tags, UI still pending)
+- [x] "Eat the Frog" high-priority spotlight section
+- [ ] Quick 2-min section
+- [ ] 1-3-5 section layout
+- [x] Active/completed task sections
+- [ ] Positivity points on task completion (not fully integrated yet)
+- [ ] Modal `app/todo.tsx` save action to store (TODO in code)
 
-### Screen 4: Category List
-- [ ] Back arrow + category header
-- [ ] Full-width pill rows per rule
-- [ ] Black circle → arrow button (protruding effect)
-- [ ] Category colour dot + rule name + description
+### Positivity Meter
 
-### Screen 5: Rule Page
-- [ ] Rule name header + info button (ⓘ)
-- [ ] Engine area (~60% screen)
-- [ ] Start/Pause/End session controls
-- [ ] Session history card
-- [ ] Description bottom sheet (What, Why, Best For)
+- [x] Weekly score display
+- [x] Streak and lifetime stat cards
+- [ ] Circular progress ring
+- [ ] Activity feed
+- [ ] Weekly streak calendar dots
+- [ ] Milestone celebration visuals
+- [ ] Mascot placement
 
----
+### Category List
 
-## 7 Logic Engines
+- [x] Back navigation + category header
+- [x] Full-width rule rows
+- [x] Arrow affordance in row item
+- [x] Category color + rule metadata in row
 
-- [ ] CountdownTimerEngine
-- [ ] IntervalReminderEngine
-- [ ] GuidedPromptEngine
-- [ ] SmartTaskSorterEngine
-- [ ] SpacedRepetitionEngine
-- [ ] AwarenessReflectionEngine
-- [ ] FreeWriteRecallEngine
+### Rule Page
 
----
+- [x] Rule header + engine mount area
+- [x] Engine routing by rule engine type
+- [x] Start/pause/end controls (inside engines)
+- [ ] Rule info sheet action (Info button TODO)
+- [ ] Session history card UI
+
+### Explore
+
+- [x] Search input
+- [x] Real-time filter
+- [x] Rule list navigation to details
+
+### Onboarding
+
+- [x] Basic onboarding screen
+- [ ] Full multi-step onboarding flow
+
+## Engines
+
+- [x] CountdownEngine
+- [x] IntervalReminderEngine
+- [x] GuidedPromptEngine
+- [x] SmartTaskSorterEngine
+- [x] SpacedRepetitionEngine
+- [x] AwarenessReflectionEngine
+- [x] FreeWriteRecallEngine
 
 ## System Features
 
-- [ ] Light/Dark theme (persisted via AsyncStorage)
-- [ ] Positivity scoring system
-- [ ] Local notifications (expo-notifications)
-- [ ] SQLite persistence (expo-sqlite)
-- [ ] Onboarding flow (3 screens)
-- [ ] About screen (bottom sheet or page)
+- [x] Theme architecture with AsyncStorage persistence
+- [x] Positivity store and session store
+- [x] Todo store and settings store
+- [ ] Notifications wiring to live app flows
+- [ ] SQLite persistence layer wiring
+- [ ] Real automated test suite
 
----
+## In-App Updater (Android)
 
-## In-App Updater (Direct Install)
+- [ ] GitHub releases version check
+- [ ] Update available state + UI
+- [ ] Changelog display
+- [ ] APK download with progress
+- [ ] Package installer flow
+- [ ] MIUI fallback behavior
+- [ ] Auto-check toggle in settings
+- [ ] Deferred install flow when session active
+- [ ] Install permission handling
 
-- [ ] GitHub API version check (compare current vs latest release tag)
-- [ ] Update available notification/badge on About or Home screen
-- [ ] Changelog display (rich text from GitHub release body)
-- [ ] APK download with progress indicator (foreground service)
-- [ ] Direct install via PackageInstaller Session API
-- [ ] MIUI fallback (Intent.ACTION_VIEW for Xiaomi devices)
-- [ ] Auto-check toggle in settings (enable/disable periodic checks)
-- [ ] Delayed install (if user is mid-session, install later)
-- [ ] `REQUEST_INSTALL_PACKAGES` permission handling
-
-**Research Reference:** `D:\Development\Production\research\docs\research\updater-logic\`
-**Pattern Reference:** `.agents/skills/android-updater-patterns/SKILL.md`
-
+Reference docs:
+- Updater research: `D:\Development\Production\research\docs\research\updater-logic\`
+- Skill reference: `.agents/skills/android-updater-patterns/SKILL.md`

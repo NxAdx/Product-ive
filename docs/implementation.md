@@ -1,173 +1,93 @@
-# Product+ive — Implementation Status
+﻿# Product+ive - Implementation Status
 
-> **Last Updated:** 2026-04-02 | **Current Phase:** Phase 2 (Engines) ✅ COMPLETE
-
----
+> Last Updated: 2026-04-02 (IST)
 
 ## Phase Status
 
-| Phase | Status | Description |
-|-------|--------|-------------|
-| Phase 0 | ✅ COMPLETE | Foundation: scaffold, nav, theme, RuleConfig, stores |
-| Phase 1 | ✅ COMPLETE | Core Screens: Home, Category, Rule, Todo, Explore, Meter |
-| Phase 2 | ✅ COMPLETE | Engines: All 7 engines fully implemented + engine routing |
-| Phase 3 | 🟡 In Progress | Todo + Positivity integration & database layer |
-| Phase 4 | ⬜ Not Started | Notifications (expo-notifications wiring) |
-| Phase 5 | ⬜ Not Started | In-App Updater (GitHub API + APK install) |
-| Phase 6 | ⬜ Not Started | Polish: mascot, celebrations, onboarding |
-| Phase 7 | ⬜ Not Started | App Store submission |
+| Phase | Status | Notes |
+|---|---|---|
+| Phase 0 - Foundation | COMPLETE | App scaffold, navigation shell, theme system, rule config, stores |
+| Phase 1 - Core Screens | COMPLETE | Home, Category, Rule, Todo, Explore, Meter screens implemented |
+| Phase 2 - Engines | COMPLETE | All 7 engines implemented and routed from rule screen |
+| Phase 3 - Persistence + scoring integration | PARTIAL | Todo and positivity stores exist; SQLite layer still pending |
+| Phase 4 - Notifications | NOT STARTED | Package installed, flow wiring pending |
+| Phase 5 - In-app updater | NOT STARTED | Requirements/research documented, implementation pending |
+| Phase 6 - Polish | PARTIAL | Basic onboarding exists; full polish/features pending |
+| Phase 7 - Release prep | NOT STARTED | Store packaging, signing, release automation pending |
 
----
+## Implemented Today (2026-04-02)
 
-## Phase 0: Foundation (COMPLETE!)
+### 1) Build and dependency stabilization
 
-### ✅ Project Setup
-- [x] Expo SDK 54 + React Native 0.81.5 scaffolded
-- [x] TypeScript strict mode configured
-- [x] ESLint configured (expo config)
-- [x] 639 npm packages installed (with --legacy-peer-deps for React 19)
+- Upgraded project to Expo SDK 55 dependency set.
+- Upgraded `lucide-react-native` to `^1.7.0`.
+- `npm ci` now works without `--legacy-peer-deps`.
+- Updated CI workflow to use Node 24-compatible JavaScript action runtime switch.
 
-### ✅ Navigation & Themes
-- [x] app/_layout.tsx (root + ThemeProvider)
-- [x] app/(tabs)/_layout.tsx (tab navigation)
-- [x] BottomNav floating pill (Home | + | Meter)
-- [x] Theme system with light/dark mode + AsyncStorage persistence
-- [x] Design tokens (colors, spacing, radius, fonts)
+### 2) Quality and compatibility fixes
 
-### ✅ Data & Configuration
-- [x] 20 complete rules with configs (4 categories)
-- [x] Category definitions (Learning, Focus, Productivity, Study)
-- [x] All engine types defined (countdown, interval, guided, sorter, spaced, awareness, freewrite)
+- Resolved CI lint blocker in `src/engines/AwarenessReflectionEngine.tsx`.
+- Fixed TypeScript strict issues in helper files:
+  - `components/parallax-scroll-view.tsx`
+  - `components/ui/icon-symbol.tsx`
+  - `hooks/use-theme-color.ts`
+- Added custom type declarations under `src/types/` and included `**/*.d.ts` in tsconfig.
+- Updated `app.json` to match Expo SDK 55 schema.
 
-### ✅ State Management (Zustand Stores)
-- [x] `positivityStore.ts` — weekly/lifetime scores, streaks, levels, rule discovery
-- [x] `sessionStore.ts` — active session state, pause/resume, phase tracking
-- [x] `todoStore.ts` — task management with rule tagging, priorities, completion
-- [x] `settingsStore.ts` — notification prefs, auto-update, sound/haptics
+### 3) Validation evidence
 
-### ✅ Screen Scaffolds
-- [x] Home/Index screen (2×2 category grid)
-- [x] Category screen (rule list)
-- [x] Rule detail screen (engine area + info + controls)
-- [x] Positivity Meter screen (scores, stats, streak)
-- [x] Todo screen scaffolded
+- `npm ci` -> PASS
+- `npx eslint app src --max-warnings=0` -> PASS
+- `npm run lint` -> PASS
+- `npx tsc --noEmit` -> PASS
+- `npx expo-doctor` -> PASS (17/17)
+- `npx expo export --platform web --clear` -> PASS
 
-### ✅ Components
-- [x] BottomNav (floating pill with Home/+/Meter)
-- [x] CategoryCard (skeleton in place)
-- [x] RuleRow (skeleton in place)
+## Current Implementation Coverage
 
-### ✅ CI/CD
-- [x] .github/workflows/ci-cd.yml (lint, typecheck, test, android build)
-- [x] All workflow stages configured
+### Screens
 
-### 🔄 Partially Complete (Will Complete in Phase 1-2)
-- [ ] Engine implementations (only CountdownEngine skeleton)
-- [ ] Full screen UI implementations (basic scaffolds exist)
-- [ ] Database initialization (expo-sqlite)
-- [ ] Component styling refinements
-- [ ] Animations (Reanimated integration)
+- Home (`app/(tabs)/index.tsx`) -> implemented
+- Todo (`app/(tabs)/todo.tsx`) -> implemented
+- Explore (`app/(tabs)/explore.tsx`) -> implemented
+- Meter (`app/(tabs)/meter.tsx`) -> implemented
+- Category (`app/category/[id].tsx`) -> implemented
+- Rule detail (`app/rule/[id].tsx`) -> implemented
+- Onboarding (`app/onboarding.tsx`) -> basic single-screen implementation
 
----
+### Engines
 
-## What's Ready for Phase 1
+All 7 engines are present in `src/engines/` and routed from `app/rule/[id].tsx`:
 
-Developers can now:
-1. ✅ Run `npm install` → dependencies installed
-2. ✅ Run `npm start` → app launches (with navigation working)
-3. ✅ Navigate between Home → Category → Rule screens
-4. ✅ Theme toggle works (persists via AsyncStorage)
-5. ✅ All 20 rules accessible and configured
-6. ✅ Zustand stores ready for use in components
-7. ✅ Execute any of 7 engines from rule detail screen
-8. ✅ Create tasks, search rules, view positivity meter
+1. `CountdownEngine`
+2. `IntervalReminderEngine`
+3. `GuidedPromptEngine`
+4. `SmartTaskSorterEngine`
+5. `SpacedRepetitionEngine`
+6. `AwarenessReflectionEngine`
+7. `FreeWriteRecallEngine`
 
----
+### Stores
 
-## Phase 1: Core Screens (COMPLETE!)
+- `theme` context + persistence
+- `positivityStore`
+- `sessionStore`
+- `todoStore`
+- `settingsStore`
 
-### ✅ Screens Implemented
-- [x] Home/Index screen (2×2 category grid with Reanimated animations)
-- [x] Category screen (filterable rule list with RuleRow component)
-- [x] Rule Detail screen (engine router + info display)
-- [x] Todo screen (add form, priority system, completion tracking, filtering)
-- [x] Explore/Search screen (rule search with FlatList + real-time filtering)
-- [x] Meter screen (positivity stats, streaks, lifetime score)
+## Known Gaps
 
-### ✅ Components
-- [x] CategoryCard (with spring animations)
-- [x] RuleRow (animated with engine type display)
-- [x] BottomNav (4-tab floating pill with proper active state)
-- [x] Theme provider + useTheme hook
+1. `npm test` is still a placeholder script (no real automated tests yet).
+2. SQLite persistence layer is not wired.
+3. Notifications are not wired to rule/session events.
+4. In-app updater logic is not implemented yet.
+5. `app/todo.tsx` modal save action still has a TODO.
+6. Rule info action in `app/rule/[id].tsx` is still TODO.
 
-### ✅ Navigation
-- [x] Tab navigation (home, todo, explore, meter)
-- [x] Stack navigation (category → rule detail)
-- [x] Proper back button handling
-- [x] Safe area insets applied
+## Next Code Targets
 
-### ✅ Styling
-- [x] Design tokens fully utilized (colors, spacing, radius)
-- [x] Light/dark mode support throughout
-- [x] Responsive layouts
-- [x] Proper typography hierarchy
-
----
-
-## Phase 2: Engines (COMPLETE!)
-
-### ✅ All 7 Engines Implemented
-
-1. **CountdownEngine** ✅
-   - Timer-based focus (25m Pomodoro, 90m Ultradian, etc.)
-   - Play/pause/stop controls
-   - Circular timer display
-   - Session persistence via sessionStore
-
-2. **IntervalReminderEngine** ✅
-   - Periodic reminder prompts (20-20-20 rule, water breaks)
-   - Customizable interval timing
-   - Reminder counter
-   - Alert notifications
-
-3. **GuidedPromptEngine** ✅
-   - Step-by-step guided techniques
-   - Supports: Feynman, Cornell, SQ3R, Mind Mapping, Elaborative Interrogation
-   - Progressive disclosure (intro → steps → response capture)
-   - Text input for note-taking
-
-4. **SmartTaskSorterEngine** ✅
-   - Task prioritization tools
-   - Supports: Eat the Frog (1 task), 1-3-5, 80/20 (top 3)
-   - Add/remove tasks UI
-   - Session checklist with completion tracking
-
-5. **SpacedRepetitionEngine** ✅
-   - Flashcard-based review
-   - SM-2 spaced repetition algorithm
-   - Create cards (Q/A pairs)
-   - Review mode with difficulty ratings
-   - Automatic next-review scheduling
-
-6. **AwarenessReflectionEngine** ✅
-   - Reflection prompts every 2 minutes (configurable)
-   - Supports: Parkinson's Law, 5-Second Rule
-   - Rule-specific prompt sets
-   - Reflection counter
-
-7. **FreeWriteRecallEngine** ✅
-   - Timed freewriting/recall sessions
-   - Supports: Active Recall, Blurting, Chunking, Interleaving
-   - Word/character counter
-   - Real-time session stats
-   - Configurable duration
-
-### ✅ Engine Integration
-- [x] Rule detail screen engine router (all 7 engines functional)
-- [x] Integration with sessionStore (start/pause/end)
-- [x] Integration with positivityStore (point awards)
-- [x] Integration with todoStore (task access)
-- [x] Consistent UI/UX across all engines
-- [x] Category color theming per engine
-
-Next: Database layer (SQLite), notifications, in-app updater, polish
+1. Replace placeholder test script with real Jest/RNTL test suite.
+2. Implement SQLite schema + repositories + migration bootstrap.
+3. Wire notifications for reminders/streak/review prompts.
+4. Implement Android updater service (version check, download, install).
+5. Expand onboarding from single-screen to full onboarding flow.

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Pressable, FlatList } from 'react-native';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { RULES } from '../../src/data/rules';
 import { CATEGORIES } from '../../src/data/categories';

@@ -1,25 +1,42 @@
-# Product+ive — Project Overview
+﻿# Product+ive - Project Overview
 
-> **"Rules that work. Habits that last."**
+> Rules that work. Habits that last.
 
-Product+ive is a science-backed productivity companion that teaches users 20 proven productivity, focus, learning, and study rules, lets them run guided interactive sessions for each rule, and tracks their progress via a Positivity Meter.
+Product+ive is an offline-first React Native app that turns evidence-based productivity and study rules into guided interactive sessions.
 
-## Key Features
+## What the app currently includes
 
-- **20 Rules** across 4 categories (Learning & Memory, Focus & Sessions, Productivity, Study Techniques)
-- **7 Reusable Logic Engines** powering all rule sessions
-- **Positivity Meter** — consistency score that rewards showing up
-- **Smart Todo** — rule-aware task list with intelligent sorting
-- **Light/Dark Theme** — monochromatic design with category colour accents
-- **Offline-first** — no account required, all data on device
+- 20 rules across 4 categories
+- 7 reusable engines mapped by rule configuration
+- Home, Todo, Explore, Meter, Category, and Rule screens
+- Positivity scoring stores and session state stores
+- On-device persistence (AsyncStorage via Zustand)
 
-## Tech Stack
+## Current stack (repo state)
 
-- React Native + Expo SDK 52
-- TypeScript (strict mode)
-- expo-router · Zustand · expo-sqlite
-- react-native-reanimated 3 · expo-notifications
+- Expo SDK 55 (`expo@^55.0.9`)
+- React Native 0.83.4
+- React 19.2.0
+- TypeScript strict mode
+- Expo Router + Zustand + Expo SQLite (integration pending)
 
-## Documentation
+## Current quality status
 
-See `docs/` folder for complete project documentation.
+Validated on 2026-04-02:
+
+- `npm ci` passes
+- `npx eslint app src --max-warnings=0` passes
+- `npx tsc --noEmit` passes
+- `npx expo-doctor` passes (17/17)
+- `npx expo export --platform web --clear` passes
+
+## Documentation map
+
+See the `docs/` folder for details:
+
+- `docs/requirements.md`
+- `docs/implementation.md`
+- `docs/feature-list.md`
+- `docs/roadmap.md`
+- `docs/AGENT-CONTEXT.md`
+- `docs/update-logs.md`

@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, develop]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   lint-typecheck-test:
     name: Lint, TypeCheck & Test
@@ -19,10 +22,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Lint
-        run: npx eslint src/ --max-warnings=0
+        run: npx eslint app src --max-warnings=0
 
       - name: TypeScript Check
         run: npx tsc --noEmit
@@ -53,7 +56,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Build Android APK
         run: cd android && ./gradlew assembleRelease

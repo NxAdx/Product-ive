@@ -24,7 +24,7 @@ export function IntervalReminderEngine({ rule, color }: EngineProps) {
 
   // Timer for interval reminders
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isRunning) {
       interval = setInterval(() => {
         setNextReminder((prev: number) => {
@@ -42,7 +42,11 @@ export function IntervalReminderEngine({ rule, color }: EngineProps) {
         });
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [isRunning, rule]);
 
   const handleStart = () => {

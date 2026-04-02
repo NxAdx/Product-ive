@@ -18,7 +18,7 @@ export function CountdownEngine({ rule, color }: EngineProps) {
 
   // Extremely basic timer implementation for standard spec requirement
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isRunning) {
       interval = setInterval(() => {
         setTimeLeft((prev: number) => {
@@ -31,7 +31,11 @@ export function CountdownEngine({ rule, color }: EngineProps) {
         });
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [isRunning, session]);
 
   const handleToggle = () => {

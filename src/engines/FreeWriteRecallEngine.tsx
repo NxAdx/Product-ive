@@ -33,7 +33,7 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
 
   // Timer effect
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (timerRunning && sessionStarted) {
       interval = setInterval(() => {
         setTimeLeft((prev: number) => {
@@ -46,7 +46,11 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
         });
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timerRunning, sessionStarted]);
 
@@ -72,7 +76,7 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
     
     // Award points based on word count
     const pointsEarned = Math.ceil(wordCount / 10); // 1 point per 10 words
-    positivity.addPoints(pointsEarned);
+    positivity.addPoints(pointsEarned, 'freewrite_session', rule.id);
     
     setSessionStarted(false);
     setContent('');
