@@ -1,4 +1,4 @@
-﻿mport { CategoryId } from './categories';
+﻿import { CategoryId } from './categories';
 
 export type EngineType =
   | 'countdown' | 'interval' | 'guided'
