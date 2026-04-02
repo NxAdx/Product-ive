@@ -70,7 +70,7 @@ export const RULES: RuleConfig[] = [
     engineConfig: { steps: [
       { title: 'Choose a topic', prompt: 'What concept do you want to understand?' },
       { title: 'Explain it simply', prompt: 'Explain it as if teaching a 12-year-old. No jargon allowed.' },
-      { title: 'Find your gaps', prompt: 'Where did you struggle? What couldn\'t you explain? List the gaps.' },
+      { title: 'Find your gaps', prompt: 'Where did you struggle? What couldn't you explain? List the gaps.' },
       { title: 'Review and simplify', prompt: 'Go back to the source. Now explain the gaps you identified.' },
     ]},
     pointsPerSession: 15, 
@@ -85,7 +85,7 @@ export const RULES: RuleConfig[] = [
     description: 'Identify your most important (and often most dreaded) task and do it first. This single habit eliminates procrastination at its root.',
     whyItWorks: 'Willpower and focus are highest in the morning. Completing the hardest task first creates psychological momentum for the rest of the day.',
     bestFor: ['morning routines', 'overcoming procrastination', 'high-priority projects'],
-    engineConfig: { sortMode: 'frog', prompt: 'What is your most important task today? The one you\\'ve been avoiding.' },
+    engineConfig: { sortMode: 'frog', prompt: 'What is your most important task today? The one you\'ve been avoiding.' },
     pointsPerSession: 15, 
     discoveryBonus: 25 
   },
@@ -95,7 +95,7 @@ export const RULES: RuleConfig[] = [
     categoryId: 'productivity',
     engine: 'countdown',
     shortDescription: 'If it takes 2 minutes, do it right now',
-    description: 'If a task takes less than 2 minutes to complete, do it immediately. Don\\'t schedule it, don\\'t write it down — just do it.',
+    description: 'If a task takes less than 2 minutes to complete, do it immediately. Don\'t schedule it, don\'t write it down — just do it.',
     whyItWorks: 'The time spent writing down, organising, and revisiting a 2-minute task often exceeds the time to just do it. Reduces backlog anxiety.',
     bestFor: ['email replies', 'small admin tasks', 'quick decisions'],
     engineConfig: { workDuration: 2 * 60, cycles: 1, label: 'Do it NOW', noBreak: true },
@@ -122,7 +122,7 @@ export const RULES: RuleConfig[] = [
     engine: 'freewrite',
     shortDescription: 'Test your memory instead of re-reading',
     description: 'Close your notes and write down everything you remember about a topic. Then check what you missed. This beats re-reading by 50–100%.',
-    whyItWorks: 'Retrieval practice strengthens memory pathways. Re-reading creates a "fluency illusion" — you feel you know it but can\\'t retrieve it under pressure.',
+    whyItWorks: 'Retrieval practice strengthens memory pathways. Re-reading creates a "fluency illusion" — you feel you know it but can\'t retrieve it under pressure.',
     bestFor: ['exam prep', 'reviewing lectures', 'consolidating learning'],
     engineConfig: { mode: 'recall', topicPrompt: 'What topic are you reviewing?', timerMode: true },
     pointsPerSession: 15, 
@@ -172,7 +172,7 @@ export const RULES: RuleConfig[] = [
     name: 'Elaborative Interrogation', 
     categoryId: 'learning',
     engine: 'guided',
-    shortDescription: 'Ask "why" and "how" repeatedly about what you\\'re learning',
+    shortDescription: 'Ask "why" and "how" repeatedly about what you\'re learning',
     description: 'For each piece of information, ask "Why is this true?" and "How does this relate to what I already know?" Write out your explanations. This technique forces deep processing.',
     whyItWorks: 'Generating explanations creates stronger semantic links to existing knowledge. Deep processing creates retrieval cues that improve long-term memory.',
     bestFor: ['understanding concepts', 'exam preparation', 'critical thinking'],
@@ -189,7 +189,7 @@ export const RULES: RuleConfig[] = [
     description: 'Each day, plan exactly 1 big goal, 3 medium goals, and 5 small goals. This creates structure without overwhelming yourself. Most people vastly overestimate what they can do in a day.',
     whyItWorks: 'Realistic daily targets prevent decision fatigue and burnout. The mix of sizes ensures both short-term wins and progress on long-term goals.',
     bestFor: ['daily planning', 'avoiding overcommitment', 'balanced productivity'],
-    engineConfig: { bigSlots: 1, mediumSlots: 3, smallSlots: 5, prompt: 'What\\'s your one big goal for today?' },
+    engineConfig: { bigSlots: 1, mediumSlots: 3, smallSlots: 5, prompt: 'What\'s your one big goal for today?' },
     pointsPerSession: 10,
     discoveryBonus: 25
   },
@@ -208,7 +208,7 @@ export const RULES: RuleConfig[] = [
   },
   { 
     id: 'parkinsons_law', 
-    name: 'Parkinson\\'s Law', 
+    name: 'Parkinson\'s Law', 
     categoryId: 'productivity',
     engine: 'awareness',
     shortDescription: 'Work expands to fill the time allowed; set tight deadlines',
@@ -225,7 +225,7 @@ export const RULES: RuleConfig[] = [
     categoryId: 'productivity',
     engine: 'awareness',
     shortDescription: 'Count down 5-4-3-2-1 and do it before hesitation kicks in',
-    description: 'When you identify something that scares you or you\\'re procrastinating on, count down from 5. At "1," take action immediately. Bypasses the brain\\'s resistance.',
+    description: 'When you identify something that scares you or you\'re procrastinating on, count down from 5. At "1," take action immediately. Bypasses the brain\'s resistance.',
     whyItWorks: 'Self-doubt and hesitation build in the first 5 seconds. Immediate action prevents the amygdala from activating the fear response. Builds action-first habits.',
     bestFor: ['overcoming anxiety', 'stopping procrastination', 'building confidence'],
     engineConfig: { countdownSeconds: 5, actionPrompt: 'What are you avoiding?' },
@@ -264,7 +264,7 @@ export const RULES: RuleConfig[] = [
     categoryId: 'study',
     engine: 'guided',
     shortDescription: 'Mix different problems/topics during practice, not blocked',
-    description: 'Instead of practicing math topic A for 1 hour, then topic B for 1 hour, randomly interleave them: A, B, A, C, B, A. Feels harder. It IS harder. That\\'s the point.',
+    description: 'Instead of practicing math topic A for 1 hour, then topic B for 1 hour, randomly interleave them: A, B, A, C, B, A. Feels harder. It IS harder. That\'s the point.',
     whyItWorks: 'Interleaving forces the brain to distinguish between problem types and apply the right strategy. Blocked practice creates false fluency (you forget which strategy to use in exams).',
     bestFor: ['math', 'problem-solving', 'skill acquisition', 'pattern recognition'],
     engineConfig: { mixMode: 'random', topics: [], prompt: 'What topics are you practicing?' },
@@ -278,7 +278,7 @@ export const RULES: RuleConfig[] = [
     engine: 'spaced',
     shortDescription: 'Review the same day, 4 days later, 7 days later',
     description: 'Review new material today, again in 4 days, and once more in 7 days. This specific schedule balances frequency and spacing for optimal memory consolidation.',
-    whyItWorks: 'This schedule aligns with the forgetting curve. Each review happens just before you\\'d forget, maximizing memory strength without wasted repetitions.',
+    whyItWorks: 'This schedule aligns with the forgetting curve. Each review happens just before you\'d forget, maximizing memory strength without wasted repetitions.',
     bestFor: ['language learning', 'vocabulary', 'facts and definitions'],
     engineConfig: { intervals: [0, 4, 7], notifyAt: '10:00' },
     pointsPerSession: 15,
@@ -288,3 +288,4 @@ export const RULES: RuleConfig[] = [
 
 export const getRuleById = (id: string) => Object.freeze(RULES.find(r => r.id === id) || RULES[0]);
 export const getRulesByCategory = (catId: CategoryId) => RULES.filter(r => r.categoryId === catId);
+
