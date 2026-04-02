@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { useTodoStore } from '../../src/store/todoStore';
@@ -35,8 +35,13 @@ export default function TodoScreen() {
   const frogTask = activeTodos.find((x) => x.priority === 'high');
 
   return (
-    <View style={[styles.container, { backgroundColor: t.bg, paddingTop: insets.top }]}> 
-      <View style={styles.header}>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      style={[styles.container, { backgroundColor: t.bg }]}
+    > 
+      <View style={[styles.headerWrapper, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
         <Pressable
           onPress={() => {
             logRuntimeEvent('todo_back_home').catch(() => {});
@@ -55,6 +60,7 @@ export default function TodoScreen() {
 
         <Text style={[styles.title, { color: t.ink }]}>Tasks</Text>
         <Text style={[styles.subtitle, { color: t.inkMid }]}>{activeTodos.length} active</Text>
+      </View>
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
@@ -215,12 +221,16 @@ export default function TodoScreen() {
           ))}
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  headerWrapper: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'transparent',
+  },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 16,

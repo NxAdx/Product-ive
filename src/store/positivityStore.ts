@@ -9,9 +9,11 @@ export interface PositivityStore {
   weeklyStreak: number;
   rulesUsed: string[];
   lastActiveDate: string;
+  dismissedRecommendations: string[];
   addPoints: (amount: number, source: string, ruleId?: string) => void;
   markRuleUsed: (ruleId: string) => boolean;
   checkAndResetWeekly: () => void;
+  dismissRecommendation: (ruleId: string) => void;
 }
 
 const LEVELS = [
@@ -66,6 +68,7 @@ export const usePositivityStore = create<PositivityStore>()(
       weeklyStreak: 0,
       rulesUsed: [],
       lastActiveDate: '',
+      dismissedRecommendations: [],
 
       addPoints: (amount) => {
         const now = new Date();
@@ -110,6 +113,12 @@ export const usePositivityStore = create<PositivityStore>()(
         if (isDifferentWeek(lastActiveDate, now)) {
           set({ weeklyScore: 0, weeklyStreak: 0 });
         }
+      },
+
+      dismissRecommendation: (ruleId) => {
+        set((state) => ({
+          dismissedRecommendations: [...state.dismissedRecommendations, ruleId],
+        }));
       },
     }),
     { name: 'positivity', storage: createJSONStorage(() => AsyncStorage) }

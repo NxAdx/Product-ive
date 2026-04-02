@@ -276,11 +276,11 @@ export const RULES: RuleConfig[] = [
     name: '1-4-7 Spacing Rule', 
     categoryId: 'learning',
     engine: 'spaced',
-    shortDescription: 'Review the same day, 4 days later, 7 days later',
-    description: 'Review new material today, again in 4 days, and once more in 7 days. This specific schedule balances frequency and spacing for optimal memory consolidation.',
+    shortDescription: 'Review same day, 4 days later, 7 days later',
+    description: 'Review new material today, then receive reminders on day 4 and day 7 to review again. This specific schedule balances frequency and spacing for optimal memory consolidation.',
     whyItWorks: 'This schedule aligns with the forgetting curve. Each review happens just before you\'d forget, maximizing memory strength without wasted repetitions.',
     bestFor: ['language learning', 'vocabulary', 'facts and definitions'],
-    engineConfig: { intervals: [0, 4, 7], notifyAt: '10:00' },
+    engineConfig: { intervals: [0, 4, 7], reminderDays: [4, 7], notifyAt: '10:00' },
     pointsPerSession: 15,
     discoveryBonus: 25
   }

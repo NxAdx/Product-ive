@@ -7,6 +7,8 @@ import { CategoryCard } from '../../src/components/CategoryCard';
 import { StatsCard } from '../../src/components/StatsCard';
 import { DailyTip } from '../../src/components/DailyTip';
 import { ProgressBar } from '../../src/components/ProgressBar';
+import { SessionStatusBadge } from '../../src/components/SessionStatusBadge';
+import { SmartRuleRecommendations } from '../../src/components/SmartRuleRecommendations';
 import { Settings2 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { logRuntimeEvent } from '../../src/utils/runtimeLogs';
@@ -45,10 +47,16 @@ export default function Home() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
       >
+        {/* Active Session Indicator */}
+        <SessionStatusBadge />
+
         {/* Tier 1 Features */}
         <StatsCard />
         <DailyTip />
         <ProgressBar />
+
+        {/* Tier 2: Smart Recommendations */}
+        <SmartRuleRecommendations />
 
         {/* Category Grid */}
         <Text style={[styles.sectionTitle, { color: t.inkDim }]}>Explore Categories</Text>
