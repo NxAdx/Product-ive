@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useTheme } from '../theme/ThemeContext';
-import { CategoryConfig, getRulesByCategory } from '../data/categories';
-import { getRuleById, RULES } from '../data/rules';
+import { CategoryConfig } from '../data/categories';
+import { RULES } from '../data/rules';
 
 interface CategoryCardProps {
   category: CategoryConfig;

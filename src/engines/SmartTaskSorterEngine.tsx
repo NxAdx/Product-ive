@@ -38,6 +38,7 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
 
   useEffect(() => {
     // Load tasks for this session
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const activeTasks = todoStore.getActiveTodos();
     setSessionTasks(activeTasks);
   }, []);

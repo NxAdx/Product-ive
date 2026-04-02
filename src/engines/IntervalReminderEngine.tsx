@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
-import { Clock, CheckCircle, Pause } from 'lucide-react-native';
+import { Clock, CheckCircle } from 'lucide-react-native';
 
 interface EngineProps {
   rule: RuleConfig;

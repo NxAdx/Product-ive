@@ -4,7 +4,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { usePositivityStore } from '../store/positivityStore';
-import { Play, Pause, CheckCircle, RotateCcw } from 'lucide-react-native';
+import { Play, CheckCircle, RotateCcw } from 'lucide-react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 interface EngineProps {
@@ -26,7 +26,6 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
   const [timerRunning, setTimerRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(rule.engineConfig.duration || 10 * 60);
   const [content, setContent] = useState('');
-  const [startTime] = useState(Date.now());
 
   const wordCount = content.trim().split(/\s+/).filter(w => w.length > 0).length;
   const charCount = content.length;
@@ -48,6 +47,7 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
       }, 1000);
     }
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timerRunning, sessionStarted]);
 
   const handleStart = () => {

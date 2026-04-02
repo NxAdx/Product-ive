@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, FlatList, TextInput, Alert } from 'r
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
-import { Plus, Trash2, CheckCircle, ChevronRight } from 'lucide-react-native';
+import { Plus, Trash2, ChevronRight } from 'lucide-react-native';
 
 interface EngineProps {
   rule: RuleConfig;

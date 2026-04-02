@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, Animated as RNAnimated } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { Lightbulb, CheckCircle, RotateCcw } from 'lucide-react-native';
-import Animated, { FadeInDown, FadeOut, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -22,7 +22,6 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
   const [sessionStarted, setSessionStarted] = useState(false);
   const [promptIndex, setPromptIndex] = useState(0);
   const [reflectionCount, setReflectionCount] = useState(0);
-  const [lastPromptTime, setLastPromptTime] = useState<Date | null>(null);
 
   // Get reflection prompts from rule config
   const prompts = rule.engineConfig.prompts || [
@@ -64,7 +63,7 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
       }, rule.engineConfig.interval || 2 * 60 * 1000);
     }
     return () => clearInterval(interval);
-  }, [sessionStarted, promptIndex]);
+  }, [sessionStarted, promptIndex, rule.engineConfig.interval]);
 
   const showPrompt = () => {
     setPromptIndex(prev => prev + 1);
