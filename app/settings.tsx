@@ -5,7 +5,7 @@ import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Bug, CircleAlert, Info } from 'lucide-react-native';
+import { ArrowLeft, Bug, CircleAlert, Info, Download } from 'lucide-react-native';
 
 import { useTheme } from '../src/theme/ThemeContext';
 import { useSettingsStore } from '../src/store/settingsStore';
@@ -13,6 +13,7 @@ import { usePositivityStore } from '../src/store/positivityStore';
 import { useSessionStore } from '../src/store/sessionStore';
 import { useTodoStore } from '../src/store/todoStore';
 import { getRuntimeLogs, logRuntimeEvent } from '../src/utils/runtimeLogs';
+import { UpdateManager } from '../src/services/UpdateManager';
 
 const CURRENT_VERSION_CHANGES = [
   'Android CI build reliability and performance improved.',
@@ -33,6 +34,7 @@ export default function SettingsScreen() {
   const [showChangelog, setShowChangelog] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
 
   const currentVersion = useMemo(() => Constants.expoConfig?.version || '1.0.0', []);
 
@@ -116,6 +118,51 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleCheckUpdates = async () => {
+    if (isCheckingUpdates) return;
+
+    try {
+      setIsCheckingUpdates(true);
+      await logRuntimeEvent('settings_check_updates_start');
+
+      const updateInfo = await UpdateManager.checkForUpdates();
+
+      if (updateInfo.isAvailable) {
+        Alert.alert(
+          'Update Available',
+          `A new version (${updateInfo.latestVersion}) is available.\n\n${updateInfo.releaseNotes}`,
+          [
+            { text: 'Later', style: 'cancel' },
+            {
+              text: 'Update Now',
+              onPress: async () => {
+                try {
+                  await UpdateManager.downloadAndInstall();
+                } catch (e) {
+                  Alert.alert('Update Failed', 'Could not install the update. Please try again later.');
+                  await logRuntimeEvent('settings_update_install_error', {
+                    message: e instanceof Error ? e.message : 'unknown',
+                  });
+                }
+              },
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Up to Date', `You are running the latest version (${updateInfo.currentVersion}).`);
+      }
+
+      await logRuntimeEvent('settings_check_updates_success', { isAvailable: updateInfo.isAvailable });
+    } catch (error) {
+      await logRuntimeEvent('settings_check_updates_error', {
+        message: error instanceof Error ? error.message : 'unknown',
+      });
+      Alert.alert('Check Failed', 'Could not check for updates. Please try again later.');
+    } finally {
+      setIsCheckingUpdates(false);
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: t.bg, paddingTop: insets.top }]}>
       <View style={styles.topBar}>
@@ -166,6 +213,14 @@ export default function SettingsScreen() {
               <Text style={[styles.rowLabel, { color: t.ink }]}>Report bug</Text>
             </View>
             {isExporting ? <ActivityIndicator color={t.ink} /> : <Text style={[styles.rowValue, { color: t.inkMid }]}>Export .txt</Text>}
+          </Pressable>
+
+          <Pressable style={styles.actionRow} onPress={handleCheckUpdates} disabled={isCheckingUpdates}>
+            <View style={styles.actionLeft}>
+              <Download size={18} color={t.ink} />
+              <Text style={[styles.rowLabel, { color: t.ink }]}>Check for updates</Text>
+            </View>
+            {isCheckingUpdates ? <ActivityIndicator color={t.ink} /> : <Text style={[styles.rowValue, { color: t.inkMid }]}>Auto</Text>}
           </Pressable>
 
           <Pressable style={styles.actionRow} onPress={() => setShowChangelog((prev) => !prev)}>

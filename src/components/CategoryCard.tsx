@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useTheme } from '../theme/ThemeContext';
@@ -13,8 +13,12 @@ interface CategoryCardProps {
 
 export function CategoryCard({ category, onPress }: CategoryCardProps) {
   const t = useTheme();
-  const scale = useSharedValue(1);
-  const iconRotation = useSharedValue(0);
+  
+  // Use useRef to persist shared values across renders, preventing animation glitches on navigation
+  const scaleRef = useRef(useSharedValue(1));
+  const rotationRef = useRef(useSharedValue(0));
+  const scale = scaleRef.current;
+  const iconRotation = rotationRef.current;
 
   const rulesCount = RULES.filter(r => r.categoryId === category.id).length;
 

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, View, Text, StyleSheet, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { getRuleById } from '../../src/data/rules';
 import { CATEGORIES } from '../../src/data/categories';
+import { ThemedAlert } from '../../src/components/ThemedAlert';
 import { CountdownEngine } from '../../src/engines/CountdownEngine';
 import { IntervalReminderEngine } from '../../src/engines/IntervalReminderEngine';
 import { GuidedPromptEngine } from '../../src/engines/GuidedPromptEngine';
@@ -19,6 +20,9 @@ export default function RuleScreen() {
   const router = useRouter();
   const t = useTheme();
   const insets = useSafeAreaInsets();
+  const [showInfo, setShowInfo] = useState(false);
+  const [infoTitle, setInfoTitle] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
   
   const rule = getRuleById(String(id || ''));
   if (!rule) {
@@ -83,9 +87,11 @@ export default function RuleScreen() {
           {rule.name}
         </Text>
         <Pressable
-          onPress={() =>
-            Alert.alert(rule.name, `${rule.description}\n\nWhy it works:\n${rule.whyItWorks}`)
-          }
+          onPress={() => {
+            setInfoTitle(rule.name);
+            setInfoMessage(`${rule.description}\n\nWhy it works:\n${rule.whyItWorks}`);
+            setShowInfo(true);
+          }}
           style={[styles.btn, { backgroundColor: 'transparent' }]}
         >
           <Info size={18} color={t.inkMid} strokeWidth={2} />
@@ -95,6 +101,13 @@ export default function RuleScreen() {
       <View style={styles.engineContainer}>
         {renderEngine()}
       </View>
+
+      <ThemedAlert 
+        visible={showInfo} 
+        title={infoTitle} 
+        message={infoMessage} 
+        onClose={() => setShowInfo(false)} 
+      />
     </View>
   );
 }
