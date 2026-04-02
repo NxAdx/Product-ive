@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { getRuleById } from '../../src/data/rules';
