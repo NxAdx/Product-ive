@@ -234,7 +234,7 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
           </Text>
           <Text style={[styles.cardText, { 
             color: cardFlipped ? '#FFF' : t.ink 
-          ]}>
+          }]}>
             {cardFlipped ? currentCard.back : currentCard.front}
           </Text>
         </View>
