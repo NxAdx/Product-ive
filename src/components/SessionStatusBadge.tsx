@@ -15,6 +15,13 @@ export function SessionStatusBadge() {
   const resumeSession = useSessionStore((s) => s.resumeSession);
   const endSession = useSessionStore((s) => s.endSession);
 
+  // Calculate elapsed time - must be before early returns (hooks rule)
+  const elapsedSeconds = useMemo(() => {
+    if (!startTime) return 0;
+    const now = pausedAt || Date.now();
+    return Math.floor((now - startTime) / 1000);
+  }, [startTime, pausedAt]);
+
   // Only show if there's an active session
   if (!activeRuleId || phase === 'idle') {
     return null;
@@ -24,13 +31,6 @@ export function SessionStatusBadge() {
   if (!rule) {
     return null;
   }
-
-  // Calculate elapsed time
-  const elapsedSeconds = useMemo(() => {
-    if (!startTime) return 0;
-    const now = pausedAt || Date.now();
-    return Math.floor((now - startTime) / 1000);
-  }, [startTime, pausedAt]);
 
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
