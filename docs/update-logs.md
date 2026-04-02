@@ -17,6 +17,10 @@
 - Updated `.github/workflows/ci-cd.yml` build job to auto-generate native Android project before Gradle build:
   - added step:
     - `npx expo prebuild --platform android --non-interactive` (only if `android/` is missing)
+- Upgraded action versions to Node 24-era majors to reduce Node 20 deprecation noise:
+  - `actions/checkout@v6`
+  - `actions/setup-node@v6`
+  - `actions/setup-java@v5`
 
 ### Result expectation
 

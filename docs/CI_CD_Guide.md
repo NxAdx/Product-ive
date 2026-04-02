@@ -20,8 +20,8 @@
 
 ## Job 1: Lint, TypeCheck and Test
 
-1. `actions/checkout@v4`
-2. `actions/setup-node@v4` (`node-version: 22`, npm cache)
+1. `actions/checkout@v6`
+2. `actions/setup-node@v6` (`node-version: 22`, npm cache)
 3. `npm ci`
 4. `npx eslint app src --max-warnings=0`
 5. `npx tsc --noEmit`
@@ -36,9 +36,9 @@ Runs only when:
 - job 1 passed
 
 Steps:
-1. `actions/checkout@v4`
-2. `actions/setup-java@v4` (Temurin 17)
-3. `actions/setup-node@v4` (Node 22)
+1. `actions/checkout@v6`
+2. `actions/setup-java@v5` (Temurin 17)
+3. `actions/setup-node@v6` (Node 22)
 4. `npm ci`
 5. If `android/` is missing, run `npx expo prebuild --platform android --non-interactive`
 6. `cd android && ./gradlew assembleRelease`
