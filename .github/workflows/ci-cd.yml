@@ -58,6 +58,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate Android native project (if missing)
+        run: |
+          if [ ! -d "android" ]; then
+            npx expo prebuild --platform android --non-interactive
+          fi
+
       - name: Build Android APK
         run: cd android && ./gradlew assembleRelease
 

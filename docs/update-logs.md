@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-04-02 - CI fix for Android build job
+
+### Workflow failure analyzed from GitHub logs
+
+- Build job failed at:
+  - `cd android && ./gradlew assembleRelease`
+  - reason: `android/` folder was missing in repo checkout (`No such file or directory`)
+
+### Fix applied
+
+- Updated `.github/workflows/ci-cd.yml` build job to auto-generate native Android project before Gradle build:
+  - added step:
+    - `npx expo prebuild --platform android --non-interactive` (only if `android/` is missing)
+
+### Result expectation
+
+- CI no longer assumes committed `android/` directory.
+- Managed Expo workflow can still produce APK in GitHub Actions.
+
+---
+
 ## 2026-04-02 - Build stabilization, dependency cleanup, and docs refresh
 
 ### App and dependency work

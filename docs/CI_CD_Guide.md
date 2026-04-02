@@ -40,8 +40,9 @@ Steps:
 2. `actions/setup-java@v4` (Temurin 17)
 3. `actions/setup-node@v4` (Node 22)
 4. `npm ci`
-5. `cd android && ./gradlew assembleRelease`
-6. Upload artifact with `actions/upload-artifact@v4`
+5. If `android/` is missing, run `npx expo prebuild --platform android --non-interactive`
+6. `cd android && ./gradlew assembleRelease`
+7. Upload artifact with `actions/upload-artifact@v4`
 
 ## Notes
 
