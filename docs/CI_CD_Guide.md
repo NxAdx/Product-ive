@@ -10,6 +10,7 @@
 
 - Push: `main`, `develop`
 - Pull request: `main`, `develop`
+- Docs-only and agent-config-only changes are ignored (`docs/**`, `.agents/**`, `ss/**`) to avoid unnecessary CI runs.
 
 ## Runtime and tooling
 
@@ -17,6 +18,7 @@
 - Node: `22`
 - Java: Temurin `17`
 - Action runtime migration flag: `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
+- Workflow concurrency: enabled (`cancel-in-progress: true`) to cancel older in-flight runs for the same ref.
 
 ## Job 1: Lint, TypeCheck and Test
 
@@ -38,11 +40,14 @@ Runs only when:
 Steps:
 1. `actions/checkout@v6`
 2. `actions/setup-java@v5` (Temurin 17)
+   - Gradle dependency cache enabled (`cache: gradle`)
 3. `actions/setup-node@v6` (Node 22)
 4. `npm ci`
-5. If `android/` is missing, run `npx expo prebuild --platform android --non-interactive`
-6. `cd android && ./gradlew assembleRelease`
-7. Upload artifact with `actions/upload-artifact@v4`
+5. `expo/expo-github-action@v8` with Expo/EAS cache enabled
+6. If `android/` is missing, run `npx expo prebuild --platform android --non-interactive`
+7. Build with Gradle performance flags:
+   - `./gradlew assembleRelease --no-daemon --parallel --build-cache`
+8. Upload artifact with `actions/upload-artifact@v4`
 
 ## Notes
 

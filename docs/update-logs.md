@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-04-02 - CI performance optimization (ported from saral-lekhan-plus)
+
+### What was optimized
+
+- Compared with:
+  - `D:\Development\Production\saral-lekhan-plus\.github\workflows\android-test.yml`
+  - `D:\Development\Production\saral-lekhan-plus\.github\workflows\android-build.yml`
+- Applied matching speed patterns in this app workflow:
+  - Added Gradle cache via `actions/setup-java@v5` with `cache: gradle`
+  - Added Expo action cache step (`expo/expo-github-action@v8`, `eas-cache: true`)
+  - Kept resilient Android generation step for managed workflow (`expo prebuild` if missing)
+- Added additional runtime improvements:
+  - Workflow concurrency with cancel-in-progress
+  - `paths-ignore` for docs/agent-only changes to skip unnecessary CI runs
+  - Gradle build flags for better throughput (`--parallel --build-cache`)
+
+### Expected impact
+
+- Faster repeated Android builds due Gradle dependency cache reuse.
+- Less queue time and runner time waste due run cancellation on rapid pushes.
+- Fewer unnecessary full pipeline runs when only docs/internal agent files change.
+
+---
+
 ## 2026-04-02 - CI fix for Android build job
 
 ### Workflow failure analyzed from GitHub logs

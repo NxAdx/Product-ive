@@ -3,8 +3,20 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [main, develop]
+    paths-ignore:
+      - 'docs/**'
+      - '.agents/**'
+      - 'ss/**'
   pull_request:
     branches: [main, develop]
+    paths-ignore:
+      - 'docs/**'
+      - '.agents/**'
+      - 'ss/**'
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -49,6 +61,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'gradle'
 
       - uses: actions/setup-node@v6
         with:
@@ -58,6 +71,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-cache: true
+
       - name: Generate Android native project (if missing)
         run: |
           if [ ! -d "android" ]; then
@@ -65,7 +84,10 @@ jobs:
           fi
 
       - name: Build Android APK
-        run: cd android && ./gradlew assembleRelease
+        working-directory: ./android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease --no-daemon --parallel --build-cache
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
