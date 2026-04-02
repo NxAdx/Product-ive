@@ -70,7 +70,7 @@ export const RULES: RuleConfig[] = [
     engineConfig: { steps: [
       { title: 'Choose a topic', prompt: 'What concept do you want to understand?' },
       { title: 'Explain it simply', prompt: 'Explain it as if teaching a 12-year-old. No jargon allowed.' },
-      { title: 'Find your gaps', prompt: 'Where did you struggle? What couldn\\'t you explain? List the gaps.' },
+      { title: 'Find your gaps', prompt: 'Where did you struggle? What couldn\'t you explain? List the gaps.' },
       { title: 'Review and simplify', prompt: 'Go back to the source. Now explain the gaps you identified.' },
     ]},
     pointsPerSession: 15, 
