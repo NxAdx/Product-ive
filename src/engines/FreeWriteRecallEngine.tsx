@@ -119,7 +119,7 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
                 <View style={styles.tip}>
                   <Text style={[styles.tipDot, { color }]}>→</Text>
                   <Text style={[styles.tipText, { color: t.inkMid }]}>
-                    Don't worry about grammar or structure
+                    Don&apos;t worry about grammar or structure
                   </Text>
                 </View>
                 <View style={styles.tip}>
@@ -223,7 +223,7 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
       {/* Reminder */}
       {timerRunning && (
         <Animated.Text entering={FadeIn} style={[styles.reminder, { color: t.inkDim }]}>
-          📝 Keep writing! Don't stop to edit.
+          📝 Keep writing! Don&apos;t stop to edit.
         </Animated.Text>
       )}
     </KeyboardAvoidingView>

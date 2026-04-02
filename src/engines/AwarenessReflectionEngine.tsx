@@ -145,7 +145,7 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
                 How it works
               </Text>
               <Text style={[styles.howDesc, { color: t.inkMid }]}>
-                You'll receive reflection prompts every {rule.engineConfig.interval ? `${Math.round(rule.engineConfig.interval / 60)} minutes` : '2 minutes'} to build awareness
+                You&apos;ll receive reflection prompts every {rule.engineConfig.interval ? `${Math.round(rule.engineConfig.interval / 60)} minutes` : '2 minutes'} to build awareness
               </Text>
             </View>
           </View>
