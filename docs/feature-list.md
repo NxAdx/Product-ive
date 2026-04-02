@@ -64,4 +64,22 @@
 - [ ] Local notifications (expo-notifications)
 - [ ] SQLite persistence (expo-sqlite)
 - [ ] Onboarding flow (3 screens)
-- [ ] About screen
+- [ ] About screen (bottom sheet or page)
+
+---
+
+## In-App Updater (Direct Install)
+
+- [ ] GitHub API version check (compare current vs latest release tag)
+- [ ] Update available notification/badge on About or Home screen
+- [ ] Changelog display (rich text from GitHub release body)
+- [ ] APK download with progress indicator (foreground service)
+- [ ] Direct install via PackageInstaller Session API
+- [ ] MIUI fallback (Intent.ACTION_VIEW for Xiaomi devices)
+- [ ] Auto-check toggle in settings (enable/disable periodic checks)
+- [ ] Delayed install (if user is mid-session, install later)
+- [ ] `REQUEST_INSTALL_PACKAGES` permission handling
+
+**Research Reference:** `D:\Development\Production\research\docs\research\updater-logic\`
+**Pattern Reference:** `.agents/skills/android-updater-patterns/SKILL.md`
+

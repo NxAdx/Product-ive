@@ -41,8 +41,37 @@ RuleConfig → Engine Component → Session → Points → Positivity Meter
 User Action → Engine Component → PointsEventEmitter → Positivity Store → UI Update
 ```
 
+### In-App Updater Architecture
+
+The app is primarily offline, but the **updater module** is the single exception that requires internet access.
+
+```
+App Launch → UpdaterService.checkForUpdate()
+  → GitHub Releases API (GET /repos/{owner}/{repo}/releases/latest)
+  → Compare semver: current vs latest tag
+  → If update available:
+      → Show update card in About / Settings
+      → User taps "Update Now"
+      → Download APK to cache (with progress bar)
+      → PackageInstaller.Session API → direct install
+      → MIUI fallback: Intent.ACTION_VIEW
+```
+
+**Key Components:**
+- `src/services/UpdaterService.ts` — GitHub API check, version comparison, download logic
+- `src/stores/updaterStore.ts` — Zustand store (updateAvailable, downloadProgress, latestVersion, changelog)
+- Native module: `PackageInstaller` session (Android only, via Expo config plugin or custom native module)
+
+**Permissions Required:**
+- `android.permission.INTERNET` — only for update check + APK download
+- `android.permission.REQUEST_INSTALL_PACKAGES` — for direct APK install
+- `android.permission.FOREGROUND_SERVICE` — for background download
+
+**Research:** See `D:\Development\Production\research\docs\research\updater-logic\` for CloudStream vs ImageToolbox comparative study.
+
 ---
 
 ## Folder Structure
 
 See `docs/Your_Role.md` section 5 for complete project structure.
+

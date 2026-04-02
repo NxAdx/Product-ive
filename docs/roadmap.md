@@ -40,13 +40,25 @@
 - Streak reminders
 - Spaced repetition review alerts
 
-## Phase 5: Polish (Weeks 14–15)
+## Phase 5: In-App Updater (Week 14)
+- GitHub Releases API integration (version check)
+- APK download service with progress bar
+- PackageInstaller Session API (direct install)
+- MIUI device fallback (Intent.ACTION_VIEW)
+- Update card UI in About / Settings
+- Changelog rendering from GitHub release body
+- Auto-check toggle in settings
+- `REQUEST_INSTALL_PACKAGES` permission flow
+- **Research:** `D:\Development\Production\research\docs\research\updater-logic\`
+
+## Phase 6: Polish (Weeks 15–16)
 - Duck mascot animations
 - Milestone celebrations (confetti)
 - Onboarding flow
 - About screen polish
 
-## Phase 6: App Store (Week 16)
+## Phase 7: App Store (Week 17)
 - Beta testing
 - Crash fixes
 - Play Store + App Store submission
+
