@@ -1,9 +1,12 @@
 import React from 'react';
-import { Pressable, View, Text, StyleSheet } from 'react-native';
+import { Pressable, View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { CATEGORIES } from '../../src/data/categories';
 import { CategoryCard } from '../../src/components/CategoryCard';
+import { StatsCard } from '../../src/components/StatsCard';
+import { DailyTip } from '../../src/components/DailyTip';
+import { ProgressBar } from '../../src/components/ProgressBar';
 import { Settings2 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { logRuntimeEvent } from '../../src/utils/runtimeLogs';
@@ -37,31 +40,44 @@ export default function Home() {
         </Pressable>
       </View>
 
-      <View style={styles.grid}>
-        <View style={styles.row}>
-          <CategoryCard
-            category={CATEGORIES[0]}
-            onPress={() => router.push(`/category/${CATEGORIES[0].id}`)}
-          />
-          <View style={{ width: 12 }} />
-          <CategoryCard
-            category={CATEGORIES[1]}
-            onPress={() => router.push(`/category/${CATEGORIES[1].id}`)}
-          />
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 24 }}
+      >
+        {/* Tier 1 Features */}
+        <StatsCard />
+        <DailyTip />
+        <ProgressBar />
+
+        {/* Category Grid */}
+        <Text style={[styles.sectionTitle, { color: t.inkDim }]}>Explore Categories</Text>
+        <View style={styles.grid}>
+          <View style={styles.row}>
+            <CategoryCard
+              category={CATEGORIES[0]}
+              onPress={() => router.push(`/category/${CATEGORIES[0].id}`)}
+            />
+            <View style={{ width: 12 }} />
+            <CategoryCard
+              category={CATEGORIES[1]}
+              onPress={() => router.push(`/category/${CATEGORIES[1].id}`)}
+            />
+          </View>
+          <View style={{ height: 12 }} />
+          <View style={styles.row}>
+            <CategoryCard
+              category={CATEGORIES[2]}
+              onPress={() => router.push(`/category/${CATEGORIES[2].id}`)}
+            />
+            <View style={{ width: 12 }} />
+            <CategoryCard
+              category={CATEGORIES[3]}
+              onPress={() => router.push(`/category/${CATEGORIES[3].id}`)}
+            />
+          </View>
         </View>
-        <View style={{ height: 12 }} />
-        <View style={styles.row}>
-          <CategoryCard
-            category={CATEGORIES[2]}
-            onPress={() => router.push(`/category/${CATEGORIES[2].id}`)}
-          />
-          <View style={{ width: 12 }} />
-          <CategoryCard
-            category={CATEGORIES[3]}
-            onPress={() => router.push(`/category/${CATEGORIES[3].id}`)}
-          />
-        </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -94,9 +110,21 @@ const styles = StyleSheet.create({
     fontSize: 22,
     letterSpacing: -0.01,
   },
+  content: {
+    flex: 1,
+  },
+  sectionTitle: {
+    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginHorizontal: 24,
+    marginTop: 24,
+    marginBottom: 16,
+  },
   grid: {
     paddingHorizontal: 24,
-    paddingTop: 16,
+    paddingTop: 0,
   },
   row: {
     flexDirection: 'row',
