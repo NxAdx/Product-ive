@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
+import React, { useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react-native';
+
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
-import { ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react-native';
+import { useTheme } from '../theme/ThemeContext';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -16,11 +17,92 @@ interface Prompt {
   placeholder: string;
 }
 
-/**
- * GuidedPromptEngine
- * Powers techniques: Feynman, Cornell Notes, SQ3R, Mind Mapping, Elaborative Interrogation
- * Provides step-by-step prompts to guide the user through a learning technique
- */
+const DEFAULT_PROMPTS: Prompt[] = [
+  {
+    title: 'Step 1: Question',
+    description: 'What is the main topic or concept?',
+    placeholder: 'Type your response...',
+  },
+  {
+    title: 'Step 2: Explain',
+    description: 'How would you explain this in your own words?',
+    placeholder: 'Explain without notes...',
+  },
+  {
+    title: 'Step 3: Review',
+    description: 'What gaps did you find in your explanation?',
+    placeholder: 'List any missing pieces...',
+  },
+];
+
+function coercePrompt(item: unknown, index: number): Prompt {
+  if (typeof item === 'string') {
+    return {
+      title: `Step ${index + 1}`,
+      description: item,
+      placeholder: 'Write your response...',
+    };
+  }
+
+  if (item && typeof item === 'object') {
+    const value = item as Record<string, unknown>;
+    const title =
+      (typeof value.title === 'string' && value.title) || `Step ${index + 1}`;
+    const description =
+      (typeof value.prompt === 'string' && value.prompt) ||
+      (typeof value.description === 'string' && value.description) ||
+      'Describe your thinking for this step.';
+    const placeholder =
+      (typeof value.placeholder === 'string' && value.placeholder) ||
+      'Write your response...';
+
+    return { title, description, placeholder };
+  }
+
+  return {
+    title: `Step ${index + 1}`,
+    description: 'Describe your thinking for this step.',
+    placeholder: 'Write your response...',
+  };
+}
+
+function getPromptsFromRule(rule: RuleConfig): Prompt[] {
+  const config = (rule.engineConfig ?? {}) as Record<string, unknown>;
+
+  if (Array.isArray(config.prompts) && config.prompts.length > 0) {
+    return config.prompts.map((item, index) => coercePrompt(item, index));
+  }
+
+  if (Array.isArray(config.steps) && config.steps.length > 0) {
+    return config.steps.map((item, index) => coercePrompt(item, index));
+  }
+
+  if (Array.isArray(config.sections) && config.sections.length > 0) {
+    return config.sections.map((section, index) =>
+      coercePrompt(
+        {
+          title: `Section ${index + 1}`,
+          prompt: `Capture notes for: ${String(section)}`,
+          placeholder: `Write ${String(section)} notes...`,
+        },
+        index
+      )
+    );
+  }
+
+  if (typeof config.prompt === 'string') {
+    return [
+      {
+        title: 'Guided Prompt',
+        description: config.prompt,
+        placeholder: 'Write your response...',
+      },
+    ];
+  }
+
+  return DEFAULT_PROMPTS;
+}
+
 export function GuidedPromptEngine({ rule, color }: EngineProps) {
   const t = useTheme();
   const session = useSessionStore();
@@ -28,26 +110,8 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
   const [responses, setResponses] = useState<{ [key: number]: string }>({});
   const [sessionStarted, setSessionStarted] = useState(false);
 
-  // Get prompts from rule config
-  const prompts: Prompt[] = rule.engineConfig.prompts || [
-    {
-      title: 'Step 1: Question',
-      description: 'What is the main topic or concept?',
-      placeholder: 'Type your response...'
-    },
-    {
-      title: 'Step 2: Response',
-      description: 'How would you explain this in your own words?',
-      placeholder: 'Explain without notes...'
-    },
-    {
-      title: 'Step 3: Review',
-      description: 'What gaps did you find in your explanation?',
-      placeholder: 'List any missing pieces...'
-    }
-  ];
-
-  const currentPrompt = prompts[currentStep];
+  const prompts = useMemo(() => getPromptsFromRule(rule), [rule]);
+  const currentPrompt = prompts[currentStep] ?? prompts[0];
   const isLastStep = currentStep === prompts.length - 1;
 
   const handleStart = () => {
@@ -56,18 +120,18 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
   };
 
   const handleResponseChange = (text: string) => {
-    setResponses({ ...responses, [currentStep]: text });
+    setResponses((prev) => ({ ...prev, [currentStep]: text }));
   };
 
   const handleNext = () => {
     if (currentStep < prompts.length - 1) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
   const handlePrev = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -83,25 +147,18 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
       <View style={styles.intentScreen}>
         <View style={styles.intentContent}>
           <Text style={[styles.intentTitle, { color: t.ink }]}>{rule.name}</Text>
-          <Text style={[styles.intentDesc, { color: t.inkMid }]}>
-            {rule.description}
-          </Text>
-          
-          {rule.engineConfig.steps && (
-            <View style={styles.stepsList}>
-              {rule.engineConfig.steps.map((step: string, idx: number) => (
-                <View key={idx} style={styles.stepItem}>
-                  <Text style={[styles.stepNum, { color }]}>➤</Text>
-                  <Text style={[styles.stepText, { color: t.ink }]}>{step}</Text>
-                </View>
-              ))}
-            </View>
-          )}
+          <Text style={[styles.intentDesc, { color: t.inkMid }]}>{rule.description}</Text>
 
-          <Pressable 
-            onPress={handleStart}
-            style={[styles.startBtn, { backgroundColor: color }]}
-          >
+          <View style={styles.stepsList}>
+            {prompts.map((prompt, idx) => (
+              <View key={`${prompt.title}-${idx}`} style={styles.stepItem}>
+                <ChevronRight size={16} color={color} />
+                <Text style={[styles.stepText, { color: t.ink }]}>{prompt.title}</Text>
+              </View>
+            ))}
+          </View>
+
+          <Pressable onPress={handleStart} style={[styles.startBtn, { backgroundColor: color }]}>
             <Text style={styles.startBtnText}>Begin {rule.name}</Text>
           </Pressable>
         </View>
@@ -111,36 +168,47 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
 
   return (
     <View style={styles.container}>
-      {/* Step Progress */}
       <View style={styles.progress}>
         <Text style={[styles.progressText, { color: t.inkMid }]}>
           Step {currentStep + 1} of {prompts.length}
         </Text>
-        <View style={[styles.progressBar, { backgroundColor: t.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }]}>
-          <View 
+        <View
+          style={[
+            styles.progressBar,
+            {
+              backgroundColor: t.isDark
+                ? 'rgba(255,255,255,0.1)'
+                : 'rgba(0,0,0,0.1)',
+            },
+          ]}
+        >
+          <View
             style={[
-              styles.progressFill, 
-              { 
+              styles.progressFill,
+              {
                 backgroundColor: color,
-                width: `${((currentStep + 1) / prompts.length) * 100}%`
-              }
-            ]} 
+                width: `${((currentStep + 1) / prompts.length) * 100}%`,
+              },
+            ]}
           />
         </View>
       </View>
 
-      {/* Prompt */}
       <ScrollView style={styles.promptArea} contentContainerStyle={styles.promptContent}>
         <Text style={[styles.promptTitle, { color: t.ink }]}>{currentPrompt.title}</Text>
         <Text style={[styles.promptDesc, { color: t.inkMid }]}>{currentPrompt.description}</Text>
-        
-        {/* Input */}
+
         <TextInput
-          style={[styles.input, { 
-            color: t.ink,
-            backgroundColor: t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-            borderColor: t.border
-          }]}
+          style={[
+            styles.input,
+            {
+              color: t.ink,
+              backgroundColor: t.isDark
+                ? 'rgba(255,255,255,0.05)'
+                : 'rgba(0,0,0,0.05)',
+              borderColor: t.border,
+            },
+          ]}
           placeholder={currentPrompt.placeholder}
           placeholderTextColor={t.inkDim}
           multiline
@@ -149,29 +217,30 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
         />
       </ScrollView>
 
-      {/* Navigation */}
       <View style={styles.controls}>
-        <Pressable 
+        <Pressable
           onPress={handlePrev}
           disabled={currentStep === 0}
-          style={[styles.navBtn, { opacity: currentStep === 0 ? 0.4 : 1 }]}
+          style={[
+            styles.navBtn,
+            {
+              opacity: currentStep === 0 ? 0.4 : 1,
+              backgroundColor: t.isDark
+                ? 'rgba(242,241,238,0.1)'
+                : 'rgba(13,13,13,0.08)',
+            },
+          ]}
         >
           <ChevronLeft size={20} color={t.ink} />
         </Pressable>
 
         {isLastStep ? (
-          <Pressable 
-            onPress={handleComplete}
-            style={[styles.mainBtn, { backgroundColor: color }]}
-          >
+          <Pressable onPress={handleComplete} style={[styles.mainBtn, { backgroundColor: color }]}>
             <CheckCircle size={20} color="#FFF" />
             <Text style={styles.mainBtnText}>Complete</Text>
           </Pressable>
         ) : (
-          <Pressable 
-            onPress={handleNext}
-            style={[styles.mainBtn, { backgroundColor: color }]}
-          >
+          <Pressable onPress={handleNext} style={[styles.mainBtn, { backgroundColor: color }]}>
             <Text style={styles.mainBtnText}>Next</Text>
             <ChevronRight size={20} color="#FFF" />
           </Pressable>
@@ -193,7 +262,7 @@ const styles = StyleSheet.create({
   intentTitle: {
     fontSize: 28,
     fontWeight: '700',
-    fontFamily: 'DMSerifDisplay',
+    fontFamily: 'Syne_700Bold',
   },
   intentDesc: {
     fontSize: 16,
@@ -201,18 +270,13 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   stepsList: {
-    gap: 12,
-    paddingVertical: 16,
+    gap: 10,
+    paddingVertical: 8,
   },
   stepItem: {
     flexDirection: 'row',
-    gap: 12,
-    alignItems: 'flex-start',
-  },
-  stepNum: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 2,
+    gap: 8,
+    alignItems: 'center',
   },
   stepText: {
     fontSize: 14,
@@ -224,7 +288,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 20,
     alignItems: 'center',
-    marginTop: 24,
+    marginTop: 12,
   },
   startBtnText: {
     color: '#FFF',
@@ -277,7 +341,7 @@ const styles = StyleSheet.create({
     minHeight: 120,
     borderWidth: 1,
     fontSize: 14,
-    fontFamily: 'DMSans_400Regular',
+    fontFamily: 'PlusJakartaSans_400Regular',
     textAlignVertical: 'top',
   },
   controls: {
@@ -291,7 +355,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f0f0f0',
   },
   mainBtn: {
     flex: 1,
@@ -306,5 +369,5 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 15,
     fontWeight: '600',
-  }
+  },
 });

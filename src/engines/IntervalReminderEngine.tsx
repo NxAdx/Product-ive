@@ -1,57 +1,81 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { CheckCircle, Clock } from 'lucide-react-native';
+
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
-import { Clock, CheckCircle } from 'lucide-react-native';
+import { useTheme } from '../theme/ThemeContext';
 
 interface EngineProps {
   rule: RuleConfig;
   color: string;
 }
 
-/**
- * IntervalReminderEngine
- * Powers rules like: 20-20-20 Eye Rule, Every Hour Water Break
- * Displays countdown to next reminder with notification prompt
- */
+function resolveIntervalSeconds(rule: RuleConfig): number {
+  const interval = (rule.engineConfig as Record<string, unknown>).interval;
+  const intervalMinutes = (rule.engineConfig as Record<string, unknown>).intervalMinutes;
+
+  if (typeof interval === 'number' && interval > 0) {
+    return interval;
+  }
+  if (typeof intervalMinutes === 'number' && intervalMinutes > 0) {
+    return intervalMinutes * 60;
+  }
+  return 20 * 60;
+}
+
+function resolveReminderMessage(rule: RuleConfig): string {
+  const message = (rule.engineConfig as Record<string, unknown>).reminderMessage;
+  const prompt = (rule.engineConfig as Record<string, unknown>).prompt;
+  if (typeof message === 'string' && message.trim().length > 0) {
+    return message;
+  }
+  if (typeof prompt === 'string' && prompt.trim().length > 0) {
+    return prompt;
+  }
+  return `Time for your ${rule.name} reminder.`;
+}
+
 export function IntervalReminderEngine({ rule, color }: EngineProps) {
   const t = useTheme();
   const session = useSessionStore();
-  const [nextReminder, setNextReminder] = useState(rule.engineConfig.interval || 60 * 60);
-  const [reminderCount, setReminderCount] = useState(0);
-  const isRunning = session.phase === 'work' && session.activeRuleId === rule.id && !session.pausedAt;
+  const intervalSeconds = useMemo(() => resolveIntervalSeconds(rule), [rule]);
+  const reminderMessage = useMemo(() => resolveReminderMessage(rule), [rule]);
 
-  // Timer for interval reminders
+  const [nextReminder, setNextReminder] = useState(intervalSeconds);
+  const [reminderCount, setReminderCount] = useState(0);
+  const isRunning =
+    session.phase === 'work' &&
+    session.activeRuleId === rule.id &&
+    !session.pausedAt;
+
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     if (isRunning) {
-      interval = setInterval(() => {
-        setNextReminder((prev: number) => {
+      intervalId = setInterval(() => {
+        setNextReminder((prev) => {
           if (prev <= 1) {
-            // Trigger reminder
-            Alert.alert(
-              `⏰ ${rule.name} Reminder`,
-              rule.engineConfig.reminderMessage || `Time for your ${rule.name} break!`,
-              [{ text: 'OK', onPress: () => {} }]
-            );
-            setReminderCount(c => c + 1);
-            return rule.engineConfig.interval || 60 * 60; // Reset to next interval
+            Alert.alert(`${rule.name} Reminder`, reminderMessage, [
+              { text: 'OK', onPress: () => {} },
+            ]);
+            setReminderCount((count) => count + 1);
+            return intervalSeconds;
           }
           return prev - 1;
         });
       }, 1000);
     }
+
     return () => {
-      if (interval) {
-        clearInterval(interval);
+      if (intervalId) {
+        clearInterval(intervalId);
       }
     };
-  }, [isRunning, rule]);
+  }, [isRunning, intervalSeconds, reminderMessage, rule.name]);
 
   const handleStart = () => {
     if (session.activeRuleId !== rule.id) {
-      setNextReminder(rule.engineConfig.interval || 60 * 60);
+      setNextReminder(intervalSeconds);
       setReminderCount(0);
       session.startSession(rule.id);
     } else if (session.pausedAt) {
@@ -64,43 +88,54 @@ export function IntervalReminderEngine({ rule, color }: EngineProps) {
   const handleComplete = () => {
     session.endSession();
     setReminderCount(0);
+    setNextReminder(intervalSeconds);
   };
 
   const minutes = Math.floor(nextReminder / 60);
   const seconds = nextReminder % 60;
-  const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  const timeString = `${minutes.toString().padStart(2, '0')}:${seconds
+    .toString()
+    .padStart(2, '0')}`;
 
   return (
     <View style={styles.container}>
-      
-      {/* Status Display */}
-      <View style={[styles.display, { backgroundColor: t.isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }]}>
+      <View
+        style={[
+          styles.display,
+          {
+            backgroundColor: t.isDark
+              ? 'rgba(255,255,255,0.02)'
+              : 'rgba(0,0,0,0.02)',
+          },
+        ]}
+      >
         <Clock size={48} color={color} style={styles.icon} />
         <Text style={[styles.timeText, { color: t.ink }]}>{timeString}</Text>
         <Text style={[styles.label, { color: t.inkMid }]}>to next reminder</Text>
       </View>
 
-      {/* Reminder Counter */}
       <View style={[styles.counter, { borderColor: color }]}>
-        <Text style={[styles.counterValue, { color: color }]}>{reminderCount}</Text>
-        <Text style={[styles.counterLabel, { color: t.inkMid }]}>reminders triggered</Text>
+        <Text style={[styles.counterValue, { color }]}>{reminderCount}</Text>
+        <Text style={[styles.counterLabel, { color: t.inkMid }]}>
+          reminders triggered
+        </Text>
       </View>
 
-      {/* Status Message */}
       <Text style={[styles.message, { color: t.inkDim }]}>
-        {!isRunning 
+        {!isRunning
           ? 'Tap start to begin interval reminders'
-          : session.pausedAt 
-          ? 'Session paused'
-          : `Active - next alert in ${Math.ceil(nextReminder / 60)}m`
-        }
+          : session.pausedAt
+            ? 'Session paused'
+            : `Active - next alert in ${Math.ceil(nextReminder / 60)}m`}
       </Text>
 
-      {/* Controls */}
       <View style={styles.controls}>
-        <Pressable 
+        <Pressable
           onPress={handleStart}
-          style={[styles.mainBtn, { backgroundColor: color, opacity: isRunning ? 0.8 : 1 }]}
+          style={[
+            styles.mainBtn,
+            { backgroundColor: color, opacity: isRunning ? 0.8 : 1 },
+          ]}
         >
           <Text style={styles.btnText}>
             {!isRunning ? 'Start' : session.pausedAt ? 'Resume' : 'Pause'}
@@ -108,9 +143,16 @@ export function IntervalReminderEngine({ rule, color }: EngineProps) {
         </Pressable>
 
         {session.activeRuleId === rule.id && (
-          <Pressable 
+          <Pressable
             onPress={handleComplete}
-            style={[styles.endBtn, { backgroundColor: t.isDark ? 'rgba(242,241,238,0.1)' : 'rgba(13,13,13,0.06)' }]}
+            style={[
+              styles.endBtn,
+              {
+                backgroundColor: t.isDark
+                  ? 'rgba(242,241,238,0.1)'
+                  : 'rgba(13,13,13,0.06)',
+              },
+            ]}
           >
             <CheckCircle size={24} color={color} />
             <Text style={[styles.endBtnText, { color: t.ink }]}>Done</Text>
@@ -141,7 +183,7 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 56,
     fontWeight: '700',
-    fontFamily: 'DMMono_700Bold',
+    fontFamily: 'JetBrainsMono_700Bold',
     lineHeight: 64,
   },
   label: {
@@ -194,5 +236,5 @@ const styles = StyleSheet.create({
   endBtnText: {
     fontSize: 14,
     fontWeight: '600',
-  }
+  },
 });

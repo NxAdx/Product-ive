@@ -3,22 +3,25 @@ import { Stack, SplashScreen } from 'expo-router';
 import { ThemeProvider } from '../src/theme/ThemeContext';
 import { useFonts } from 'expo-font';
 import {
-  DMSerifDisplay_400Regular,
-} from '@expo-google-fonts/dm-serif-display';
+  Syne_600SemiBold,
+  Syne_700Bold,
+} from '@expo-google-fonts/syne';
 import {
-  DMSans_400Regular,
-  DMSans_500Medium,
-  DMSans_600SemiBold,
-  DMSans_700Bold,
-} from '@expo-google-fonts/dm-sans';
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import {
-  DMMono_400Regular,
-  DMMono_500Medium,
-} from '@expo-google-fonts/dm-mono';
+  JetBrainsMono_400Regular,
+  JetBrainsMono_500Medium,
+  JetBrainsMono_700Bold,
+} from '@expo-google-fonts/jetbrains-mono';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SystemUI from 'expo-system-ui';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { logRuntimeEvent } from '../src/utils/runtimeLogs';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -28,13 +31,15 @@ export default function RootLayout() {
   const [initialRouteName, setInitialRouteName] = useState<'(tabs)' | 'onboarding' | null>(null);
 
   const [fontsLoaded] = useFonts({
-    DMSerifDisplay_400Regular,
-    DMSans_400Regular,
-    DMSans_500Medium,
-    DMSans_600SemiBold,
-    DMSans_700Bold,
-    DMMono_400Regular,
-    DMMono_500Medium,
+    Syne_600SemiBold,
+    Syne_700Bold,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    JetBrainsMono_400Regular,
+    JetBrainsMono_500Medium,
+    JetBrainsMono_700Bold,
   });
 
   useEffect(() => {
@@ -55,6 +60,7 @@ export default function RootLayout() {
     if (fontsLoaded && isReady && initialRouteName) {
       SplashScreen.hideAsync();
       SystemUI.setBackgroundColorAsync('#0D0D0D'); // App background color fallback
+      logRuntimeEvent('app_ready', { initialRouteName }).catch(() => {});
     }
   }, [fontsLoaded, isReady, initialRouteName]);
 
@@ -71,6 +77,7 @@ export default function RootLayout() {
           {/* To force redirect if needed: */}
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="settings" />
           <Stack.Screen name="category/[id]" />
           <Stack.Screen name="rule/[id]" />
           <Stack.Screen name="todo" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />

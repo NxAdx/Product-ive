@@ -1,48 +1,37 @@
-# Product+ive — UI/UX Guide
+# Product +ive UI/UX Guide
 
-> **Last Updated:** 2026-04-01
+> Last Updated: 2026-04-02
 
----
+## Design Direction
 
-## Design Philosophy
-
-**Monochromatic base (black + white) with category colours as semantic accents.** Clean, spacious, and confident. The design lets the colour of the category be the only accent — rules are the content; the UI should not compete.
-
-## Colour System
-
-| Token | Light Mode | Dark Mode | Usage |
-|-------|-----------|-----------|-------|
-| `background` | #FFFFFF | #000000 | Screen background |
-| `surface` | #FFFFFF | #1A1A1A | Cards, rows, bottom sheets |
-| `surface-2` | #F5F5F5 | #242424 | Input backgrounds |
-| `ink` | #1A1916 | #FFFFFF | Primary text |
-| `ink-2` | #6B6B6B | #9A9A9A | Secondary text |
-| `action-fill` | #1A1916 | #FFFFFF | Action button fills |
-| `action-text` | #FFFFFF | #1A1916 | Button text/icons |
-| `border` | rgba(0,0,0,0.08) | rgba(255,255,255,0.08) | Dividers |
-| `learn-accent` | #7C3AED | #A78BFA | Learning & Memory |
-| `focus-accent` | #2563EB | #60A5FA | Focus & Sessions |
-| `prod-accent` | #22A06B | #34D399 | Productivity |
-| `study-accent` | #D97706 | #FBBF24 | Study Techniques |
-| `positivity` | #22A06B | #34D399 | Meter fill |
+Monochrome-first UI with category accent colors. The interface should feel calm, legible, and focused on actions over decoration.
 
 ## Typography
 
-- **Display font:** Syne (headers, titles, brand)
-- **Body font:** Plus Jakarta Sans (UI text, descriptions)
-- **Mono font:** JetBrains Mono (badges, labels, code)
+- Display: `Syne_700Bold` / `Syne_600SemiBold`
+- Body: `PlusJakartaSans_*`
+- Mono labels: `JetBrainsMono_*`
 
-## Component Patterns
+## Core Patterns
 
-- **Category Card:** Large rounded-rect, 56px icon, bold name, grey rule count
-- **Rule Row:** Full-width pill (24px radius, ~72px height), black circle → arrow button
-- **Bottom Nav:** Floating pill shape, 3 items (Home, +, Meter)
-- **Bottom Sheet:** Slide-up modal for info, task creation, about
-- **Progress Ring:** Circular SVG, spring animation on fill
+1. Home top bar has one primary action on the right (Settings).
+2. Bottom nav is visible only on Home.
+3. Bottom nav icons use uniform size and no oversized center plus treatment.
+4. Category cards use stable iconography (Lucide) and two-line-safe titles.
+5. Rule rows use a compact arrow affordance (no large circular white button).
+6. Explore rows clamp text (`name: 1 line`, `description: 2 lines`) to prevent overflow.
+7. Todo screen keeps input area clear and free from nav overlap.
+8. Settings provides support actions (theme, bug export, changelog, about).
 
-## Animation
+## Accessibility and Readability Rules
 
-- Card press: scale 0.97 spring-back (Reanimated 3)
-- Theme switch: fade transition (200ms)
-- Points earned: rolling number animation (800ms)
-- Meter fill: spring-based ring animation
+- Keep touch targets >= 36px for icon buttons.
+- Avoid clipped text in list rows.
+- Prefer high-contrast text against card and background colors.
+- Use consistent title hierarchy across Home, Category, Rule, Todo, Explore, and Meter screens.
+
+## Positivity Meter UX
+
+- Show weekly points as the primary progress signal.
+- Show current level and range to next level.
+- Always show a plain-language explanation of score mechanics in the same screen.

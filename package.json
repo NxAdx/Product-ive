@@ -12,9 +12,9 @@
     "test": "node -e \"console.log('No test suite configured yet.');\" --"
   },
   "dependencies": {
-    "@expo-google-fonts/dm-mono": "latest",
-    "@expo-google-fonts/dm-sans": "latest",
-    "@expo-google-fonts/dm-serif-display": "latest",
+    "@expo-google-fonts/jetbrains-mono": "^0.4.1",
+    "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
+    "@expo-google-fonts/syne": "^0.4.2",
     "@expo/vector-icons": "^15.0.3",
     "@gorhom/bottom-sheet": "^5.1.0",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -24,6 +24,7 @@
     "@shopify/flash-list": "2.0.2",
     "expo": "^55.0.9",
     "expo-constants": "~55.0.9",
+    "expo-file-system": "~55.0.12",
     "expo-font": "~55.0.4",
     "expo-haptics": "~55.0.9",
     "expo-image": "~55.0.6",
@@ -31,6 +32,7 @@
     "expo-linking": "~55.0.9",
     "expo-notifications": "~55.0.14",
     "expo-router": "~55.0.8",
+    "expo-sharing": "~55.0.14",
     "expo-splash-screen": "~55.0.13",
     "expo-sqlite": "~55.0.11",
     "expo-status-bar": "~55.0.4",

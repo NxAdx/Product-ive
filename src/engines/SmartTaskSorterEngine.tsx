@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   instrTitle: {
     fontSize: 24,
     fontWeight: '700',
-    fontFamily: 'DMSerifDisplay',
+    fontFamily: 'Syne_700Bold',
   },
   instrDesc: {
     fontSize: 14,
@@ -407,3 +407,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   }
 });
+

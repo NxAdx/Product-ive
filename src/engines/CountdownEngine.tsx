@@ -113,12 +113,12 @@ const styles = StyleSheet.create({
     marginBottom: 64,
   },
   timerText: {
-    fontFamily: 'DMMono_400Regular',
+    fontFamily: 'JetBrainsMono_400Regular',
     fontSize: 56,
     lineHeight: 64,
   },
   timerLabel: {
-    fontFamily: 'DMSans_700Bold',
+    fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 12,
     letterSpacing: 2,
     marginTop: 8,
@@ -148,3 +148,4 @@ const styles = StyleSheet.create({
     elevation: 8,
   }
 });
+

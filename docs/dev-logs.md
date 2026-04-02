@@ -1,28 +1,41 @@
-# Product+ive — Development Logs
+# Product +ive Development Logs
 
-> Records development decisions and reasoning.
+> Records key engineering decisions and rationale.
 
 ---
 
-## 2026-04-01 — Project Structure Decision
+## 2026-04-02 - CI order and UX stabilization decisions
 
-**Decision:** Adopt the same project governance structure used in Saral Lekhan Plus and Vinyas projects.
+**Decision:** Keep managed Expo workflow (no committed `android/`), but prebuild in CI before Java Gradle cache setup.
 
 **Reasoning:**
-- Consistency across all production projects
-- Proven documentation-first workflow
-- AI agent context system ensures no knowledge loss between sessions
-- Skills folder provides reusable expertise
+
+- Avoids repository bloat from committed generated native folders.
+- Fixes hard build failures in `setup-java` cache scanning.
+- Keeps build reproducibility from source config.
+
+**Decision:** Move category icons from emoji text to Lucide mapping.
+
+**Reasoning:**
+
+- Prevents rendering issues caused by encoding and font differences.
+- Keeps icon style consistent across themes and devices.
+- Improves visual parity with design system typography.
+
+## 2026-04-01 - Project structure baseline
+
+**Decision:** Adopt the same governance shape used in related production projects.
+
+**Reasoning:**
+
+- Consistent process across repos
+- Documentation-first workflow
+- Reliable AI handoff via `docs/AGENT-CONTEXT.md`
 
 **Structure adopted:**
-- `.agents/` — AI agent config + skills (10 skill packs)
-- `.agent/skills/` — Skill references
-- `docs/` — Central brain of the project
-- `docs/inspiration/` — Design reference images
-- `docs/RELEASES/` — Version release notes
-- `ss/` — App screenshots
-- `skills-lock.json` — Skill version pinning
 
-**Reference projects:**
-- Saral Lekhan Plus: `.agents/`, `.agent/`, `docs/`, `research_inspiration/`, `ss/`
-- Vinyas: `Docs/`, `Docs/inspiration/`, `Sample/`
+- `.agents/` for agent configuration and skills
+- `.github/workflows/` for CI/CD
+- `app/` and `src/` for product code
+- `docs/` for architecture, requirements, logs, and handoff
+- `ss/` for screenshot references

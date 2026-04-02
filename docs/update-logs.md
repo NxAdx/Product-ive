@@ -1,105 +1,80 @@
-﻿# Product+ive - Update Logs
+# Product +ive Update Logs
 
-> Change log for implementation, dependency, and documentation updates.
-
----
-
-## 2026-04-02 - CI performance optimization (ported from saral-lekhan-plus)
-
-### What was optimized
-
-- Compared with:
-  - `D:\Development\Production\saral-lekhan-plus\.github\workflows\android-test.yml`
-  - `D:\Development\Production\saral-lekhan-plus\.github\workflows\android-build.yml`
-- Applied matching speed patterns in this app workflow:
-  - Added Gradle cache via `actions/setup-java@v5` with `cache: gradle`
-  - Added Expo action cache step (`expo/expo-github-action@v8`, `eas-cache: true`)
-  - Kept resilient Android generation step for managed workflow (`expo prebuild` if missing)
-- Added additional runtime improvements:
-  - Workflow concurrency with cancel-in-progress
-  - `paths-ignore` for docs/agent-only changes to skip unnecessary CI runs
-  - Gradle build flags for better throughput (`--parallel --build-cache`)
-
-### Expected impact
-
-- Faster repeated Android builds due Gradle dependency cache reuse.
-- Less queue time and runner time waste due run cancellation on rapid pushes.
-- Fewer unnecessary full pipeline runs when only docs/internal agent files change.
+> Change log for implementation, CI/CD, dependency, and documentation work.
 
 ---
 
-## 2026-04-02 - CI fix for Android build job
+## 2026-04-02 - CI failure fix + UX stabilization + handoff refresh
 
-### Workflow failure analyzed from GitHub logs
+### CI/build fixes
 
-- Build job failed at:
-  - `cd android && ./gradlew assembleRelease`
-  - reason: `android/` folder was missing in repo checkout (`No such file or directory`)
+- Fixed failing GitHub build caused by Gradle cache lookup before `android/` existed.
+- Updated `.github/workflows/ci-cd.yml` order:
+  - Setup Node and install deps
+  - Expo setup
+  - `expo prebuild` (if missing)
+  - Setup Java with `cache: gradle`
+  - Gradle release build
+- Added speed flags:
+  - `npm ci --no-audit --prefer-offline` (lint job)
+  - `npm ci --omit=dev --no-audit --prefer-offline` (build job)
+  - `expo prebuild --no-install --non-interactive`
 
-### Fix applied
+### UX and app behavior fixes
 
-- Updated `.github/workflows/ci-cd.yml` build job to auto-generate native Android project before Gradle build:
-  - added step:
-    - `npx expo prebuild --platform android --non-interactive` (only if `android/` is missing)
-- Upgraded action versions to Node 24-era majors to reduce Node 20 deprecation noise:
-  - `actions/checkout@v6`
-  - `actions/setup-node@v6`
-  - `actions/setup-java@v5`
+- Home top bar now keeps single actionable control (Settings on right).
+- Added full Settings screen (`app/settings.tsx`) with:
+  - Theme toggle
+  - Bug report `.txt` export (state snapshot + runtime logs)
+  - Changelog section with alert icon and current-version changes
+  - About section
+- Bottom nav behavior fixed:
+  - Now visible only on Home
+  - Plus icon style normalized (no old white center circle)
+- Todo and Explore overlap issues fixed by route-aware nav hiding and layout polish.
+- Category/rule list UI fixed:
+  - Rule rows no longer show oversized white arrow circles
+  - Category icons converted to stable Lucide icons
+- Brand text standardized to `Product +ive` in app surfaces.
 
-### Result expectation
+### Crash and stability fixes
 
-- CI no longer assumes committed `android/` directory.
-- Managed Expo workflow can still produce APK in GitHub Actions.
+- Fixed likely rule crash path in `GuidedPromptEngine`:
+  - Safely normalizes `engineConfig.steps/prompts/sections` before rendering.
+  - Prevents object-to-Text rendering crash for rules like Feynman.
+- Improved `IntervalReminderEngine` config mapping:
+  - Supports `interval` and `intervalMinutes`
+  - Supports `reminderMessage` and `prompt`
+- `Rule` screen now guards missing rule id and avoids hard crash.
 
----
+### Positivity meter improvements
 
-## 2026-04-02 - Build stabilization, dependency cleanup, and docs refresh
+- Weekly and lifetime scoring logic refined in store.
+- Discovery bonus awarded once per rule.
+- Meter UI now explains how scoring works directly in the screen.
 
-### App and dependency work
+### Dependency and typography cleanup
 
-- Upgraded project dependency set to Expo SDK 55-compatible versions.
-- Upgraded `lucide-react-native` to `^1.7.0`.
-- Validated that `npm ci` works without `--legacy-peer-deps`.
-- Fixed lint/type issues in engine and helper files to keep CI green.
-- Updated `app.json` for Expo SDK 55 config schema compatibility.
+- Removed unused old DM font packages from `package.json`.
+- Standardized fonts around Syne / Plus Jakarta Sans / JetBrains Mono.
+- Removed corrupted text encoding from app/source files.
 
-### CI workflow updates
+### Validation results
 
-- Updated `.github/workflows/ci-cd.yml`:
-  - Added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`.
-  - Replaced `npm ci --legacy-peer-deps` with `npm ci`.
-  - Expanded lint step to `npx eslint app src --max-warnings=0`.
+- `npx eslint app src --max-warnings=0` -> PASS
+- `npx tsc --noEmit` -> PASS
+- `npx expo-doctor` -> PASS (17/17)
+- `npx expo export --platform web --clear` -> PASS
 
-### Validation evidence
+### Known remaining warnings (upstream/transitive)
 
-- `npm ci` -> pass
-- `npx eslint app src --max-warnings=0` -> pass
-- `npm run lint` -> pass
-- `npx tsc --noEmit` -> pass
-- `npx expo-doctor` -> pass (17/17)
-- `npx expo export --platform web --clear` -> pass
-
-### Documentation updates
-
-- Rewrote and aligned:
-  - `docs/AGENT-CONTEXT.md`
-  - `docs/implementation.md`
-  - `docs/feature-list.md`
-  - `docs/roadmap.md`
-  - `docs/tech-stack.md`
-  - `docs/README.md`
-  - `docs/CI_CD_Guide.md`
-  - `docs/Command_Guide.md`
-- Added `docs/requirements.md`.
-- Updated `docs/Your_Role.md` version metadata and runtime line.
-
-### Remaining known work
-
-- Real automated tests (currently placeholder script).
-- SQLite persistence wiring.
-- Notifications wiring.
-- In-app updater implementation.
-- Full onboarding flow and remaining UX polish.
+- `npm ci` may still print deprecated warnings for:
+  - `inflight@1.0.6`
+  - `glob@7.2.3`
+  - `rimraf@3.0.2`
+- Current source chain (as of 2026-04-02):
+  - `react-native@0.83.4` toolchain and Expo CLI transitive packages.
+- These are not direct project dependencies and are pending upstream ecosystem updates.
 
 ---
 
@@ -108,4 +83,3 @@
 - Created and organized `docs/` structure.
 - Added architecture, roadmap, feature, testing, and security docs.
 - Added AI role/governance guidance in `docs/Your_Role.md`.
-- Established skills and context management patterns.

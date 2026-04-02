@@ -3,9 +3,15 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import { Home, Plus, BarChart3, Compass } from 'lucide-react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { logRuntimeEvent } from '../utils/runtimeLogs';
 
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
   const t = useTheme();
+
+  const activeRouteName = state.routes[state.index]?.name;
+  if (activeRouteName !== 'index') {
+    return null;
+  }
 
   // Map route names to tab indices for active state
   const getIsActive = (routeName: string) => {
@@ -27,11 +33,14 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
         
         {/* Home Tab */}
         <Pressable 
-          onPress={() => navigation.navigate('index')}
+          onPress={() => {
+            logRuntimeEvent('nav_tap', { to: 'index' }).catch(() => {});
+            navigation.navigate('index');
+          }}
           style={styles.navItem}
         >
           <Home 
-            size={22} 
+            size={20} 
             color={getIsActive('index') ? t.ink : t.inkMid} 
             strokeWidth={getIsActive('index') ? 2.5 : 2}
           />
@@ -39,27 +48,29 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
 
         {/* Center Add Button */}
         <Pressable 
-          onPress={() => navigation.navigate('todo')}
-          style={[
-            styles.navCenter, 
-            { backgroundColor: t.isDark ? t.ink : '#0D0D0D' }
-          ]}
+          onPress={() => {
+            logRuntimeEvent('nav_tap', { to: 'todo' }).catch(() => {});
+            navigation.navigate('todo');
+          }}
+          style={styles.navItem}
         >
-          <View style={[
-            styles.navCenterInner,
-            { backgroundColor: t.isDark ? '#F2F1EE' : '#0D0D0D' }
-          ]}>
-            <Plus size={24} color={t.isDark ? '#0D0D0D' : '#FFFFFF'} strokeWidth={2.5} />
-          </View>
+          <Plus
+            size={20}
+            color={getIsActive('todo') ? t.ink : t.inkMid}
+            strokeWidth={getIsActive('todo') ? 2.5 : 2}
+          />
         </Pressable>
 
         {/* Explore Tab */}
         <Pressable 
-          onPress={() => navigation.navigate('explore')}
+          onPress={() => {
+            logRuntimeEvent('nav_tap', { to: 'explore' }).catch(() => {});
+            navigation.navigate('explore');
+          }}
           style={styles.navItem}
         >
           <Compass 
-            size={22} 
+            size={20} 
             color={getIsActive('explore') ? t.ink : t.inkMid}
             strokeWidth={getIsActive('explore') ? 2.5 : 2}
           />
@@ -67,11 +78,14 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
 
         {/* Meter Tab */}
         <Pressable 
-          onPress={() => navigation.navigate('meter')}
+          onPress={() => {
+            logRuntimeEvent('nav_tap', { to: 'meter' }).catch(() => {});
+            navigation.navigate('meter');
+          }}
           style={styles.navItem}
         >
           <BarChart3 
-            size={22} 
+            size={20} 
             color={getIsActive('meter') ? t.ink : t.inkMid}
             strokeWidth={getIsActive('meter') ? 2.5 : 2}
           />
@@ -84,9 +98,9 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingBottom: 24,
-    paddingTop: 10,
+    paddingTop: 12,
     alignItems: 'center',
     position: 'absolute',
     bottom: 0,
@@ -97,8 +111,10 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    justifyContent: 'space-between',
+    width: 236,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderRadius: 9999,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -107,24 +123,8 @@ const styles = StyleSheet.create({
   },
   navItem: {
     width: 44,
-    height: 38,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  navCenter: {
-    marginHorizontal: 8,
-    borderRadius: 9999,
-  },
-  navCenterInner: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  }
 });

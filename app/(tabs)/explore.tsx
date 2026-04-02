@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Pressable, FlatList } from 'react-native';
-import { useTheme } from '../../src/theme/ThemeContext';
-import { RULES } from '../../src/data/rules';
-import { CATEGORIES } from '../../src/data/categories';
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Search } from 'lucide-react-native';
+import { ArrowLeft, Search, SearchX } from 'lucide-react-native';
+
+import { CategoryIcon } from '../../src/components/CategoryIcon';
+import { CATEGORIES } from '../../src/data/categories';
+import { RULES } from '../../src/data/rules';
+import { useTheme } from '../../src/theme/ThemeContext';
+import { logRuntimeEvent } from '../../src/utils/runtimeLogs';
 
 export default function ExploreScreen() {
   const t = useTheme();
@@ -13,23 +16,28 @@ export default function ExploreScreen() {
   const insets = useSafeAreaInsets();
   const [search, setSearch] = useState('');
 
-  const filteredRules = RULES.filter(rule =>
-    rule.name.toLowerCase().includes(search.toLowerCase()) ||
-    rule.shortDescription.toLowerCase().includes(search.toLowerCase())
+  const filteredRules = RULES.filter(
+    (rule) =>
+      rule.name.toLowerCase().includes(search.toLowerCase()) ||
+      rule.shortDescription.toLowerCase().includes(search.toLowerCase())
   );
 
-  const renderRuleRow = ({ item }: { item: typeof RULES[0] }) => {
-    const category = CATEGORIES.find(c => c.id === item.categoryId);
+  const renderRuleRow = ({ item }: { item: (typeof RULES)[0] }) => {
+    const category = CATEGORIES.find((c) => c.id === item.categoryId);
     return (
       <Pressable
         onPress={() => router.push(`/rule/${item.id}`)}
         style={[styles.ruleRow, { backgroundColor: t.card, borderColor: t.border }]}
       >
-        <View>
-          <Text style={[styles.ruleName, { color: t.ink }]}>{item.name}</Text>
-          <Text style={[styles.ruleDesc, { color: t.inkDim }]}>{item.shortDescription}</Text>
+        <View style={styles.ruleTextWrap}>
+          <Text numberOfLines={1} style={[styles.ruleName, { color: t.ink }]}>
+            {item.name}
+          </Text>
+          <Text numberOfLines={2} style={[styles.ruleDesc, { color: t.inkDim }]}>
+            {item.shortDescription}
+          </Text>
         </View>
-        <Text style={{ fontSize: 18 }}>{category?.icon}</Text>
+        {category ? <CategoryIcon iconKey={category.icon} color={t.inkMid} size={18} /> : null}
       </Pressable>
     );
   };
@@ -37,10 +45,25 @@ export default function ExploreScreen() {
   return (
     <View style={[styles.container, { backgroundColor: t.bg, paddingTop: insets.top }]}>
       <View style={styles.header}>
+        <Pressable
+          onPress={() => {
+            logRuntimeEvent('explore_back_home').catch(() => {});
+            router.navigate('/(tabs)');
+          }}
+          style={[
+            styles.backBtn,
+            {
+              backgroundColor: t.isDark ? 'rgba(242,241,238,0.08)' : 'rgba(13,13,13,0.06)',
+              borderColor: t.border,
+            },
+          ]}
+        >
+          <ArrowLeft size={18} color={t.ink} strokeWidth={2} />
+        </Pressable>
         <Text style={[styles.title, { color: t.ink }]}>Explore Rules</Text>
+        <View style={styles.backBtnPlaceholder} />
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={[styles.searchBar, { backgroundColor: t.card, borderColor: t.border }]}>
           <Search size={18} color={t.inkMid} />
@@ -54,16 +77,14 @@ export default function ExploreScreen() {
         </View>
       </View>
 
-      {/* Rules List */}
       <FlatList
         data={filteredRules}
         renderItem={renderRuleRow}
-        keyExtractor={item => item.id}
-        scrollEnabled={true}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={{ fontSize: 32, marginBottom: 12 }}>🔍</Text>
+            <SearchX size={32} color={t.inkDim} style={{ marginBottom: 12 }} />
             <Text style={[styles.emptyText, { color: t.inkMid }]}>No rules found</Text>
             <Text style={[styles.emptySubtext, { color: t.inkDim }]}>Try a different search</Text>
           </View>
@@ -76,12 +97,27 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 24,
     paddingVertical: 16,
   },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backBtnPlaceholder: {
+    width: 36,
+    height: 36,
+  },
   title: {
-    fontSize: 28,
-    fontFamily: 'DMSerifDisplay',
+    fontSize: 24,
+    fontFamily: 'Syne_700Bold',
     letterSpacing: -0.01,
   },
   searchContainer: {
@@ -99,7 +135,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     paddingVertical: 10,
-    fontFamily: 'DMSans_400Regular',
+    fontFamily: 'PlusJakartaSans_400Regular',
   },
   listContent: {
     paddingHorizontal: 16,
@@ -114,13 +150,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
   },
+  ruleTextWrap: {
+    flex: 1,
+    minWidth: 0,
+    paddingRight: 10,
+  },
   ruleName: {
     fontSize: 15,
-    fontFamily: 'DMSans_700Bold',
+    fontFamily: 'PlusJakartaSans_700Bold',
     marginBottom: 4,
   },
   ruleDesc: {
     fontSize: 12,
+    lineHeight: 16,
+    fontFamily: 'PlusJakartaSans_400Regular',
   },
   empty: {
     alignItems: 'center',
@@ -129,10 +172,11 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    fontFamily: 'DMSans_600',
+    fontFamily: 'PlusJakartaSans_600SemiBold',
     marginBottom: 4,
   },
   emptySubtext: {
     fontSize: 13,
-  }
+    fontFamily: 'PlusJakartaSans_400Regular',
+  },
 });

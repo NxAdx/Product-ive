@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Alert, View, Text, StyleSheet, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { getRuleById } from '../../src/data/rules';
@@ -20,7 +20,15 @@ export default function RuleScreen() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   
-  const rule = getRuleById(id as string);
+  const rule = getRuleById(String(id || ''));
+  if (!rule) {
+    return (
+      <View style={[styles.container, { backgroundColor: t.bg, paddingTop: insets.top, alignItems: 'center', justifyContent: 'center' }]}>
+        <Text style={{ color: t.ink }}>Rule not found.</Text>
+      </View>
+    );
+  }
+
   const category = CATEGORIES.find(c => c.id === rule.categoryId);
 
   const getAccentColor = () => {
@@ -65,19 +73,23 @@ export default function RuleScreen() {
     <View style={[styles.container, { backgroundColor: t.bg, paddingTop: insets.top }]}>
       {/* Top Bar Navigation */}
       <View style={styles.topBar}>
-        <View 
-          onTouchEnd={() => router.back()}
+        <Pressable
+          onPress={() => router.back()}
           style={[styles.btn, { backgroundColor: t.isDark ? 'rgba(242,241,238,0.08)' : 'rgba(13,13,13,0.06)' }]}
         >
           <ArrowLeft size={18} color={t.isDark ? t.ink : t.ink} strokeWidth={2} />
-        </View>
-        <Text style={[styles.title, { color: t.ink }]}>{rule.name}</Text>
-        <View 
-          onTouchEnd={() => {/* TODO: Open Info Sheet */}}
+        </Pressable>
+        <Text numberOfLines={1} style={[styles.title, { color: t.ink }]}>
+          {rule.name}
+        </Text>
+        <Pressable
+          onPress={() =>
+            Alert.alert(rule.name, `${rule.description}\n\nWhy it works:\n${rule.whyItWorks}`)
+          }
           style={[styles.btn, { backgroundColor: 'transparent' }]}
         >
           <Info size={18} color={t.inkMid} strokeWidth={2} />
-        </View>
+        </Pressable>
       </View>
 
       <View style={styles.engineContainer}>
@@ -104,8 +116,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontFamily: 'DMSerifDisplay',
+    fontFamily: 'Syne_700Bold',
     fontSize: 16,
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 8,
   },
   engineContainer: {
     flex: 1,

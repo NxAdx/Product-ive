@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, TextInput, ScrollView, KeyboardAvoidingView } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
+import React, { useEffect, useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import { CheckCircle, Pause, Play } from 'lucide-react-native';
+
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
-import { usePositivityStore } from '../store/positivityStore';
-import { Play, Pause, CheckCircle } from 'lucide-react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import { useTheme } from '../theme/ThemeContext';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -14,28 +22,29 @@ interface EngineProps {
 
 /**
  * FreeWriteRecallEngine
- * Powers rules: Active Recall, Blurting, Chunking, Interleaving
- * Timed freewriting/recall sessions with timer and word counter
+ * Powers rules: Active Recall and Blurting.
  */
 export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
   const t = useTheme();
   const session = useSessionStore();
-  const positivity = usePositivityStore();
-  
+
+  const resolvedDuration =
+    rule.engineConfig.duration ||
+    (rule.engineConfig.timerMinutes ? rule.engineConfig.timerMinutes * 60 : 10 * 60);
+
   const [sessionStarted, setSessionStarted] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(rule.engineConfig.duration || 10 * 60);
+  const [timeLeft, setTimeLeft] = useState(resolvedDuration);
   const [content, setContent] = useState('');
 
-  const wordCount = content.trim().split(/\s+/).filter(w => w.length > 0).length;
+  const wordCount = content.trim().split(/\s+/).filter((w) => w.length > 0).length;
   const charCount = content.length;
-  const sessionDuration = rule.engineConfig.duration || 10 * 60;
+  const sessionDuration = resolvedDuration;
 
-  // Timer effect
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     if (timerRunning && sessionStarted) {
-      interval = setInterval(() => {
+      intervalId = setInterval(() => {
         setTimeLeft((prev: number) => {
           if (prev <= 1) {
             setTimerRunning(false);
@@ -47,8 +56,8 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
       }, 1000);
     }
     return () => {
-      if (interval) {
-        clearInterval(interval);
+      if (intervalId) {
+        clearInterval(intervalId);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,73 +82,60 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
   const handleSessionEnd = () => {
     setTimerRunning(false);
     session.endSession();
-    
-    // Award points based on word count
-    const pointsEarned = Math.ceil(wordCount / 10); // 1 point per 10 words
-    positivity.addPoints(pointsEarned, 'freewrite_session', rule.id);
-    
     setSessionStarted(false);
     setContent('');
   };
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  const timeString = `${minutes.toString().padStart(2, '0')}:${seconds
+    .toString()
+    .padStart(2, '0')}`;
 
-  // Intent Screen
   if (!sessionStarted) {
     return (
       <KeyboardAvoidingView style={styles.intentScreen} behavior="padding">
-        <ScrollView contentContainerStyle={styles.intentContent} showsVerticalScrollIndicator={false}>
-          <Text style={[styles.intentTitle, { color: t.ink }]}>
-            {rule.name}
-          </Text>
-          <Text style={[styles.intentDesc, { color: t.inkMid }]}>
-            {rule.description}
-          </Text>
+        <ScrollView
+          contentContainerStyle={styles.intentContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={[styles.intentTitle, { color: t.ink }]}>{rule.name}</Text>
+          <Text style={[styles.intentDesc, { color: t.inkMid }]}>{rule.description}</Text>
 
-          {/* Rules/Tips */}
           <View style={styles.tipsBox}>
-            <Text style={[styles.tipsTitle, { color: t.ink }]}>
-              📝 How to get the most:
-            </Text>
+            <Text style={[styles.tipsTitle, { color: t.ink }]}>How to get the most:</Text>
             {rule.engineConfig.tips && rule.engineConfig.tips.length > 0 ? (
               rule.engineConfig.tips.map((tip: string, idx: number) => (
                 <View key={idx} style={styles.tip}>
-                  <Text style={[styles.tipDot, { color }]}>→</Text>
-                  <Text style={[styles.tipText, { color: t.inkMid }]}>
-                    {tip}
-                  </Text>
+                  <Text style={[styles.tipDot, { color }]}>-</Text>
+                  <Text style={[styles.tipText, { color: t.inkMid }]}>{tip}</Text>
                 </View>
               ))
             ) : (
               <>
                 <View style={styles.tip}>
-                  <Text style={[styles.tipDot, { color }]}>→</Text>
+                  <Text style={[styles.tipDot, { color }]}>-</Text>
                   <Text style={[styles.tipText, { color: t.inkMid }]}>
-                    Write without stopping for {sessionDuration / 60} minutes
+                    Write without stopping for {sessionDuration / 60} minutes.
                   </Text>
                 </View>
                 <View style={styles.tip}>
-                  <Text style={[styles.tipDot, { color }]}>→</Text>
+                  <Text style={[styles.tipDot, { color }]}>-</Text>
                   <Text style={[styles.tipText, { color: t.inkMid }]}>
-                    Don&apos;t worry about grammar or structure
+                    Do not worry about grammar or structure.
                   </Text>
                 </View>
                 <View style={styles.tip}>
-                  <Text style={[styles.tipDot, { color }]}>→</Text>
+                  <Text style={[styles.tipDot, { color }]}>-</Text>
                   <Text style={[styles.tipText, { color: t.inkMid }]}>
-                    Recall everything you know about the topic
+                    Recall everything you know about the topic.
                   </Text>
                 </View>
               </>
             )}
           </View>
 
-          <Pressable 
-            onPress={handleStart}
-            style={[styles.startBtn, { backgroundColor: color }]}
-          >
+          <Pressable onPress={handleStart} style={[styles.startBtn, { backgroundColor: color }]}>
             <Text style={styles.startBtnText}>Start Freewriting</Text>
           </Pressable>
         </ScrollView>
@@ -147,44 +143,53 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
     );
   }
 
-  // Session Screen
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.sessionScreen}>
-      {/* Status Bar */}
-      <View style={[styles.statusBar, { 
-        backgroundColor: t.isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
-        borderColor: t.border
-      }]}>
+      <View
+        style={[
+          styles.statusBar,
+          {
+            backgroundColor: t.isDark
+              ? 'rgba(255,255,255,0.04)'
+              : 'rgba(0,0,0,0.02)',
+            borderColor: t.border,
+          },
+        ]}
+      >
         <View style={styles.statusItem}>
           <Text style={[styles.statusLabel, { color: t.inkMid }]}>Time</Text>
-          <Text style={[styles.statusValue, { color, fontFamily: 'DMMono_700Bold' }]}>
+          <Text style={[styles.statusValue, { color, fontFamily: 'JetBrainsMono_700Bold' }]}>
             {timeString}
           </Text>
         </View>
         <View style={styles.statusDivider} />
         <View style={styles.statusItem}>
           <Text style={[styles.statusLabel, { color: t.inkMid }]}>Words</Text>
-          <Text style={[styles.statusValue, { color, fontFamily: 'DMMono_700Bold' }]}>
+          <Text style={[styles.statusValue, { color, fontFamily: 'JetBrainsMono_700Bold' }]}>
             {wordCount}
           </Text>
         </View>
         <View style={styles.statusDivider} />
         <View style={styles.statusItem}>
           <Text style={[styles.statusLabel, { color: t.inkMid }]}>Chars</Text>
-          <Text style={[styles.statusValue, { color, fontFamily: 'DMMono_700Bold' }]}>
+          <Text style={[styles.statusValue, { color, fontFamily: 'JetBrainsMono_700Bold' }]}>
             {charCount}
           </Text>
         </View>
       </View>
 
-      {/* Text Input */}
       <TextInput
-        style={[styles.textArea, { 
-          color: t.ink,
-          backgroundColor: t.isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
-          borderColor: timerRunning ? color : t.border
-        }]}
-        placeholder="Start writing... don't stop until the timer ends!"
+        style={[
+          styles.textArea,
+          {
+            color: t.ink,
+            backgroundColor: t.isDark
+              ? 'rgba(255,255,255,0.02)'
+              : 'rgba(0,0,0,0.01)',
+            borderColor: timerRunning ? color : t.border,
+          },
+        ]}
+        placeholder="Start writing. Do not stop until the timer ends."
         placeholderTextColor={t.inkDim}
         multiline
         value={content}
@@ -192,12 +197,8 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
         editable={timerRunning}
       />
 
-      {/* Controls */}
       <View style={styles.controls}>
-        <Pressable 
-          onPress={handlePauseResume}
-          style={[styles.mainBtn, { backgroundColor: color }]}
-        >
+        <Pressable onPress={handlePauseResume} style={[styles.mainBtn, { backgroundColor: color }]}>
           {timerRunning ? (
             <>
               <Pause size={20} color="#FFF" fill="#FFF" />
@@ -211,23 +212,25 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
           )}
         </Pressable>
 
-        <Pressable 
+        <Pressable
           onPress={handleSessionEnd}
-          style={[styles.endBtn, { 
-            backgroundColor: t.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'
-          }]}
+          style={[
+            styles.endBtn,
+            {
+              backgroundColor: t.isDark
+                ? 'rgba(255,255,255,0.1)'
+                : 'rgba(0,0,0,0.06)',
+            },
+          ]}
         >
           <CheckCircle size={18} color={color} />
-          <Text style={[styles.endBtnText, { color: t.ink }]}>
-            Finish
-          </Text>
+          <Text style={[styles.endBtnText, { color: t.ink }]}>Finish</Text>
         </Pressable>
       </View>
 
-      {/* Reminder */}
       {timerRunning && (
         <Animated.Text entering={FadeIn} style={[styles.reminder, { color: t.inkDim }]}>
-          📝 Keep writing! Don&apos;t stop to edit.
+          Keep writing. Do not stop to edit.
         </Animated.Text>
       )}
     </KeyboardAvoidingView>
@@ -246,7 +249,7 @@ const styles = StyleSheet.create({
   intentTitle: {
     fontSize: 28,
     fontWeight: '700',
-    fontFamily: 'DMSerifDisplay',
+    fontFamily: 'Syne_700Bold',
   },
   intentDesc: {
     fontSize: 15,
@@ -329,7 +332,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 14,
-    fontFamily: 'DMSans_400Regular',
+    fontFamily: 'PlusJakartaSans_400Regular',
     textAlignVertical: 'top',
   },
   controls: {
@@ -368,5 +371,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: '500',
     fontStyle: 'italic',
-  }
+  },
 });

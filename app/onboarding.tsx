@@ -16,7 +16,7 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: t.bg }]}>
-      <Text style={[styles.title, { color: t.ink }]}>Welcome to Product+ive</Text>
+      <Text style={[styles.title, { color: t.ink }]}>Welcome to Product +ive</Text>
       <Text style={[styles.subtitle, { color: t.inkMid }]}>
         Build focus and study habits with guided rule sessions.
       </Text>
@@ -36,12 +36,12 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   title: {
-    fontFamily: 'DMSerifDisplay',
+    fontFamily: 'Syne_700Bold',
     fontSize: 32,
     lineHeight: 38,
   },
   subtitle: {
-    fontFamily: 'DMSans_400Regular',
+    fontFamily: 'PlusJakartaSans_400Regular',
     fontSize: 15,
     lineHeight: 22,
   },
@@ -53,8 +53,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFF',
-    fontFamily: 'DMSans_700Bold',
+    fontFamily: 'PlusJakartaSans_700Bold',
     fontSize: 15,
   },
 });
+
 

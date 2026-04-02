@@ -61,8 +61,8 @@ export function RuleRow({ rule, onPress }: RuleRowProps) {
           <Text style={[styles.name, { color: t.ink }]}>{rule.name}</Text>
           <Text style={[styles.desc, { color: t.inkMid }]} numberOfLines={1}>{rule.shortDescription}</Text>
         </View>
-        <View style={[styles.arrowContainer, { backgroundColor: t.isDark ? t.ink : t.ink }]}>
-          <ArrowRight size={18} color={t.isDark ? '#F2F1EE' : '#F2F1EE'} strokeWidth={2} />
+        <View style={styles.arrowContainer}>
+          <ArrowRight size={18} color={t.inkMid} strokeWidth={2} />
         </View>
       </Animated.View>
     </Pressable>
@@ -95,20 +95,18 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   name: {
-    fontFamily: 'DMSans_600SemiBold',
+    fontFamily: 'PlusJakartaSans_600SemiBold',
     fontSize: 15,
     lineHeight: 19,
-    fontWeight: '600'
   },
   desc: {
-    fontFamily: 'DMSans_400Regular',
+    fontFamily: 'PlusJakartaSans_400Regular',
     fontSize: 12,
     marginTop: 3,
   },
   arrowContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 26,
+    height: 26,
     alignItems: 'center',
     justifyContent: 'center',
   }

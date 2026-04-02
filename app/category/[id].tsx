@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { CATEGORIES } from '../../src/data/categories';
@@ -7,6 +7,7 @@ import { getRulesByCategory } from '../../src/data/rules';
 import { RuleRow } from '../../src/components/RuleRow';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'lucide-react-native';
+import { CategoryIcon } from '../../src/components/CategoryIcon';
 
 export default function CategoryScreen() {
   const { id } = useLocalSearchParams();
@@ -34,15 +35,17 @@ export default function CategoryScreen() {
       
       {/* Top Bar Navigation */}
       <View style={styles.topBar}>
-        <View 
-          onTouchEnd={() => router.back()}
+        <Pressable
+          onPress={() => router.back()}
           style={[styles.btn, { backgroundColor: t.isDark ? 'rgba(242,241,238,0.08)' : 'rgba(13,13,13,0.06)' }]}
         >
           <ArrowLeft size={18} color={t.isDark ? t.ink : t.ink} strokeWidth={2} />
-        </View>
+        </Pressable>
         <View style={styles.titleWrap}>
-          <Text style={{ fontSize: 18 }}>{category.icon}</Text>
-          <Text style={[styles.title, { color: t.ink }]}>{category.name.replace('\n', ' ')}</Text>
+          <CategoryIcon iconKey={category.icon} color={accentColor} size={18} />
+          <Text numberOfLines={1} style={[styles.title, { color: t.ink }]}>
+            {category.name}
+          </Text>
         </View>
         <View style={[styles.badge, { backgroundColor: `${accentColor}1A`, borderColor: `${accentColor}33` }]}>
           <Text style={[styles.badgeText, { color: accentColor }]}>{rules.length} rules</Text>
@@ -84,8 +87,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    fontFamily: 'DMSerifDisplay',
-    fontSize: 16,
+    fontFamily: 'Syne_700Bold',
+    fontSize: 18,
   },
   badge: {
     paddingHorizontal: 12,
@@ -94,7 +97,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   badgeText: {
-    fontFamily: 'DMMono_400Regular',
+    fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 10,
     textTransform: 'uppercase',
   },

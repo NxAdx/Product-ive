@@ -1,56 +1,70 @@
-﻿# Product+ive - CI/CD Guide
+# Product +ive CI/CD Guide
 
 > Last Updated: 2026-04-02 (IST)
 
-## Workflow file
+## Workflow File
 
 - `.github/workflows/ci-cd.yml`
 
-## Trigger rules
+## Trigger Rules
 
-- Push: `main`, `develop`
-- Pull request: `main`, `develop`
-- Docs-only and agent-config-only changes are ignored (`docs/**`, `.agents/**`, `ss/**`) to avoid unnecessary CI runs.
+- Push branches: `main`, `develop`
+- Pull request branches: `main`, `develop`
+- Ignored paths:
+  - `docs/**`
+  - `.agents/**`
+  - `ss/**`
 
-## Runtime and tooling
+## Global Runtime Settings
 
 - Runner: `ubuntu-latest`
 - Node: `22`
 - Java: Temurin `17`
-- Action runtime migration flag: `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
-- Workflow concurrency: enabled (`cancel-in-progress: true`) to cancel older in-flight runs for the same ref.
+- Action runtime flag: `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
+- Concurrency enabled:
+  - `cancel-in-progress: true` for same workflow/ref
 
-## Job 1: Lint, TypeCheck and Test
+## Job 1: Lint, TypeCheck & Test
 
 1. `actions/checkout@v6`
-2. `actions/setup-node@v6` (`node-version: 22`, npm cache)
-3. `npm ci`
+2. `actions/setup-node@v6` with npm cache
+3. `npm ci --no-audit --prefer-offline`
 4. `npx eslint app src --max-warnings=0`
 5. `npx tsc --noEmit`
-6. `npm test -- --coverage --ci`
+6. `npm test -- --coverage --ci` (currently placeholder)
 7. `npm audit --audit-level=high` (non-blocking)
 
 ## Job 2: Build Android APK
 
 Runs only when:
-- event is push
+
+- event is `push`
 - branch is `main`
-- job 1 passed
+- lint/typecheck/test job passed
 
 Steps:
+
 1. `actions/checkout@v6`
-2. `actions/setup-java@v5` (Temurin 17)
-   - Gradle dependency cache enabled (`cache: gradle`)
-3. `actions/setup-node@v6` (Node 22)
-4. `npm ci`
-5. `expo/expo-github-action@v8` with Expo/EAS cache enabled
-6. If `android/` is missing, run `npx expo prebuild --platform android --non-interactive`
-7. Build with Gradle performance flags:
+2. `actions/setup-node@v6` with npm cache
+3. `npm ci --omit=dev --no-audit --prefer-offline`
+4. `expo/expo-github-action@v8` with `eas-cache: true`
+5. Prebuild Android if missing:
+   - `npx expo prebuild --platform android --non-interactive --no-install`
+6. `actions/setup-java@v5` with `cache: gradle`
+7. Build APK:
    - `./gradlew assembleRelease --no-daemon --parallel --build-cache`
-8. Upload artifact with `actions/upload-artifact@v4`
+8. Upload artifact:
+   - `actions/upload-artifact@v4`
 
-## Notes
+## Why Java Setup Is After Prebuild
 
-- Current `npm test` script is a placeholder; CI still executes it but it does not provide real coverage.
-- Add real test setup before relying on coverage gating.
-- Local Node below 20.19.4 can still run but emits engine warnings with RN 0.83.
+`actions/setup-java` with `cache: gradle` scans for Gradle files.
+In managed Expo apps, those files do not exist until `expo prebuild` creates `android/`.
+If Java caching runs first, the job fails with:
+
+- `No file ... matched to [**/*.gradle* ...]`
+
+## Known Warnings
+
+- Some npm deprecation warnings are currently transitive (Expo/RN toolchain).
+- These are tracked in `docs/update-logs.md` and should be rechecked after each push/build.

@@ -89,12 +89,12 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   title: {
-    fontFamily: 'DMSerifDisplay',
+    fontFamily: 'Syne_700Bold',
     fontSize: 28,
     marginBottom: 24,
   },
   input: {
-    fontFamily: 'DMSans_400Regular',
+    fontFamily: 'PlusJakartaSans_400Regular',
     fontSize: 16,
     paddingHorizontal: 20,
     paddingVertical: 18,
@@ -108,7 +108,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveText: {
-    fontFamily: 'DMSans_600SemiBold',
+    fontFamily: 'PlusJakartaSans_600SemiBold',
     fontSize: 16,
   }
 });
+

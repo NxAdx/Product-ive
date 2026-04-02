@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   intentTitle: {
     fontSize: 28,
     fontWeight: '700',
-    fontFamily: 'DMSerifDisplay',
+    fontFamily: 'Syne_700Bold',
   },
   intentDesc: {
     fontSize: 16,
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    fontFamily: 'DMMono_700Bold',
+    fontFamily: 'JetBrainsMono_700Bold',
   },
   statLabel: {
     fontSize: 11,
@@ -371,3 +371,4 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
 });
+

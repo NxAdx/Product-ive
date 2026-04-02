@@ -9,8 +9,8 @@ export interface RuleConfig {
   name: string;
   categoryId: CategoryId;
   engine: EngineType;
-  shortDescription: string;       // 1 line — shown in rule row
-  description: string;            // 2–3 sentences — shown in info sheet
+  shortDescription: string;       // 1 line - shown in rule row
+  description: string;            // 2-3 sentences - shown in info sheet
   whyItWorks: string;             // The science
   bestFor: string[];
   engineConfig: any;           // Engine-specific params
@@ -25,7 +25,7 @@ export const RULES: RuleConfig[] = [
     categoryId: 'focus',
     engine: 'countdown',
     shortDescription: '25-min focus blocks with 5-min breaks',
-    description: 'Work in focused 25-minute intervals, then take a 5-minute break. After four rounds, take a 15–30 minute break.',
+    description: 'Work in focused 25-minute intervals, then take a 5-minute break. After four rounds, take a 15-30 minute break.',
     whyItWorks: 'Time-boxing reduces cognitive load and decision fatigue. Scheduled breaks prevent burnout and maintain concentration.',
     bestFor: ['deep work', 'studying', 'writing', 'coding'],
     engineConfig: { workDuration: 25 * 60, breakDuration: 5 * 60, longBreakDuration: 15 * 60, longBreakAfterCycles: 4, cycles: 4 },
@@ -95,7 +95,7 @@ export const RULES: RuleConfig[] = [
     categoryId: 'productivity',
     engine: 'countdown',
     shortDescription: 'If it takes 2 minutes, do it right now',
-    description: 'If a task takes less than 2 minutes to complete, do it immediately. Don\'t schedule it, don\'t write it down — just do it.',
+    description: 'If a task takes less than 2 minutes to complete, do it immediately. Don\'t schedule it, don\'t write it down - just do it.',
     whyItWorks: 'The time spent writing down, organising, and revisiting a 2-minute task often exceeds the time to just do it. Reduces backlog anxiety.',
     bestFor: ['email replies', 'small admin tasks', 'quick decisions'],
     engineConfig: { workDuration: 2 * 60, cycles: 1, label: 'Do it NOW', noBreak: true },
@@ -109,7 +109,7 @@ export const RULES: RuleConfig[] = [
     engine: 'spaced',
     shortDescription: 'Review at increasing intervals to remember forever',
     description: 'Review material at spaced intervals: 1 day, 3 days, 1 week, 2 weeks, 1 month. Each review strengthens the memory trace.',
-    whyItWorks: 'The "forgetting curve" (Ebbinghaus, 1885) shows memory decays predictably. Reviewing just before forgetting is 2–3× more efficient than repeated same-day review.',
+    whyItWorks: 'The "forgetting curve" (Ebbinghaus, 1885) shows memory decays predictably. Reviewing just before forgetting is 2-3x more efficient than repeated same-day review.',
     bestFor: ['vocabulary', 'dates and facts', 'formulas', 'any memorisation'],
     engineConfig: { intervals: [1, 3, 7, 14, 30], notifyBeforeMinutes: 60 },
     pointsPerSession: 15, 
@@ -121,8 +121,8 @@ export const RULES: RuleConfig[] = [
     categoryId: 'study',
     engine: 'freewrite',
     shortDescription: 'Test your memory instead of re-reading',
-    description: 'Close your notes and write down everything you remember about a topic. Then check what you missed. This beats re-reading by 50–100%.',
-    whyItWorks: 'Retrieval practice strengthens memory pathways. Re-reading creates a "fluency illusion" — you feel you know it but can\'t retrieve it under pressure.',
+    description: 'Close your notes and write down everything you remember about a topic. Then check what you missed. This beats re-reading by 50-100%.',
+    whyItWorks: 'Retrieval practice strengthens memory pathways. Re-reading creates a "fluency illusion" - you feel you know it but can\'t retrieve it under pressure.',
     bestFor: ['exam prep', 'reviewing lectures', 'consolidating learning'],
     engineConfig: { mode: 'recall', topicPrompt: 'What topic are you reviewing?', timerMode: true },
     pointsPerSession: 15, 
@@ -252,7 +252,7 @@ export const RULES: RuleConfig[] = [
     engine: 'guided',
     shortDescription: 'Group information into meaningful chunks for better memory',
     description: 'Break large amounts of information into smaller, meaningful groups. For example, remember 1-8-0-0-3-6 not as 6 digits but as 1-80-03-6 (a year, a temperature, an area code).',
-    whyItWorks: 'Working memory can hold 7±2 chunks. Grouping information into meaningful patterns dramatically increases capacity and recall speed.',
+    whyItWorks: 'Working memory can hold 7+/-2 chunks. Grouping information into meaningful patterns dramatically increases capacity and recall speed.',
     bestFor: ['memorizing numbers', 'organizing information', 'language learning'],
     engineConfig: { prompt: 'What information are you trying to remember?', maxChunkSize: 4 },
     pointsPerSession: 10,
@@ -286,6 +286,6 @@ export const RULES: RuleConfig[] = [
   }
 ];
 
-export const getRuleById = (id: string) => Object.freeze(RULES.find(r => r.id === id) || RULES[0]);
+export const getRuleById = (id: string) => RULES.find((r) => r.id === id);
 export const getRulesByCategory = (catId: CategoryId) => RULES.filter(r => r.categoryId === catId);
 
