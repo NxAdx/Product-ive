@@ -1,53 +1,142 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, FlatList } from 'react-native';
+import { useTheme } from '../../src/theme/ThemeContext';
+import { RULES } from '../../src/data/rules';
+import { CATEGORIES } from '../../src/data/categories';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Search } from 'lucide-react-native';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+export default function ExploreScreen() {
+  const t = useTheme();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [search, setSearch] = useState('');
 
-export default function TabTwoScreen() {
+  const filteredRules = RULES.filter(rule =>
+    rule.name.toLowerCase().includes(search.toLowerCase()) ||
+    rule.shortDescription.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const renderRuleRow = ({ item }: { item: typeof RULES[0] }) => {
+    const category = CATEGORIES.find(c => c.id === item.categoryId);
+    return (
+      <Pressable
+        onPress={() => router.push(`/rule/${item.id}`)}
+        style={[styles.ruleRow, { backgroundColor: t.card, borderColor: t.border }]}
+      >
+        <View>
+          <Text style={[styles.ruleName, { color: t.ink }]}>{item.name}</Text>
+          <Text style={[styles.ruleDesc, { color: t.inkDim }]}>{item.shortDescription}</Text>
+        </View>
+        <Text style={{ fontSize: 18 }}>{category?.icon}</Text>
+      </Pressable>
+    );
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
+    <View style={[styles.container, { backgroundColor: t.bg, paddingTop: insets.top }]}>
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: t.ink }]}>Explore Rules</Text>
+      </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={[styles.searchBar, { backgroundColor: t.card, borderColor: t.border }]}>
+          <Search size={18} color={t.inkMid} />
+          <TextInput
+            placeholder="Search rules..."
+            placeholderTextColor={t.inkDim}
+            value={search}
+            onChangeText={setSearch}
+            style={[styles.searchInput, { color: t.ink }]}
+          />
+        </View>
+      </View>
+
+      {/* Rules List */}
+      <FlatList
+        data={filteredRules}
+        renderItem={renderRuleRow}
+        keyExtractor={item => item.id}
+        scrollEnabled={true}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={{ fontSize: 32, marginBottom: 12 }}>🔍</Text>
+            <Text style={[styles.emptyText, { color: t.inkMid }]}>No rules found</Text>
+            <Text style={[styles.emptySubtext, { color: t.inkDim }]}>Try a different search</Text>
+          </View>
+        }
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+  },
+  title: {
+    fontSize: 28,
+    fontFamily: 'DMSerifDisplay',
+    letterSpacing: -0.01,
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 10,
+    fontFamily: 'DMSans_400Regular',
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  ruleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+  },
+  ruleName: {
+    fontSize: 15,
+    fontFamily: 'DMSans_700Bold',
+    marginBottom: 4,
+  },
+  ruleDesc: {
+    fontSize: 12,
+  },
+  empty: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontFamily: 'DMSans_600',
+    marginBottom: 4,
+  },
+  emptySubtext: {
+    fontSize: 13,
+  }
+});
+
           <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
         </ThemedText>
       </Collapsible>

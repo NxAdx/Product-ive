@@ -14,8 +14,10 @@ export default function TabLayout() {
       }}
       tabBar={(props) => <BottomNav {...props} />}
     >
-      <Tabs.Screen name="index" />
-      <Tabs.Screen name="meter" />
+      <Tabs.Screen name="index" options={{ title: 'Home' }} />
+      <Tabs.Screen name="todo" options={{ title: 'Tasks', href: null }} />
+      <Tabs.Screen name="meter" options={{ title: 'Meter' }} />
+      <Tabs.Screen name="explore" options={{ title: 'Explore' }} />
     </Tabs>
   );
 }

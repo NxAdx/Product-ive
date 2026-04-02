@@ -1,11 +1,17 @@
 import React from 'react';
-import { View, Pressable, StyleSheet, ViewStyle } from 'react-native';
-import { Home, Compass, Plus } from 'lucide-react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
+import { Home, Plus, BarChart3, Compass } from 'lucide-react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
   const t = useTheme();
+
+  // Map route names to tab indices for active state
+  const getIsActive = (routeName: string) => {
+    const route = state.routes[state.index];
+    return route?.name === routeName;
+  };
 
   return (
     <View style={styles.container}>
@@ -26,8 +32,8 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
         >
           <Home 
             size={22} 
-            color={state.index === 0 ? t.ink : t.inkMid} 
-            strokeWidth={state.index === 0 ? 2.5 : 2}
+            color={getIsActive('index') ? t.ink : t.inkMid} 
+            strokeWidth={getIsActive('index') ? 2.5 : 2}
           />
         </Pressable>
 
@@ -36,7 +42,7 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
           onPress={() => navigation.navigate('todo')}
           style={[
             styles.navCenter, 
-            { backgroundColor: t.isDark ? t.ink : '#0D0D0D' } // Note: ink in light mode is #0D0D0D, in dark is #F2F1EE. The UI spec says center button background is opposite to the general dark/light flow. "ncenter-p.lm { background: #0D0D0D }" "ncenter-p.dm { background: #F2F1EE }"
+            { backgroundColor: t.isDark ? t.ink : '#0D0D0D' }
           ]}
         >
           <View style={[
@@ -47,15 +53,27 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
           </View>
         </Pressable>
 
+        {/* Explore Tab */}
+        <Pressable 
+          onPress={() => navigation.navigate('explore')}
+          style={styles.navItem}
+        >
+          <Compass 
+            size={22} 
+            color={getIsActive('explore') ? t.ink : t.inkMid}
+            strokeWidth={getIsActive('explore') ? 2.5 : 2}
+          />
+        </Pressable>
+
         {/* Meter Tab */}
         <Pressable 
           onPress={() => navigation.navigate('meter')}
           style={styles.navItem}
         >
-          <Compass 
+          <BarChart3 
             size={22} 
-            color={state.index === 1 ? t.ink : t.inkMid}
-            strokeWidth={state.index === 1 ? 2.5 : 2}
+            color={getIsActive('meter') ? t.ink : t.inkMid}
+            strokeWidth={getIsActive('meter') ? 2.5 : 2}
           />
         </Pressable>
 
@@ -67,7 +85,7 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingBottom: 24, // extra padding for safe area
+    paddingBottom: 24,
     paddingTop: 10,
     alignItems: 'center',
     position: 'absolute',
