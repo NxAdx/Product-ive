@@ -2,6 +2,20 @@ import { useEffect, useState } from 'react';
 import { Stack, SplashScreen, useRouter } from 'expo-router';
 import { ThemeProvider } from '../src/theme/ThemeContext';
 import { useFonts } from 'expo-font';
+import {
+  DMSerifDisplay_400Regular,
+} from '@expo-google-fonts/dm-serif-display';
+import {
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+} from '@expo-google-fonts/dm-sans';
+import {
+  DMMono_400Regular,
+  DMMono_500Medium,
+  DMMono_700Bold,
+} from '@expo-google-fonts/dm-mono';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SystemUI from 'expo-system-ui';
@@ -16,12 +30,14 @@ export default function RootLayout() {
   const [initialRouteName, setInitialRouteName] = useState<'(tabs)' | 'onboarding' | null>(null);
 
   const [fontsLoaded] = useFonts({
-    'DMSerifDisplay': require('@expo-google-fonts/dm-serif-display/DMSerifDisplay_400Regular.ttf'),
-    'DMSans_400Regular': require('@expo-google-fonts/dm-sans/DMSans_400Regular.ttf'),
-    'DMSans_500Medium': require('@expo-google-fonts/dm-sans/DMSans_500Medium.ttf'),
-    'DMSans_700Bold': require('@expo-google-fonts/dm-sans/DMSans_700Bold.ttf'),
-    'DMMono_400Regular': require('@expo-google-fonts/dm-mono/DMMono_400Regular.ttf'),
-    'DMMono_500Medium': require('@expo-google-fonts/dm-mono/DMMono_500Medium.ttf'),
+    DMSerifDisplay_400Regular,
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_600SemiBold,
+    DMSans_700Bold,
+    DMMono_400Regular,
+    DMMono_500Medium,
+    DMMono_700Bold,
   });
 
   useEffect(() => {
