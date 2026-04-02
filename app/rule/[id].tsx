@@ -5,6 +5,12 @@ import { useTheme } from '../../src/theme/ThemeContext';
 import { getRuleById } from '../../src/data/rules';
 import { CATEGORIES } from '../../src/data/categories';
 import { CountdownEngine } from '../../src/engines/CountdownEngine';
+import { IntervalReminderEngine } from '../../src/engines/IntervalReminderEngine';
+import { GuidedPromptEngine } from '../../src/engines/GuidedPromptEngine';
+import { SmartTaskSorterEngine } from '../../src/engines/SmartTaskSorterEngine';
+import { SpacedRepetitionEngine } from '../../src/engines/SpacedRepetitionEngine';
+import { AwarenessReflectionEngine } from '../../src/engines/AwarenessReflectionEngine';
+import { FreeWriteRecallEngine } from '../../src/engines/FreeWriteRecallEngine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, Info } from 'lucide-react-native';
 
@@ -30,13 +36,26 @@ export default function RuleScreen() {
 
   const renderEngine = () => {
     switch (rule.engine) {
-      case 'countdown': return <CountdownEngine rule={rule} color={accentColor} />;
-      // other engines will go here over time
-      default: return (
-        <View style={styles.placeholder}>
-          <Text style={{color: t.inkMid}}>Engine '{rule.engine}' not yet implemented for {rule.name}.</Text>
-        </View>
-      );
+      case 'countdown': 
+        return <CountdownEngine rule={rule} color={accentColor} />;
+      case 'interval': 
+        return <IntervalReminderEngine rule={rule} color={accentColor} />;
+      case 'guided': 
+        return <GuidedPromptEngine rule={rule} color={accentColor} />;
+      case 'sorter': 
+        return <SmartTaskSorterEngine rule={rule} color={accentColor} />;
+      case 'spaced': 
+        return <SpacedRepetitionEngine rule={rule} color={accentColor} />;
+      case 'awareness': 
+        return <AwarenessReflectionEngine rule={rule} color={accentColor} />;
+      case 'freewrite': 
+        return <FreeWriteRecallEngine rule={rule} color={accentColor} />;
+      default: 
+        return (
+          <View style={styles.placeholder}>
+            <Text style={{color: t.inkMid}}>Engine '{rule.engine}' not yet implemented for {rule.name}.</Text>
+          </View>
+        );
     }
   };
 

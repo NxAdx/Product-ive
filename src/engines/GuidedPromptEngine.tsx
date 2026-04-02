@@ -1,0 +1,310 @@
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
+import { useTheme } from '../theme/ThemeContext';
+import { RuleConfig } from '../data/rules';
+import { useSessionStore } from '../store/sessionStore';
+import { ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react-native';
+
+interface EngineProps {
+  rule: RuleConfig;
+  color: string;
+}
+
+interface Prompt {
+  title: string;
+  description: string;
+  placeholder: string;
+}
+
+/**
+ * GuidedPromptEngine
+ * Powers techniques: Feynman, Cornell Notes, SQ3R, Mind Mapping, Elaborative Interrogation
+ * Provides step-by-step prompts to guide the user through a learning technique
+ */
+export function GuidedPromptEngine({ rule, color }: EngineProps) {
+  const t = useTheme();
+  const session = useSessionStore();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [responses, setResponses] = useState<{ [key: number]: string }>({});
+  const [sessionStarted, setSessionStarted] = useState(false);
+
+  // Get prompts from rule config
+  const prompts: Prompt[] = rule.engineConfig.prompts || [
+    {
+      title: 'Step 1: Question',
+      description: 'What is the main topic or concept?',
+      placeholder: 'Type your response...'
+    },
+    {
+      title: 'Step 2: Response',
+      description: 'How would you explain this in your own words?',
+      placeholder: 'Explain without notes...'
+    },
+    {
+      title: 'Step 3: Review',
+      description: 'What gaps did you find in your explanation?',
+      placeholder: 'List any missing pieces...'
+    }
+  ];
+
+  const currentPrompt = prompts[currentStep];
+  const isLastStep = currentStep === prompts.length - 1;
+
+  const handleStart = () => {
+    setSessionStarted(true);
+    session.startSession(rule.id);
+  };
+
+  const handleResponseChange = (text: string) => {
+    setResponses({ ...responses, [currentStep]: text });
+  };
+
+  const handleNext = () => {
+    if (currentStep < prompts.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleComplete = () => {
+    session.endSession();
+    setSessionStarted(false);
+    setCurrentStep(0);
+    setResponses({});
+  };
+
+  if (!sessionStarted) {
+    return (
+      <View style={styles.intentScreen}>
+        <View style={styles.intentContent}>
+          <Text style={[styles.intentTitle, { color: t.ink }]}>{rule.name}</Text>
+          <Text style={[styles.intentDesc, { color: t.inkMid }]}>
+            {rule.description}
+          </Text>
+          
+          {rule.engineConfig.steps && (
+            <View style={styles.stepsList}>
+              {rule.engineConfig.steps.map((step: string, idx: number) => (
+                <View key={idx} style={styles.stepItem}>
+                  <Text style={[styles.stepNum, { color }]}>➤</Text>
+                  <Text style={[styles.stepText, { color: t.ink }]}>{step}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          <Pressable 
+            onPress={handleStart}
+            style={[styles.startBtn, { backgroundColor: color }]}
+          >
+            <Text style={styles.startBtnText}>Begin {rule.name}</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      {/* Step Progress */}
+      <View style={styles.progress}>
+        <Text style={[styles.progressText, { color: t.inkMid }]}>
+          Step {currentStep + 1} of {prompts.length}
+        </Text>
+        <View style={[styles.progressBar, { backgroundColor: t.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }]}>
+          <View 
+            style={[
+              styles.progressFill, 
+              { 
+                backgroundColor: color,
+                width: `${((currentStep + 1) / prompts.length) * 100}%`
+              }
+            ]} 
+          />
+        </View>
+      </View>
+
+      {/* Prompt */}
+      <ScrollView style={styles.promptArea} contentContainerStyle={styles.promptContent}>
+        <Text style={[styles.promptTitle, { color: t.ink }]}>{currentPrompt.title}</Text>
+        <Text style={[styles.promptDesc, { color: t.inkMid }]}>{currentPrompt.description}</Text>
+        
+        {/* Input */}
+        <TextInput
+          style={[styles.input, { 
+            color: t.ink,
+            backgroundColor: t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+            borderColor: t.border
+          }]}
+          placeholder={currentPrompt.placeholder}
+          placeholderTextColor={t.inkDim}
+          multiline
+          value={responses[currentStep] || ''}
+          onChangeText={handleResponseChange}
+        />
+      </ScrollView>
+
+      {/* Navigation */}
+      <View style={styles.controls}>
+        <Pressable 
+          onPress={handlePrev}
+          disabled={currentStep === 0}
+          style={[styles.navBtn, { opacity: currentStep === 0 ? 0.4 : 1 }]}
+        >
+          <ChevronLeft size={20} color={t.ink} />
+        </Pressable>
+
+        {isLastStep ? (
+          <Pressable 
+            onPress={handleComplete}
+            style={[styles.mainBtn, { backgroundColor: color }]}
+          >
+            <CheckCircle size={20} color="#FFF" />
+            <Text style={styles.mainBtnText}>Complete</Text>
+          </Pressable>
+        ) : (
+          <Pressable 
+            onPress={handleNext}
+            style={[styles.mainBtn, { backgroundColor: color }]}
+          >
+            <Text style={styles.mainBtnText}>Next</Text>
+            <ChevronRight size={20} color="#FFF" />
+          </Pressable>
+        )}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  intentScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  intentContent: {
+    gap: 24,
+  },
+  intentTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    fontFamily: 'DMSerifDisplay',
+  },
+  intentDesc: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '400',
+  },
+  stepsList: {
+    gap: 12,
+    paddingVertical: 16,
+  },
+  stepItem: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'flex-start',
+  },
+  stepNum: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  stepText: {
+    fontSize: 14,
+    fontWeight: '500',
+    flex: 1,
+    lineHeight: 20,
+  },
+  startBtn: {
+    paddingVertical: 16,
+    borderRadius: 20,
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  startBtnText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    justifyContent: 'space-between',
+  },
+  progress: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  progressText: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  progressBar: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  promptArea: {
+    flex: 1,
+    marginBottom: 24,
+  },
+  promptContent: {
+    gap: 16,
+  },
+  promptTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  promptDesc: {
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 20,
+  },
+  input: {
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    minHeight: 120,
+    borderWidth: 1,
+    fontSize: 14,
+    fontFamily: 'DMSans_400Regular',
+    textAlignVertical: 'top',
+  },
+  controls: {
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
+  },
+  navBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  mainBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 16,
+  },
+  mainBtnText: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: '600',
+  }
+});
