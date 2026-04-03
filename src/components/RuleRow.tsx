@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
@@ -79,10 +79,15 @@ const styles = StyleSheet.create({
     gap: 14,
     borderWidth: 1,
     marginBottom: 10,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 3,
+    ...(Platform.OS !== 'web' && {
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 12,
+      elevation: 3,
+    }),
+    ...(Platform.OS === 'web' && {
+      boxShadow: '0 4px 12px rgba(13, 13, 13, 0.05)',
+    }),
   },
   dot: {
     width: 8,

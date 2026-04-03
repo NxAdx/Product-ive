@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet, Platform } from 'react-native';
 import { Home, Plus, BarChart3, Compass } from 'lucide-react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -116,10 +116,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 9999,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 10,
+    ...(Platform.OS !== 'web' && {
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.15,
+      shadowRadius: 24,
+      elevation: 10,
+    }),
+    ...(Platform.OS === 'web' && {
+      boxShadow: '0 8px 24px rgba(13, 13, 13, 0.15)',
+    }),
   },
   navItem: {
     width: 44,

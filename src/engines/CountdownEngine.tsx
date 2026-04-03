@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
@@ -142,10 +142,15 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    ...(Platform.OS !== 'web' && {
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 8,
+    }),
+    ...(Platform.OS === 'web' && {
+      boxShadow: '0 8px 16px rgba(13, 13, 13, 0.3)',
+    }),
   }
 });
 
