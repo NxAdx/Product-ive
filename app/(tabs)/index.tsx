@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   btnPlaceholder: {
     width: 36,

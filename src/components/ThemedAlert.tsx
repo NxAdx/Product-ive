@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
   },
   modal: {
     borderRadius: 20,
-    borderWidth: 1,
     padding: 24,
     width: '85%',
     maxWidth: 340,
@@ -87,16 +86,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 18,
     flex: 1,
+    letterSpacing: -0.02,
   },
   closeBtn: {
     padding: 8,
     marginRight: -8,
   },
   message: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 24,

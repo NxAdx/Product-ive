@@ -242,17 +242,16 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   title: {
     fontSize: 28,
-    fontFamily: 'Syne_700Bold',
-    letterSpacing: -0.01,
+    fontFamily: 'Manrope_700Bold',
+    letterSpacing: -0.02,
   },
   subtitle: {
     fontSize: 14,
     marginTop: 2,
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
   },
   content: {
     flex: 1,
@@ -273,7 +272,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 16,
     marginBottom: 8,
-    borderWidth: 1,
   },
   todoContent: {
     flex: 1,
@@ -291,7 +289,7 @@ const styles = StyleSheet.create({
   },
   todoText: {
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     flex: 1,
   },
   ruleTag: {
@@ -311,12 +309,12 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_700Bold',
     marginBottom: 4,
   },
   emptySubtext: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
   },
   addForm: {
     borderTopWidth: 1,
@@ -329,7 +327,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
     borderWidth: 1,
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
   },
   addBtn: {
     width: 40,

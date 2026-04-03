@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -117,8 +116,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: 'Syne_700Bold',
-    letterSpacing: -0.01,
+    fontFamily: 'Manrope_700Bold',
+    letterSpacing: -0.02,
   },
   searchContainer: {
     paddingHorizontal: 16,
@@ -129,13 +128,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     borderRadius: 12,
-    borderWidth: 1,
     gap: 8,
   },
   searchInput: {
     flex: 1,
     paddingVertical: 10,
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
   },
   listContent: {
     paddingHorizontal: 16,
@@ -148,7 +146,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     marginBottom: 12,
-    borderWidth: 1,
   },
   ruleTextWrap: {
     flex: 1,
@@ -157,13 +154,13 @@ const styles = StyleSheet.create({
   },
   ruleName: {
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans_700Bold',
+    fontFamily: 'Inter_700Bold',
     marginBottom: 4,
   },
   ruleDesc: {
     fontSize: 12,
     lineHeight: 16,
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
   },
   empty: {
     alignItems: 'center',
@@ -172,11 +169,11 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_700Bold',
     marginBottom: 4,
   },
   emptySubtext: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
   },
 });

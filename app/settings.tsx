@@ -374,16 +374,15 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   iconBtnPlaceholder: {
     width: 36,
     height: 36,
   },
   title: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 20,
-    letterSpacing: -0.2,
+    letterSpacing: -0.02,
   },
   content: {
     paddingHorizontal: 16,
@@ -392,15 +391,14 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     borderRadius: 18,
-    borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 12,
     gap: 10,
   },
   sectionTitle: {
-    fontFamily: 'Syne_600SemiBold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 14,
-    letterSpacing: 0.2,
+    letterSpacing: -0.02,
   },
   row: {
     minHeight: 44,
@@ -428,7 +426,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rowLabel: {
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_500Medium',
     fontSize: 14,
   },
   rowValue: {
@@ -441,11 +439,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   expandTitle: {
-    fontFamily: 'PlusJakartaSans_700Bold',
+    fontFamily: 'Inter_700Bold',
     fontSize: 13,
   },
   expandLine: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 12,
     lineHeight: 18,
   },

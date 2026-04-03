@@ -85,7 +85,6 @@ export function DailyTip() {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 16,
-    borderWidth: 1,
     padding: 16,
     marginHorizontal: 24,
     marginBottom: 24,
@@ -96,17 +95,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   tipLabel: {
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'JetBrainsMono_500Medium',
     fontSize: 12,
     marginLeft: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   tipTitle: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 16,
     marginBottom: 8,
-    letterSpacing: -0.01,
+    letterSpacing: -0.02,
   },
   tipText: {
     fontFamily: 'PlusJakartaSans_400Regular',

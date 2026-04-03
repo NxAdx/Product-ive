@@ -121,7 +121,6 @@ export function ProgressBar() {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 16,
-    borderWidth: 1,
     padding: 20,
     marginHorizontal: 24,
     marginBottom: 24,
@@ -137,7 +136,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 16,
     marginLeft: 10,
     letterSpacing: -0.01,

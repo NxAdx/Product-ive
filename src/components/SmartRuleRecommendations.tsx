@@ -159,7 +159,6 @@ const styles = StyleSheet.create({
     width: 150,
     padding: 12,
     borderRadius: 12,
-    borderWidth: 1,
     justifyContent: 'space-between',
   },
   cardHeader: {
@@ -174,7 +173,7 @@ const styles = StyleSheet.create({
   },
   ruleName: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_700Bold',
     marginBottom: 4,
   },
   reason: {

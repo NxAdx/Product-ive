@@ -100,12 +100,13 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   name: {
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_500Medium',
     fontSize: 15,
     lineHeight: 19,
+    letterSpacing: 0.01,
   },
   desc: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 12,
     marginTop: 3,
   },

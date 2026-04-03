@@ -91,16 +91,15 @@ export function StatsCard() {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 16,
-    borderWidth: 1,
     padding: 20,
     marginHorizontal: 24,
     marginBottom: 24,
   },
   title: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 16,
     marginBottom: 16,
-    letterSpacing: -0.01,
+    letterSpacing: -0.02,
   },
   statsGrid: {
     flexDirection: 'row',

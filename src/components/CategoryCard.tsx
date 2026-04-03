@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
     padding: 20,
     flex: 1,
     justifyContent: 'space-between',
-    borderWidth: 1,
   },
   iconContainer: {
     width: 44,

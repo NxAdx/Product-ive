@@ -129,12 +129,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 16,
     flex: 1,
     textAlign: 'center',
     marginHorizontal: 8,
     lineHeight: 20,
+    letterSpacing: -0.02,
   },
   engineContainer: {
     flex: 1,

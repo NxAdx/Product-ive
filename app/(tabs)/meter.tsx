@@ -123,11 +123,11 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   title: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 28,
+    letterSpacing: -0.02,
   },
   content: {
     flex: 1,
@@ -149,14 +149,15 @@ const styles = StyleSheet.create({
     lineHeight: 42,
   },
   pointsLabel: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 11,
   },
   levelText: {
     textAlign: 'center',
-    fontFamily: 'Syne_600SemiBold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 18,
     marginTop: 4,
+    letterSpacing: -0.02,
   },
   levelSub: {
     textAlign: 'center',
@@ -173,7 +174,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     alignItems: 'center',
-    borderWidth: 1,
     minHeight: 110,
     justifyContent: 'center',
   },
@@ -183,23 +183,23 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   statLabel: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 11,
     marginTop: 4,
     textAlign: 'center',
   },
   howBox: {
-    borderWidth: 1,
     borderRadius: 16,
     padding: 14,
     gap: 8,
   },
   howTitle: {
-    fontFamily: 'Syne_600SemiBold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 14,
+    letterSpacing: -0.02,
   },
   howLine: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 12,
     lineHeight: 18,
   },

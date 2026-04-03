@@ -87,8 +87,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 18,
+    letterSpacing: -0.02,
   },
   badge: {
     paddingHorizontal: 12,
