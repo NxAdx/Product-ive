@@ -45,7 +45,7 @@ export default function Home() {
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
       >
         {/* Active Session Indicator */}
         <SessionStatusBadge />
@@ -77,6 +77,9 @@ export default function Home() {
             />
           </View>
         </View>
+
+        {/* 48px Section Gap (per design system) */}
+        <View style={{ height: 48 }} />
 
         {/* Tier 1 Features */}
         <StatsCard />

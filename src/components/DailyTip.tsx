@@ -66,26 +66,25 @@ export function DailyTip() {
       style={[
         styles.container,
         {
-          backgroundColor: t.isDark ? 'rgba(76,207,255,0.08)' : 'rgba(76,207,255,0.06)',
-          borderColor: '#4DCFFF40',
+          backgroundColor: t.surfaceLowest,
         },
       ]}
     >
       <View style={styles.header}>
-        <Lightbulb size={18} color="#4DCFFF" strokeWidth={2} />
-        <Text style={[styles.tipLabel, { color: '#4DCFFF' }]}>Daily Tip</Text>
+        <Lightbulb size={18} color={t.info} strokeWidth={2} />
+        <Text style={[styles.tipLabel, { color: t.info }]}>Daily Tip</Text>
       </View>
 
-      <Text style={[styles.tipTitle, { color: t.ink }]}>{currentTip.title}</Text>
-      <Text style={[styles.tipText, { color: t.inkDim }]}>{currentTip.tip}</Text>
+      <Text style={[styles.tipTitle, { color: t.text }]}>{currentTip.title}</Text>
+      <Text style={[styles.tipText, { color: t.textSecondary }]}>{currentTip.tip}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 24,
+    padding: 20,
     marginHorizontal: 24,
     marginBottom: 24,
   },

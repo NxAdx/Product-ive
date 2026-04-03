@@ -37,8 +37,7 @@ export function ProgressBar() {
       style={[
         styles.container,
         {
-          backgroundColor: t.isDark ? 'rgba(242,241,238,0.06)' : 'rgba(13,13,13,0.03)',
-          borderColor: t.border,
+          backgroundColor: t.surfaceLow,
         },
       ]}
     >
@@ -55,7 +54,7 @@ export function ProgressBar() {
         style={[
           styles.progressBar,
           {
-            backgroundColor: t.isDark ? 'rgba(242,241,238,0.1)' : 'rgba(13,13,13,0.06)',
+            backgroundColor: t.surfaceLowest,
           },
         ]}
       >
@@ -72,8 +71,8 @@ export function ProgressBar() {
 
       {/* Milestone label */}
       <View style={styles.milestoneInfo}>
-        <Text style={[styles.milestoneLabel, { color: t.inkDim }]}>
-          Goal: <Text style={{ color: t.ink, fontFamily: 'Syne_700Bold' }}>
+        <Text style={[styles.milestoneLabel, { color: t.textSecondary }]}>
+          Goal: <Text style={{ color: t.text, fontFamily: 'Manrope_700Bold' }}>
             {currentMilestone.label}
           </Text>{' '}
           ({currentMilestone.points} pts)
@@ -120,8 +119,8 @@ export function ProgressBar() {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 24,
+    padding: 24,
     marginHorizontal: 24,
     marginBottom: 24,
   },

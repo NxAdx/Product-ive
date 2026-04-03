@@ -41,8 +41,7 @@ export function StatsCard() {
       style={[
         styles.container,
         {
-          backgroundColor: t.isDark ? 'rgba(242,241,238,0.06)' : 'rgba(13,13,13,0.03)',
-          borderColor: t.border,
+          backgroundColor: t.surfaceLow,
         },
       ]}
     >
@@ -66,7 +65,7 @@ export function StatsCard() {
           style={[
             styles.progressBar,
             {
-              backgroundColor: t.isDark ? 'rgba(242,241,238,0.1)' : 'rgba(13,13,13,0.06)',
+              backgroundColor: t.surfaceLowest,
             },
           ]}
         >
@@ -90,8 +89,8 @@ export function StatsCard() {
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 24,
+    padding: 24,
     marginHorizontal: 24,
     marginBottom: 24,
   },

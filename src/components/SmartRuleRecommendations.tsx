@@ -144,11 +144,10 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingBottom: 12,
     marginBottom: 12,
-    borderBottomWidth: 1,
   },
   headerText: {
     fontSize: 13,
-    fontFamily: 'JetBrainsMono_600SemiBold',
+    fontFamily: 'Inter_700Bold',
     textTransform: 'uppercase',
   },
   scrollContent: {
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
   card: {
     width: 150,
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 16,
     justifyContent: 'space-between',
   },
   cardHeader: {
@@ -178,7 +177,7 @@ const styles = StyleSheet.create({
   },
   reason: {
     fontSize: 11,
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     marginBottom: 10,
   },
   startBtn: {
@@ -192,7 +191,7 @@ const styles = StyleSheet.create({
   },
   startBtnText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_500Medium',
     color: '#FFF',
   },
 });
