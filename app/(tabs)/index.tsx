@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     height: 36,
   },
   title: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 22,
     letterSpacing: -0.01,
   },
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sectionTitle: {
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_600SemiBold',
     fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.5,

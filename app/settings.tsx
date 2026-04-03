@@ -28,7 +28,6 @@ function WellnessNotificationsSection() {
   const t = useTheme();
   const notifications = useWellnessStore((s) => s.notifications);
   const setNotificationEnabled = useWellnessStore((s) => s.setNotificationEnabled);
-  const updateNotificationInterval = useWellnessStore((s) => s.updateNotificationInterval);
 
   return (
     <View style={{ gap: 10, marginTop: 8 }}>
