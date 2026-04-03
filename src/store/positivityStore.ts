@@ -8,6 +8,7 @@ export interface PositivityStore {
   currentLevel: string;
   weeklyStreak: number;
   rulesUsed: string[];
+  todayRulesUsed: string[];
   lastActiveDate: string;
   dismissedRecommendations: string[];
   addPoints: (amount: number, source: string, ruleId?: string) => void;
@@ -67,6 +68,7 @@ export const usePositivityStore = create<PositivityStore>()(
       currentLevel: 'Getting Started',
       weeklyStreak: 0,
       rulesUsed: [],
+      todayRulesUsed: [],
       lastActiveDate: '',
       dismissedRecommendations: [],
 
@@ -75,10 +77,14 @@ export const usePositivityStore = create<PositivityStore>()(
         set((state) => {
           let weeklyScore = state.weeklyScore;
           let weeklyStreak = state.weeklyStreak;
+          let todayRulesUsed = state.todayRulesUsed;
 
           if (isDifferentWeek(state.lastActiveDate, now)) {
             weeklyScore = 0;
             weeklyStreak = 0;
+            todayRulesUsed = [];
+          } else if (!isSameDay(state.lastActiveDate, now)) {
+            todayRulesUsed = [];
           }
 
           if (!isSameDay(state.lastActiveDate, now)) {
@@ -94,12 +100,32 @@ export const usePositivityStore = create<PositivityStore>()(
             weeklyStreak,
             currentLevel: getLevel(nextWeeklyScore),
             lastActiveDate: now.toISOString(),
+            todayRulesUsed,
           };
         });
       },
 
       markRuleUsed: (ruleId) => {
         const { rulesUsed } = get();
+        const now = new Date();
+        
+        set((state) => {
+          let todayRulesUsed = state.todayRulesUsed;
+          
+          // Reset today's rules if it's a new day
+          if (!isSameDay(state.lastActiveDate, now)) {
+            todayRulesUsed = [];
+          }
+          
+          // Track in today's rules
+          if (!todayRulesUsed.includes(ruleId)) {
+            todayRulesUsed = [...todayRulesUsed, ruleId];
+          }
+          
+          return { todayRulesUsed };
+        });
+        
+        // Track in lifetime rulesUsed
         if (!rulesUsed.includes(ruleId)) {
           set((state) => ({ rulesUsed: [...state.rulesUsed, ruleId] }));
           return true;
@@ -111,7 +137,9 @@ export const usePositivityStore = create<PositivityStore>()(
         const now = new Date();
         const { lastActiveDate } = get();
         if (isDifferentWeek(lastActiveDate, now)) {
-          set({ weeklyScore: 0, weeklyStreak: 0 });
+          set({ weeklyScore: 0, weeklyStreak: 0, todayRulesUsed: [] });
+        } else if (!isSameDay(lastActiveDate, now)) {
+          set({ todayRulesUsed: [] });
         }
       },
 

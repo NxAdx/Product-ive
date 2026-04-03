@@ -20,6 +20,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
 
 jobs:
   lint-typecheck-test:
@@ -54,6 +55,9 @@ jobs:
     needs: lint-typecheck-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ndk-version: [ '27.0.11902837' ]
     steps:
       - uses: actions/checkout@v6
 
@@ -62,14 +66,18 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci --omit=dev --no-audit --prefer-offline
-
-      - name: Setup Expo
-        uses: expo/expo-github-action@v8
+      - name: Restore Gradle cache
+        uses: actions/cache@v4
         with:
-          expo-version: latest
-          eas-cache: true
+          path: |
+            ${{ github.workspace }}/.gradle/caches
+            ${{ github.workspace }}/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Install dependencies (production only)
+        run: npm ci --omit=dev --no-audit --prefer-offline
 
       - uses: actions/setup-java@v5
         with:
@@ -77,14 +85,30 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Generate Android native project
-        run: npx expo prebuild --platform android --non-interactive
+      - name: Setup NDK
+        run: |
+          echo "ndk.dir=$ANDROID_HOME/ndk/${{ matrix.ndk-version }}" >> $ANDROID_HOME/local.properties
 
-      - name: Build Android APK
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-cache: false
+
+      - name: Pre-build setup
+        run: |
+          npx expo prebuild --platform android --non-interactive --clean
+
+      - name: Build Android APK (Release)
         working-directory: ./android
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleRelease --no-daemon --parallel
+          ./gradlew assembleRelease \
+            --no-daemon \
+            --parallel \
+            --max-workers=4 \
+            -Dorg.gradle.jvmargs="-Xmx2g" \
+            -Dorg.gradle.workers.max=4
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -92,3 +116,4 @@ jobs:
           name: productive-release-apk
           path: android/app/build/outputs/apk/release/
           retention-days: 30
+          if-no-files-found: ignore

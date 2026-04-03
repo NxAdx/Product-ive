@@ -1,12 +1,12 @@
 export const tokens = {
   colors: {
     // Base
-    inkLight: '#0D0D0D',
-    inkDark: '#F2F1EE',
-    bgLight: '#F9F8F5',
-    bgDark: '#0D0D0D',
-    cardLight: '#F2F1EE',
-    cardDark: '#1E1E1E',
+    inkLight: '#191c1e',
+    inkDark: '#f2f1ee',
+    bgLight: '#f7f9fc',
+    bgDark: '#0d0d0d',
+    cardLight: '#ffffff',
+    cardDark: '#1e1e1e',
     // Category accents - light
     learnLight: '#7C3AED',
     focusLight: '#1D4ED8',
@@ -19,9 +19,14 @@ export const tokens = {
     studyDark: '#FBBF24',
     // Positivity
     positivity: '#059669',
+    // Primary accent (from design system)
+    primary: '#a93102',
+    primaryContainer: '#cb491d',
+    secondary: '#444bce',
+    secondaryContainer: '#5e65e8',
   },
   radius: {
-    card: 28,
+    card: 24,
     row: 22,
     btn: 999,
     icon: 14,
@@ -29,8 +34,8 @@ export const tokens = {
   },
   spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 40, xxl: 64 },
   font: {
-    display: 'Syne_700Bold',
-    body: 'PlusJakartaSans_400Regular',
+    display: 'Manrope_700Bold',
+    body: 'Inter_400Regular',
     mono: 'JetBrainsMono_400Regular',
   },
 };

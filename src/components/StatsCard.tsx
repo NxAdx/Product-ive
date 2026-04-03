@@ -13,14 +13,7 @@ interface StatItem {
 
 export function StatsCard() {
   const t = useTheme();
-  const { weeklyScore, weeklyStreak, rulesUsed } = usePositivityStore();
-
-  // Count unique rules used today
-  const todayRulesCount = useMemo(() => {
-    if (!rulesUsed || rulesUsed.length === 0) return 0;
-    // Simple heuristic: count first 5 rules in list as "today's" until we have proper date tracking
-    return Math.min(rulesUsed.length, 5);
-  }, [rulesUsed]);
+  const { weeklyScore, weeklyStreak, todayRulesUsed } = usePositivityStore();
 
   const stats: StatItem[] = [
     {
@@ -37,7 +30,7 @@ export function StatsCard() {
     },
     {
       label: 'Rules Used Today',
-      value: todayRulesCount,
+      value: todayRulesUsed.length,
       icon: <TrendingUp size={20} color="#4DCFFF" strokeWidth={2} />,
       color: '#4DCFFF',
     },

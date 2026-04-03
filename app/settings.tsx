@@ -12,6 +12,7 @@ import { useSettingsStore } from '../src/store/settingsStore';
 import { usePositivityStore } from '../src/store/positivityStore';
 import { useSessionStore } from '../src/store/sessionStore';
 import { useTodoStore } from '../src/store/todoStore';
+import { useWellnessStore } from '../src/store/wellnessStore';
 import { getRuntimeLogs, logRuntimeEvent } from '../src/utils/runtimeLogs';
 import { UpdateManager } from '../src/services/UpdateManager';
 
@@ -22,6 +23,51 @@ const CURRENT_VERSION_CHANGES = [
   'Typography aligned to design system fonts.',
   'Bug report export added in Settings.',
 ];
+
+function WellnessNotificationsSection() {
+  const t = useTheme();
+  const notifications = useWellnessStore((s) => s.notifications);
+  const setNotificationEnabled = useWellnessStore((s) => s.setNotificationEnabled);
+  const updateNotificationInterval = useWellnessStore((s) => s.updateNotificationInterval);
+
+  return (
+    <View style={{ gap: 10, marginTop: 8 }}>
+      {notifications.map((notification) => (
+        <View key={notification.id} style={{ gap: 6 }}>
+          <View style={styles.notificationRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.notificationLabel, { color: t.ink }]}>
+                {notification.label}
+              </Text>
+              <Text style={[styles.notificationDesc, { color: t.inkDim }]}>
+                {notification.description}
+              </Text>
+            </View>
+            <Switch
+              value={notification.enabled}
+              onValueChange={(enabled) => {
+                setNotificationEnabled(notification.id, enabled);
+                logRuntimeEvent('settings_toggle_wellness_notification', {
+                  notification: notification.id,
+                  enabled,
+                }).catch(() => {});
+              }}
+              trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
+              thumbColor={notification.enabled ? '#FFFFFF' : '#F2F1EE'}
+            />
+          </View>
+          {notification.enabled && (
+            <View style={{ paddingHorizontal: 0, marginLeft: 12 }}>
+              <Text style={[styles.intervalLabel, { color: t.inkMid }]}>
+                Every {notification.intervalMinutes} min
+              </Text>
+            </View>
+          )}
+        </View>
+      ))}
+    </View>
+  );
+}
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -258,8 +304,40 @@ export default function SettingsScreen() {
               <Text style={[styles.expandLine, { color: t.inkMid }]}>
                 Offline-first productivity app with guided rule engines and positivity tracking.
               </Text>
+              <Text style={[styles.expandLine, { color: t.inkMid, marginTop: 12, fontWeight: '600' }]}>
+                Created by Aadarsh Lokhande
+              </Text>
             </View>
           )}
+        </View>
+
+        <View style={[styles.sectionCard, { backgroundColor: t.card, borderColor: t.border }]}>
+          <Text style={[styles.sectionTitle, { color: t.ink }]}>Wellness Reminders</Text>
+          <View style={styles.row}>
+            <Text style={[styles.rowLabel, { color: t.ink }]}>Vibration</Text>
+            <Switch
+              value={useWellnessStore((s) => s.vibrationEnabled)}
+              onValueChange={(value) => {
+                useWellnessStore.getState().setVibrationEnabled(value);
+                logRuntimeEvent('settings_toggle_vibration', { value }).catch(() => {});
+              }}
+              trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
+              thumbColor={useWellnessStore((s) => s.vibrationEnabled) ? '#FFFFFF' : '#F2F1EE'}
+            />
+          </View>
+          <View style={styles.row}>
+            <Text style={[styles.rowLabel, { color: t.ink }]}>Sound</Text>
+            <Switch
+              value={useWellnessStore((s) => s.soundEnabled)}
+              onValueChange={(value) => {
+                useWellnessStore.getState().setSoundEnabled(value);
+                logRuntimeEvent('settings_toggle_wellness_sound', { value }).catch(() => {});
+              }}
+              trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
+              thumbColor={useWellnessStore((s) => s.soundEnabled) ? '#FFFFFF' : '#F2F1EE'}
+            />
+          </View>
+          <WellnessNotificationsSection />
         </View>
 
         <View style={[styles.sectionCard, { backgroundColor: t.card, borderColor: t.border }]}>
@@ -371,5 +449,25 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSans_400Regular',
     fontSize: 12,
     lineHeight: 18,
+  },
+  notificationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    paddingVertical: 6,
+  },
+  notificationLabel: {
+    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontSize: 13,
+  },
+  notificationDesc: {
+    fontFamily: 'PlusJakartaSans_400Regular',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  intervalLabel: {
+    fontFamily: 'PlusJakartaSans_400Regular',
+    fontSize: 11,
   },
 });

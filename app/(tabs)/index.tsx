@@ -50,15 +50,7 @@ export default function Home() {
         {/* Active Session Indicator */}
         <SessionStatusBadge />
 
-        {/* Tier 1 Features */}
-        <StatsCard />
-        <DailyTip />
-        <ProgressBar />
-
-        {/* Tier 2: Smart Recommendations */}
-        <SmartRuleRecommendations />
-
-        {/* Category Grid */}
+        {/* Category Grid - MOVED TO TOP */}
         <Text style={[styles.sectionTitle, { color: t.inkDim }]}>Explore Categories</Text>
         <View style={styles.grid}>
           <View style={styles.row}>
@@ -85,6 +77,14 @@ export default function Home() {
             />
           </View>
         </View>
+
+        {/* Tier 1 Features */}
+        <StatsCard />
+        <DailyTip />
+        <ProgressBar />
+
+        {/* Tier 2: Smart Recommendations */}
+        <SmartRuleRecommendations />
       </ScrollView>
     </View>
   );
