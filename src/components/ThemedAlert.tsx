@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     // backgroundColor set inline
   },
   buttonText: {
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_600SemiBold',
     fontSize: 14,
   },
 });

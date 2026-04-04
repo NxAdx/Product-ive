@@ -135,8 +135,8 @@ export function SmartRuleRecommendations() {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
-    marginHorizontal: 16,
+    marginBottom: 24,
+    marginHorizontal: 24,
   },
   header: {
     flexDirection: 'row',

@@ -84,7 +84,7 @@ export function DailyTip() {
 const styles = StyleSheet.create({
   container: {
     borderRadius: 24,
-    padding: 20,
+    padding: 24,
     marginHorizontal: 24,
     marginBottom: 24,
   },
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.02,
   },
   tipText: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 14,
     lineHeight: 20,
   },

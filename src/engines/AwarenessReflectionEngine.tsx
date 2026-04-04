@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   intentTitle: {
     fontSize: 28,
     fontWeight: '700',
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
   },
   intentDesc: {
     fontSize: 16,

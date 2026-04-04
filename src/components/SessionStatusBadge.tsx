@@ -19,7 +19,9 @@ export function SessionStatusBadge() {
   const elapsedSeconds = useMemo(() => {
     if (!startTime) return 0;
     const now = pausedAt || Date.now();
-    return Math.floor((now - startTime) / 1000);
+    const elapsed = Math.floor((now - startTime) / 1000);
+    // Clamp to 0 to prevent negative display
+    return Math.max(0, elapsed);
   }, [startTime, pausedAt]);
 
   // Only show if there's an active session
@@ -115,7 +117,7 @@ const styles = StyleSheet.create({
   },
   ruleName: {
     fontSize: 13,
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_600SemiBold',
     flex: 1,
   },
   timerRow: {

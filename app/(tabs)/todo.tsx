@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   },
   priorityBtnText: {
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans_500Medium',
+    fontFamily: 'Inter_500Medium',
   },
 });
 

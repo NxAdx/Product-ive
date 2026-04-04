@@ -36,12 +36,12 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   title: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 32,
     lineHeight: 38,
   },
   subtitle: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 15,
     lineHeight: 22,
   },
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFF',
-    fontFamily: 'PlusJakartaSans_700Bold',
+    fontFamily: 'Inter_700Bold',
     fontSize: 15,
   },
 });

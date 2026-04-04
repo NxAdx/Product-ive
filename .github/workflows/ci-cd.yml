@@ -20,6 +20,8 @@ concurrency:
 
 env:
   GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
+  EXPO_CACHE: true
+  GRADLE_OPTS: "-Xmx2g -Dorg.gradle.daemon=true -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true"
 
 jobs:
   lint-typecheck-test:
@@ -33,14 +35,14 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci --no-audit --prefer-offline
+      - name: Install dependencies (fast)
+        run: npm ci --no-audit --prefer-offline --legacy-peer-deps 2>/dev/null || npm ci
 
       - name: Lint
         run: npx eslint app src --max-warnings=0
 
       - name: TypeScript Check
-        run: npx tsc --noEmit
+        run: npx tsc --noEmit --incremental
 
       - name: Run Tests
         run: npm test -- --coverage --ci
@@ -50,7 +52,7 @@ jobs:
         continue-on-error: true
 
   build-android:
-    name: Build Android APK
+    name: Build Android APK (Optimized)
     needs: lint-typecheck-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -65,18 +67,37 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Restore Gradle cache
+      - name: Restore Gradle cache (Build)
         uses: actions/cache@v4
         with:
           path: |
             ${{ github.workspace }}/.gradle/caches
             ${{ github.workspace }}/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+            ${{ github.workspace }}/.gradle/build-cache
+          key: gradle-build-${{ runner.os }}-${{ github.run_number }}
           restore-keys: |
+            gradle-build-${{ runner.os }}-
             gradle-${{ runner.os }}-
 
-      - name: Install dependencies (production only)
-        run: npm ci --omit=dev --no-audit --prefer-offline
+      - name: Restore Gradle cache (Configuration)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.gradle/nonafs
+          key: gradle-config-${{ runner.os }}-${{ hashFiles('**/gradle/**') }}
+          restore-keys: |
+            gradle-config-${{ runner.os }}-
+
+      - name: Cache Java/Gradle state
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle
+          key: gradle-home-${{ runner.os }}-${{ github.run_number }}
+          restore-keys: |
+            gradle-home-${{ runner.os }}-
+
+      - name: Install dependencies (production, optimized)
+        run: npm ci --omit=dev --no-audit --prefer-offline --legacy-peer-deps 2>/dev/null || npm ci --omit=dev
 
       - uses: actions/setup-java@v4
         with:
@@ -84,21 +105,33 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Setup NDK
+      - name: Setup NDK (cached)
         run: |
           echo "ndk.dir=$ANDROID_HOME/ndk/${{ matrix.ndk-version }}" >> $ANDROID_HOME/local.properties
+          # Pre-cache NDK to avoid re-downloading
+          export ANDROID_NDK=$ANDROID_HOME/ndk/${{ matrix.ndk-version }}
+          if [ ! -d "$ANDROID_NDK" ]; then
+            echo "Installing NDK..."
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;${{ matrix.ndk-version }}"
+          fi
 
-      - name: Setup Expo
+      - name: Setup Expo (with caching)
         uses: expo/expo-github-action@v8
         with:
           expo-version: latest
-          eas-cache: false
+          eas-cache: true
+          token: ${{ secrets.EXPO_TOKEN || '' }}
 
-      - name: Pre-build setup
+      - name: Pre-build setup (incremental)
         run: |
-          npx expo prebuild --platform android --non-interactive --clean
+          # Skip clean rebuild if modules cache exists
+          if [ ! -d "node_modules" ]; then
+            npx expo prebuild --platform android --non-interactive --clean
+          else
+            npx expo prebuild --platform android --non-interactive
+          fi
 
-      - name: Build Android APK (Release)
+      - name: Build Android APK (Release, Optimized)
         working-directory: ./android
         run: |
           chmod +x ./gradlew
@@ -106,8 +139,8 @@ jobs:
             --no-daemon \
             --parallel \
             --max-workers=4 \
-            -Dorg.gradle.jvmargs="-Xmx2g" \
-            -Dorg.gradle.workers.max=4
+            --build-cache
+
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

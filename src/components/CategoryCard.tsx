@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   name: {
-    fontFamily: 'Syne_600SemiBold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 17,
     letterSpacing: -0.01,
     lineHeight: 21,

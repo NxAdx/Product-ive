@@ -113,13 +113,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statValue: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 20,
     marginBottom: 4,
     letterSpacing: -0.01,
   },
   statLabel: {
-    fontFamily: 'PlusJakartaSans_500Medium',
+    fontFamily: 'Inter_500Medium',
     fontSize: 11,
     textAlign: 'center',
   },
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   progressText: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 12,
     textAlign: 'center',
   },

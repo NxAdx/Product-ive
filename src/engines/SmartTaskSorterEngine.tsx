@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   instrTitle: {
     fontSize: 24,
     fontWeight: '700',
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
   },
   instrDesc: {
     fontSize: 14,

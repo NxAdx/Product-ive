@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   intentTitle: {
     fontSize: 28,
     fontWeight: '700',
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
   },
   intentDesc: {
     fontSize: 16,
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     minHeight: 120,
     borderWidth: 1,
     fontSize: 14,
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     textAlignVertical: 'top',
   },
   controls: {

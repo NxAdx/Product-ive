@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.01,
   },
   currentScore: {
-    fontFamily: 'Syne_700Bold',
+    fontFamily: 'Manrope_700Bold',
     fontSize: 18,
     letterSpacing: -0.01,
   },
@@ -159,12 +159,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   milestoneLabel: {
-    fontFamily: 'PlusJakartaSans_500Medium',
+    fontFamily: 'Inter_500Medium',
     fontSize: 13,
     marginBottom: 4,
   },
   pointsRemaining: {
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_600SemiBold',
     fontSize: 12,
   },
   milestonesRow: {
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   badgeLabel: {
-    fontFamily: 'PlusJakartaSans_500Medium',
+    fontFamily: 'Inter_500Medium',
     fontSize: 10,
   },
 });

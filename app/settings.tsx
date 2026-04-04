@@ -28,6 +28,7 @@ function WellnessNotificationsSection() {
   const t = useTheme();
   const notifications = useWellnessStore((s) => s.notifications);
   const setNotificationEnabled = useWellnessStore((s) => s.setNotificationEnabled);
+  const updateNotificationTime = useWellnessStore((s) => s.updateNotificationTime);
 
   return (
     <View style={{ gap: 10, marginTop: 8 }}>
@@ -57,9 +58,15 @@ function WellnessNotificationsSection() {
           </View>
           {notification.enabled && (
             <View style={{ paddingHorizontal: 0, marginLeft: 12 }}>
-              <Text style={[styles.intervalLabel, { color: t.inkMid }]}>
-                Every {notification.intervalMinutes} min
-              </Text>
+              {notification.notificationTime !== undefined ? (
+                <Text style={[styles.intervalLabel, { color: t.inkMid }]}>
+                  Notify at {notification.notificationTime.toString().padStart(2, '0')}:00 PM
+                </Text>
+              ) : (
+                <Text style={[styles.intervalLabel, { color: t.inkMid }]}>
+                  Every {notification.intervalMinutes} min
+                </Text>
+              )}
             </View>
           )}
         </View>
@@ -455,16 +462,16 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   notificationLabel: {
-    fontFamily: 'PlusJakartaSans_600SemiBold',
+    fontFamily: 'Inter_600SemiBold',
     fontSize: 13,
   },
   notificationDesc: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 11,
     marginTop: 2,
   },
   intervalLabel: {
-    fontFamily: 'PlusJakartaSans_400Regular',
+    fontFamily: 'Inter_400Regular',
     fontSize: 11,
   },
 });

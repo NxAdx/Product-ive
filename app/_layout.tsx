@@ -7,6 +7,15 @@ import {
   Syne_700Bold,
 } from '@expo-google-fonts/syne';
 import {
+  Manrope_700Bold,
+} from '@expo-google-fonts/manrope';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+import {
   PlusJakartaSans_400Regular,
   PlusJakartaSans_500Medium,
   PlusJakartaSans_600SemiBold,
@@ -15,6 +24,7 @@ import {
 import {
   JetBrainsMono_400Regular,
   JetBrainsMono_500Medium,
+  JetBrainsMono_600SemiBold,
   JetBrainsMono_700Bold,
 } from '@expo-google-fonts/jetbrains-mono';
 import { StatusBar } from 'expo-status-bar';
@@ -22,6 +32,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SystemUI from 'expo-system-ui';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { logRuntimeEvent } from '../src/utils/runtimeLogs';
+import { initializeNotifications, requestNotificationPermissions } from '../src/services/NotificationManager';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,12 +44,18 @@ export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     Syne_600SemiBold,
     Syne_700Bold,
+    Manrope_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
     PlusJakartaSans_400Regular,
     PlusJakartaSans_500Medium,
     PlusJakartaSans_600SemiBold,
     PlusJakartaSans_700Bold,
     JetBrainsMono_400Regular,
     JetBrainsMono_500Medium,
+    JetBrainsMono_600SemiBold,
     JetBrainsMono_700Bold,
   });
 
@@ -55,6 +72,21 @@ export default function RootLayout() {
     }
     checkOnboarding();
   }, []);
+
+  // Initialize notifications after app is ready
+  useEffect(() => {
+    if (isReady) {
+      (async () => {
+        try {
+          await initializeNotifications();
+          // Optionally request permissions (can also be deferred to first use)
+          await requestNotificationPermissions();
+        } catch (error) {
+          console.error('Failed to initialize notifications:', error);
+        }
+      })();
+    }
+  }, [isReady]);
 
   useEffect(() => {
     if (fontsLoaded && isReady && initialRouteName) {

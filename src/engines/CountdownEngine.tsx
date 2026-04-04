@@ -54,8 +54,8 @@ export function CountdownEngine({ rule, color }: EngineProps) {
     setTimeLeft(rule.engineConfig.workDuration || 25 * 60);
   };
 
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
+  const minutes = Math.floor(Math.max(0, timeLeft) / 60);
+  const seconds = Math.max(0, timeLeft) % 60;
   const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
   return (
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     lineHeight: 64,
   },
   timerLabel: {
-    fontFamily: 'PlusJakartaSans_700Bold',
+    fontFamily: 'Inter_700Bold',
     fontSize: 12,
     letterSpacing: 2,
     marginTop: 8,
