@@ -95,6 +95,8 @@ export function setupNotificationHandlers() {
       shouldShowAlert: true,
       shouldPlaySound: true,
       shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
     }),
   });
 
@@ -130,6 +132,7 @@ export async function scheduleTestNotification() {
         badge: 1,
       },
       trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: 2,
       },
     });

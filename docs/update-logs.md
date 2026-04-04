@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-04-04 - SDK 55 Type Compatibility Fix
+
+### Build & CI stability
+
+- Resolved `npx tsc` failures in GitHub Actions caused by SDK 55 (`expo-notifications`) upgrade.
+- Added missing `shouldShowBanner` and `shouldShowList` to `handleNotification` behavior.
+- Added explicit `type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL` to notification triggers.
+- Verified local build with `npx tsc --noEmit` -> PASS.
+
+---
+
 ## 2026-04-02 - CI failure fix + UX stabilization + handoff refresh
 
 ### CI/build fixes
