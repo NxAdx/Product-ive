@@ -9,7 +9,7 @@ import { ThemedText } from '../../src/components/ThemedText';
 import { BentoCard } from '../../src/components/BentoCard';
 import { SessionStatusBadge } from '../../src/components/SessionStatusBadge';
 import { SmartRuleRecommendations } from '../../src/components/SmartRuleRecommendations';
-import { Settings2, Play, Flame, Trophy, Star, Lightbulb, ChevronRight, LayoutGrid } from 'lucide-react-native';
+import { Settings2, Flame, Trophy, Star, Lightbulb, ChevronRight, LayoutGrid } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettingsStore } from '../../src/store/settingsStore';

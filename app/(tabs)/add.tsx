@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform, LayoutAnimation } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { useTodoStore } from '../../src/store/todoStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

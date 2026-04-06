@@ -3,7 +3,7 @@ import { View, StyleSheet, Modal, Pressable } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { ThemedText } from './ThemedText';
 import { BentoCard } from './BentoCard';
-import { Check, Star, X } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
 interface SessionReflectionProps {
