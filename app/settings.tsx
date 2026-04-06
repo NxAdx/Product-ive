@@ -1,12 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState , useEffect } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, View, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Bug, CircleAlert, Info, Download, User as UserIcon, Check, ChevronRight, Eye, Droplets, Accessibility, Moon } from 'lucide-react-native';
-import { useEffect } from 'react';
+import { ArrowLeft, Bug, CircleAlert, Info, Download, User as UserIcon, ChevronRight, Eye, Droplets, Accessibility, Moon } from 'lucide-react-native';
 
 import { useTheme } from '../src/theme/ThemeContext';
 import { useSettingsStore } from '../src/store/settingsStore';
@@ -173,8 +172,6 @@ export default function SettingsScreen() {
 
   const userName = useSettingsStore((s) => s.userName);
   const setUserName = useSettingsStore((s) => s.setUserName);
-  const autoCheckUpdates = useSettingsStore((s) => s.autoCheckUpdates);
-  const setAutoCheckUpdates = useSettingsStore((s) => s.setAutoCheckUpdates);
   const migrateWellness = useWellnessStore((s) => s._migrate as () => void);
 
   const [showChangelog, setShowChangelog] = useState(false);

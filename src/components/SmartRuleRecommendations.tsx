@@ -5,8 +5,7 @@ import { tokens } from '../theme/tokens';
 import { usePositivityStore } from '../store/positivityStore';
 import { RULES, getRuleById } from '../data/rules';
 import { useRouter } from 'expo-router';
-import { Lightbulb, X, ArrowRight, Flame } from 'lucide-react-native';
-import { BentoCard } from './BentoCard';
+import { Lightbulb, X, ArrowRight } from 'lucide-react-native';
 import { ThemedText } from './ThemedText';
 
 interface RecommendedRule {

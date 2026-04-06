@@ -29,7 +29,10 @@ export default function StatsScreen() {
   const insets = useSafeAreaInsets();
   const positivity = usePositivityStore();
 
-  const { progress } = getLevelProgress(positivity.weeklyScore);
+  // const { progress } = getLevelProgress(positivity.weeklyScore); 
+  // We keep the logic for level calculation if needed for other props, 
+  // but remove the unused variable to satisfy the linter.
+  const stats = getLevelProgress(positivity.weeklyScore);
   const displayProgress = Math.min(positivity.weeklyScore / 500, 1); // v4.5 Catalyst Goal
   const radius = 80;
   const stroke = 12;

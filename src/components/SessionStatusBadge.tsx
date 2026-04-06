@@ -1,9 +1,9 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { useSessionStore } from '../store/sessionStore';
 import { getRuleById } from '../data/rules';
-import { Pause, Play, X, Clock } from 'lucide-react-native';
+import { Pause, Play, X } from 'lucide-react-native';
 import { ThemedText } from './ThemedText';
 import { SessionReflection } from './SessionReflection';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
@@ -23,7 +23,7 @@ export function SessionStatusBadge() {
   const pulse = useSharedValue(1);
   useEffect(() => {
     pulse.value = withRepeat(withSequence(withTiming(1.2, { duration: 800 }), withTiming(1, { duration: 800 })), -1);
-  }, []);
+  }, [pulse]);
 
   const animatedDotStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulse.value }],

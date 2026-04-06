@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Pressable, View, StyleSheet, ViewStyle, AnimatableNumericValue, StyleProp } from 'react-native';
+import { Pressable, View, ViewStyle, AnimatableNumericValue, StyleProp } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { tokens } from '../theme/tokens';
 

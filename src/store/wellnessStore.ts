@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { scheduleWellnessReminders } from '../services/NotificationManager';
+
 export interface WellnessNotification {
   id: 'blink-eye' | 'drink-water' | 'sleep-time' | 'posture-check' | '20-20-20';
   label: string;
@@ -63,8 +65,6 @@ const DEFAULT_WELLNESS_NOTIFICATIONS: WellnessNotification[] = [
     intervalMinutes: 20,
   },
 ];
-
-import { scheduleWellnessReminders } from '../services/NotificationManager';
 
 export const useWellnessStore = create<WellnessStore>()(
   persist(

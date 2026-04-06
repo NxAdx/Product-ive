@@ -4,14 +4,13 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { useTodoStore } from '../../src/store/todoStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Plus, Trash2, Check, Target, Menu, ArrowDown, ClipboardList, Layers } from 'lucide-react-native';
+import { Trash2, Check, Target, Menu, ArrowDown, ClipboardList } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { tokens } from '../../src/theme/tokens';
 import { ThemedText } from '../../src/components/ThemedText';
 import { BentoCard } from '../../src/components/BentoCard';
 
 export default function AddScreen() {
-  const router = useRouter();
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const { todos, addTodo, removeTodo, toggleTodo } = useTodoStore();

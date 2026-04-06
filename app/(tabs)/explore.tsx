@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, View, TextInput, ScrollView } from 'react-native';
+import { Pressable, StyleSheet, View, TextInput, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Search, SearchX, Filter, ChevronRight } from 'lucide-react-native';
+import { Search, SearchX, ChevronRight } from 'lucide-react-native';
 import { CATEGORIES } from '../../src/data/categories';
 import { RULES } from '../../src/data/rules';
 import { useTheme } from '../../src/theme/ThemeContext';

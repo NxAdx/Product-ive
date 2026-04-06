@@ -26,7 +26,8 @@ const getNotifications = () => {
   if (isExpoGo && Platform.OS === 'android') {
     return null;
   }
-  return require('expo-notifications');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require('expo-notifications');
 };
 
 /**

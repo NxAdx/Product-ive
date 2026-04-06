@@ -1,17 +1,16 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView , Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { tokens } from '../../src/theme/tokens';
 import { CATEGORIES } from '../../src/data/categories';
-import { RULES, getRulesByCategory } from '../../src/data/rules';
+import { getRulesByCategory } from '../../src/data/rules';
 import { ThemedText } from '../../src/components/ThemedText';
 import { BentoCard } from '../../src/components/BentoCard';
 import { SessionStatusBadge } from '../../src/components/SessionStatusBadge';
 import { SmartRuleRecommendations } from '../../src/components/SmartRuleRecommendations';
 import { Settings2, Play, Flame, Trophy, Star, Lightbulb, ChevronRight, LayoutGrid } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Pressable } from 'react-native';
 
 import { useSettingsStore } from '../../src/store/settingsStore';
 import { usePositivityStore } from '../../src/store/positivityStore';

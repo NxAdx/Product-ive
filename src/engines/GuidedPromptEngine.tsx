@@ -7,7 +7,6 @@ import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { usePositivityStore } from '../store/positivityStore';
 import { useTheme } from '../theme/ThemeContext';
-import { tokens } from '../theme/tokens';
 
 interface EngineProps {
   rule: RuleConfig;

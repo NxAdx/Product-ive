@@ -5,7 +5,6 @@ import { ThemedText } from './ThemedText';
 import { useTheme } from '../theme/ThemeContext';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { logRuntimeEvent } from '../utils/runtimeLogs';
-import { tokens } from '../theme/tokens';
 import * as Haptics from 'expo-haptics';
 
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
@@ -28,9 +27,7 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
     }
   };
 
-  // Only show on primary top-level tabs to maintain "Zero Distraction" focus
-  const activeRouteName = state.routes[state.index]?.name;
-  const hideNavOn = ['rule/[id]', 'category/[id]', 'todo']; 
+  // BottomNav logic (v4.0 Zero Distraction) 
   // Note: expo-router might use different internal names for stack routes
   
   return (

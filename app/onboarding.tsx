@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, View, Animated, LayoutAnimation, Platform } from 'react-native';
+import { Pressable, StyleSheet, View, LayoutAnimation, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../src/theme/ThemeContext';
@@ -10,7 +10,6 @@ import { ChevronRight, Check, Bell, Zap, Target, BookOpen } from 'lucide-react-n
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { requestNotificationPermissions } from '../src/services/NotificationManager';
 import { useSettingsStore } from '../src/store/settingsStore';
-import { TextInput } from 'react-native';
 
 type OnboardingStep = 'welcome' | 'name' | 'goal' | 'availability' | 'permissions' | 'success';
 
