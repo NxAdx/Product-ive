@@ -26,6 +26,11 @@ interface ThemeColors {
   focus: string;
   memory: string;
   
+  // Legacy / Category mappings (Fixing Type Errors)
+  learn: string;
+  prod: string;
+  study: string;
+  
   // Semantic Alerts
   success: string;
   warning: string;
@@ -92,8 +97,13 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     focus: colorScheme.focus,
     memory: colorScheme.memory,
     
+    // Legacy mapping (v4.0 Compatibility)
+    learn: colorScheme.learning,
+    prod: colorScheme.positivity,
+    study: colorScheme.memory,
+    
     // Semantic colors
-    success: colorScheme.success,
+    success: colorScheme.positivity,
     warning: colorScheme.warning,
     error: colorScheme.error,
     info: colorScheme.info,
