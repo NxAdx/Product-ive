@@ -267,7 +267,7 @@ export default function SettingsScreen() {
       } else {
         Alert.alert('Up to Date', `Running latest version (${updateInfo.currentVersion}).`);
       }
-    } catch (_) {
+    } catch {
       Alert.alert('Check Failed', 'Could not check for updates.');
     } finally {
       setIsCheckingUpdates(false);
