@@ -171,7 +171,7 @@ export default function OnboardingScreen() {
       <View style={[styles.checkCircle, { backgroundColor: t.positivity }]}>
         <Check size={40} color="#fff" strokeWidth={3} />
       </View>
-      <ThemedText variant="h1" align="center">You're all set!</ThemedText>
+      <ThemedText variant="h1" align="center">You\'re all set!</ThemedText>
       <ThemedText variant="bodyLg" align="center" color={t.textSecondary} style={{ marginTop: 12 }}>
         Your personalized {goal?.toLowerCase()} ritual dashboard is ready.
       </ThemedText>

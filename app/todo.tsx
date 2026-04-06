@@ -69,7 +69,9 @@ export default function TodoModal() {
               style={[
                 styles.priorityPill,
                 {
-                  backgroundColor: priority === p ? (p === 'high' ? t.focus : (p === 'medium' ? t.warning : t.positivity)) : t.surfaceHigh,
+                  backgroundColor: priority === p 
+                    ? (p === 'high' ? t.focus : (p === 'medium' ? t.warning : t.positivity)) 
+                    : (t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'),
                   borderColor: priority === p ? 'transparent' : t.border,
                 }
               ]}
@@ -78,7 +80,8 @@ export default function TodoModal() {
                 variant="label" 
                 style={{ 
                   color: priority === p ? '#000' : t.textSecondary,
-                  textTransform: 'capitalize'
+                  textTransform: 'capitalize',
+                  fontWeight: priority === p ? '800' : '600'
                 }}
               >
                 {p}

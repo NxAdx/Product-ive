@@ -16,8 +16,34 @@ export function CountdownEngine({ rule, color }: EngineProps) {
   const session = useSessionStore();
   const initialTime = rule.engineConfig.workDuration || 0;
   const isStopwatch = initialTime === 0;
-  
+
+  // Sync local time with session store on mount or when session becomes active
   const [time, setTime] = useState(initialTime);
+
+  useEffect(() => {
+    if (session.activeRuleId === rule.id && session.startTime) {
+      const elapsedTotal = Math.floor((Date.now() - session.startTime) / 1000);
+      
+      // If we are currently paused, the time should be based on when we paused
+      if (session.pausedAt) {
+        const elapsedUntilPause = Math.floor((session.pausedAt - session.startTime) / 1000);
+        if (isStopwatch) {
+          setTime(elapsedUntilPause);
+        } else {
+          setTime(Math.max(0, initialTime - elapsedUntilPause));
+        }
+      } else {
+        if (isStopwatch) {
+          setTime(elapsedTotal);
+        } else {
+          setTime(Math.max(0, initialTime - elapsedTotal));
+        }
+      }
+    } else {
+      setTime(initialTime);
+    }
+  }, [session.activeRuleId, session.startTime, session.pausedAt, rule.id, initialTime, isStopwatch]);
+
   const isRunning = session.phase === 'work' && session.activeRuleId === rule.id && !session.pausedAt;
 
   useEffect(() => {
@@ -42,7 +68,7 @@ export function CountdownEngine({ rule, color }: EngineProps) {
         clearInterval(interval);
       }
     };
-  }, [isRunning, session, isStopwatch, rule]);
+  }, [isRunning, isStopwatch, rule, session]);
 
   const handleToggle = () => {
     if (session.activeRuleId !== rule.id) {
@@ -161,4 +187,3 @@ const styles = StyleSheet.create({
     }),
   }
 });
-

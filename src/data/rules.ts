@@ -215,7 +215,16 @@ export const RULES: RuleConfig[] = [
     description: 'Tasks take as long as the time allocated to them. If you give yourself 2 weeks for a task, it will take 2 weeks. Set specific, tight deadlines to force efficiency.',
     whyItWorks: 'External time pressure activates focus and eliminates perfectionism. Without deadlines, work sprawls and procrastination wins.',
     bestFor: ['overcoming perfectionism', 'time management', 'breaking procrastination'],
-    engineConfig: { defaultDeadlineMinutes: 25, allowCustomDeadline: true },
+    engineConfig: { 
+      defaultDeadlineMinutes: 25, 
+      allowCustomDeadline: true,
+      keyPoints: [
+        'Set a tight, non-negotiable deadline',
+        'Focus on the minimum viable output',
+        'Avoid perfectionism in the first draft',
+        'Work expanded to fill the time; cut the time'
+      ]
+    },
     pointsPerSession: 10,
     discoveryBonus: 25
   },

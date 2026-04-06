@@ -83,9 +83,6 @@ export default function ExploreScreen() {
             onChangeText={setSearch}
             style={[styles.searchInput, { color: t.text }]}
           />
-          <Pressable>
-             <Filter size={18} color={t.textSecondary} />
-          </Pressable>
         </View>
       </View>
 

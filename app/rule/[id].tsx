@@ -139,7 +139,13 @@ export default function RuleScreen() {
           </Pressable>
           <Pressable 
             onPress={() => setIsActive(true)}
-            style={[styles.quickModeBtn, { borderColor: t.border }]}
+            style={[
+              styles.quickModeBtn, 
+              { 
+                borderColor: t.border,
+                backgroundColor: t.isDark ? 'transparent' : t.surfaceLow 
+              }
+            ]}
           >
             <ThemedText variant="label" color={t.textSecondary} style={{ letterSpacing: 1 }}>Try now (Quick mode)</ThemedText>
           </Pressable>

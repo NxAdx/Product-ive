@@ -39,6 +39,15 @@ export function SessionStatusBadge() {
     return Math.max(0, elapsed);
   }, [startTime, pausedAt]);
 
+  // Logic to show timer (v4.0 UX Optimization) - must be before early returns
+  const showTimer = useMemo(() => {
+    const rule = activeRuleId ? getRuleById(activeRuleId) : null;
+    if (!rule) return false;
+    if (rule.engine === 'countdown' || rule.engine === 'interval') return true;
+    if (rule.engineConfig?.timerMode) return true;
+    return false;
+  }, [activeRuleId]);
+
   // Only show if there's an active session
   if (!activeRuleId || phase === 'idle') {
     return null;
@@ -49,22 +58,14 @@ export function SessionStatusBadge() {
     return null;
   }
 
+  const isPaused = pausedAt !== null;
+
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-
-  const isPaused = pausedAt !== null;
-  const phaseLabel = phase === 'work' ? 'Work' : phase === 'break' ? 'Break' : 'Session';
-
-  // Logic to show timer (v4.0 UX Optimization)
-  const showTimer = useMemo(() => {
-    if (rule.engine === 'countdown' || rule.engine === 'interval') return true;
-    if (rule.engineConfig?.timerMode) return true;
-    return false;
-  }, [rule]);
 
   return (
     <View style={[styles.container, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>

@@ -25,6 +25,9 @@ export default function Home() {
   const userName = useSettingsStore((s) => s.userName);
   const weeklyStreak = usePositivityStore((s) => s.weeklyStreak);
 
+  const weeklyScore = usePositivityStore((s) => s.weeklyScore);
+  const remainingPoints = 500 - weeklyScore;
+
   // Helper to get rule count for a category
   const getRuleCount = (catId: any) => getRulesByCategory(catId).length;
 
@@ -106,22 +109,22 @@ export default function Home() {
             </View>
             <View style={{ flex: 1, marginLeft: 16 }}>
               <ThemedText variant="body" style={{ fontWeight: '700' }}>
-                {500 - usePositivityStore.getState().weeklyScore > 0 
-                  ? `${Math.max(0, 500 - usePositivityStore((s) => s.weeklyScore))} pts away from Catalyst ⚡` 
+                {remainingPoints > 0 
+                  ? (weeklyScore > 0 ? `${remainingPoints} pts away from Catalyst ⚡` : 'Start your first ritual to earn pts ⚡')
                   : 'Catalyst Achievement Unlocked! 🚀'}
               </ThemedText>
               
               <View style={[styles.progressBarTrack, { backgroundColor: t.surfaceHigh, marginTop: 10 }]}>
                 <View style={[styles.progressBarFill, { 
                   backgroundColor: t.positivity, 
-                  width: `${Math.min((usePositivityStore((s) => s.weeklyScore) / 500) * 100, 100)}%` 
+                  width: `${Math.min((weeklyScore / 500) * 100, 100)}%` 
                 }]} />
               </View>
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, alignItems: 'center' }}>
                 <ThemedText variant="caption" color={t.textSecondary} style={{ fontSize: 10 }}>Level Progress</ThemedText>
                 <ThemedText variant="label" color={t.textDisabled} style={{ fontSize: 11, letterSpacing: 1 }}>
-                  {usePositivityStore((s) => s.weeklyScore)} / 500 PTS
+                  {weeklyScore} / 500 PTS
                 </ThemedText>
               </View>
             </View>
@@ -217,7 +220,6 @@ export default function Home() {
             <View style={{ marginLeft: 12, flex: 1 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <ThemedText variant="label" color={t.positivity}>Daily Growth</ThemedText>
-                <ChevronRight size={12} color={t.positivity} style={{ opacity: 0.6 }} />
               </View>
               <ThemedText variant="caption" color={t.textSecondary} style={{ marginTop: 2 }}>
                 {getDailyTip()}
