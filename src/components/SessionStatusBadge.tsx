@@ -1,9 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { useSessionStore } from '../store/sessionStore';
 import { getRuleById } from '../data/rules';
 import { Pause, Play, X, Clock } from 'lucide-react-native';
+import { ThemedText } from './ThemedText';
+import { SessionReflection } from './SessionReflection';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
+import { CATEGORIES } from '../data/categories';
 
 export function SessionStatusBadge() {
   const t = useTheme();
@@ -14,6 +18,17 @@ export function SessionStatusBadge() {
   const pauseSession = useSessionStore((s) => s.pauseSession);
   const resumeSession = useSessionStore((s) => s.resumeSession);
   const endSession = useSessionStore((s) => s.endSession);
+  const [showReflection, setShowReflection] = useState(false);
+
+  const pulse = useSharedValue(1);
+  useEffect(() => {
+    pulse.value = withRepeat(withSequence(withTiming(1.2, { duration: 800 }), withTiming(1, { duration: 800 })), -1);
+  }, []);
+
+  const animatedDotStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse.value }],
+    opacity: pulse.value,
+  }));
 
   // Calculate elapsed time - must be before early returns (hooks rule)
   const elapsedSeconds = useMemo(() => {
@@ -44,24 +59,44 @@ export function SessionStatusBadge() {
   const isPaused = pausedAt !== null;
   const phaseLabel = phase === 'work' ? 'Work' : phase === 'break' ? 'Break' : 'Session';
 
+  // Logic to show timer (v4.0 UX Optimization)
+  const showTimer = useMemo(() => {
+    if (rule.engine === 'countdown' || rule.engine === 'interval') return true;
+    if (rule.engineConfig?.timerMode) return true;
+    return false;
+  }, [rule]);
+
   return (
-    <View style={[styles.container, { backgroundColor: t.card, borderColor: t.border }]}>
+    <View style={[styles.container, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
+      <SessionReflection 
+        visible={showReflection}
+        onClose={(score) => {
+          setShowReflection(false);
+          endSession();
+        }}
+        ruleName={rule.name}
+      />
+      
       {/* Left side: Rule info and timer */}
       <View style={styles.infoSection}>
         <View style={styles.headerRow}>
-          <Text style={[styles.phaseBadge, { color: phase === 'work' ? '#FF6B6B' : '#26C485' }]}>
-            {phaseLabel}
-          </Text>
-          <Text style={[styles.ruleName, { color: t.ink }]} numberOfLines={1}>
-            {rule.name}
-          </Text>
+           <ThemedText variant="caption" color={t.positivity} style={{ fontWeight: '800', letterSpacing: 1 }}>
+              {CATEGORIES.find(c => c.id === rule.categoryId)?.name.toUpperCase() || 'SESSION'}
+           </ThemedText>
         </View>
-        <View style={styles.timerRow}>
-          <Clock size={14} color={t.inkDim} />
-          <Text style={[styles.timerText, { color: t.inkMid }]}>
-            {formatTime(elapsedSeconds)}
-          </Text>
-        </View>
+        <ThemedText variant="h2" style={{ fontSize: 18, marginTop: 2 }}>{rule.name}</ThemedText>
+        
+        {showTimer && (
+          <View style={styles.timerRow}>
+            <Animated.View style={[styles.pulseDot, { backgroundColor: isPaused ? t.textDisabled : t.positivity }, animatedDotStyle]} />
+            <ThemedText variant="h1" style={{ fontSize: 32, fontFamily: 'JetBrainsMono_500Medium' }}>
+              {formatTime(elapsedSeconds)}
+            </ThemedText>
+            <ThemedText variant="caption" color={t.textSecondary} style={{ marginLeft: 8 }}>
+               {isPaused ? 'Paused' : 'Running'}
+            </ThemedText>
+          </View>
+        )}
       </View>
 
       {/* Right side: Quick action buttons */}
@@ -71,16 +106,16 @@ export function SessionStatusBadge() {
           style={[styles.actionBtn, { backgroundColor: t.isDark ? 'rgba(242,241,238,0.1)' : 'rgba(13,13,13,0.05)' }]}
         >
           {isPaused ? (
-            <Play size={16} color={t.ink} strokeWidth={2.5} fill={t.ink} />
+            <Play size={18} color={t.ink} strokeWidth={2.5} fill={t.ink} />
           ) : (
-            <Pause size={16} color={t.ink} strokeWidth={2} />
+            <Pause size={18} color={t.ink} strokeWidth={2} />
           )}
         </Pressable>
         <Pressable
-          onPress={() => endSession()}
+          onPress={() => phase === 'work' ? setShowReflection(true) : endSession()}
           style={[styles.actionBtn, { backgroundColor: t.isDark ? 'rgba(242,241,238,0.1)' : 'rgba(13,13,13,0.05)' }]}
         >
-          <X size={16} color={t.inkMid} strokeWidth={2.5} />
+          <X size={18} color={t.inkMid} strokeWidth={2.5} />
         </Pressable>
       </View>
     </View>
@@ -135,10 +170,16 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  pulseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 10,
+  }
 });

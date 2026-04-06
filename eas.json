@@ -18,7 +18,9 @@
       "android": {
         "buildType": "apk"
       },
-      "ios": null
+      "ios": {
+        "simulator": true
+      }
     },
     "production": {
       "android": {
@@ -33,7 +35,7 @@
         "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
-        "distribution": "app-store"
+        "distribution": "internal"
       }
     }
   },
@@ -42,7 +44,7 @@
       "android": {
         "track": "internal"
       },
-      "ios": null
+      "ios": {}
     }
   }
 }

@@ -1,230 +1,144 @@
 /**
- * Design System Tokens
- * Complete color hierarchy, typography, and spacing system
- * Aligned with dark and light theme design systems
+ * Productive+ v4.0 Design System Tokens
+ * Pitch-black foundation, 8pt grid system, and hierarchy-first typography
  */
 
 export const tokens = {
-  // ===== DARK THEME COLORS =====
+  // ===== DARK THEME COLORS (v4.0) =====
   dark: {
-    // Base layer - the void
-    bg: '#0d0d0d',
+    // Base layer - The Void
+    bg: '#000000',
 
-    // Surface Container Hierarchy (dark theme)
-    // Use for layering and depth in dark mode
-    surfaceContainerLowest: '#0f0f0f', // Darkest surface level
-    surfaceContainerLow: '#1a1a1a',     // Slightly raised
-    surfaceContainer: '#242424',         // Standard container
-    surfaceContainerHigh: '#2e2e2e',     // More prominent
-    surfaceContainerHighest: '#383838',  // Highest layer
+    // Surface Container Hierarchy
+    surfaceContainerLowest: '#0d0d0d',  // Subtle elevation
+    surfaceContainerLow: '#141414',     // Standard card
+    surfaceContainer: '#1A1A1A',         // Raised card (v4.0 Spec)
+    surfaceContainerHigh: '#262626',     // Interactive surface
+    surfaceContainerHighest: '#333333',  // Highlight surface
 
-    // Text colors for dark theme
-    onSurface: '#f2f1ee',       // Primary text (light)
-    onSurfaceVariant: '#b3b0a9', // Secondary text (medium)
-    onSurfaceDisabled: '#6b6964', // Disabled text (dim)
+    // Text colors
+    onSurface: '#f5f5f7',       // Primary (Apple-style white)
+    onSurfaceVariant: '#a1a1aa', // Secondary (Zinc-400)
+    onSurfaceDisabled: '#71717a', // Tertiary (Zinc-500)
 
-    // Kinetic Primary - Orange/Red (metabolic, active states)
-    primary: '#a93102',         // Kinetic Orange base
-    primaryDim: '#7d2410',      // Dimmed variant
-    primaryBright: '#ff6b34',   // Bright variant
-    onPrimary: '#ffffff',       // Text on primary
+    // Semantic accents (v4.0 Spec)
+    progress: '#22c55e',        // Green
+    learning: '#3b82f6',        // Blue
+    focus: '#f97316',           // Orange
+    memory: '#a855f7',          // Purple
+    
+    // Core accents
+    positivity: '#22c55e',      // Success / Primary CTA
+    info: '#3b82f6',            // Guidance
+    warning: '#f59e0b',         // Caution
+    error: '#ef4444',           // Critical
 
-    // Kinetic Secondary - Blue (cognitive, monitoring)
-    secondary: '#444bce',       // Neurological Blue base
-    secondaryDim: '#2d3297',    // Dimmed variant
-    secondaryBright: '#6b74ff', // Bright variant
-    onSecondary: '#ffffff',     // Text on secondary
-
-    // Kinetic Tertiary - Purple (hormonal, recovery)
-    tertiary: '#9c6dd6',        // Synthetic Purple base
-    tertiaryDim: '#6a4689',     // Dimmed variant
-    tertiaryBright: '#d5a9ff',  // Bright variant
-    onTertiary: '#ffffff',      // Text on tertiary
-
-    // Semantic colors
-    success: '#34D399',
-    warning: '#FBBF24',
-    error: '#EF4444',
-    info: '#60A5FA',
-
-    // Category colors (dark)
-    categoryLearn: '#A78BFA',
-    categoryFocus: '#60A5FA',
-    categoryProductivity: '#34D399',
-    categoryStudy: '#FBBF24',
+    border: '#262626',
+    glass: 'rgba(255, 255, 255, 0.05)',
   },
 
-  // ===== LIGHT THEME COLORS =====
+  // ===== LIGHT THEME COLORS (v4.0) =====
   light: {
-    // Base layer - white foundation
-    bg: '#f7f9fc',
+    bg: '#ffffff',
+    surfaceContainerLowest: '#fafafa',
+    surfaceContainerLow: '#f4f4f5',
+    surfaceContainer: '#e4e4e7',
+    surfaceContainerHigh: '#d4d4d8',
+    surfaceContainerHighest: '#a1a1aa',
 
-    // Surface Container Hierarchy (light theme)
-    // Use for layering and depth in light mode
-    surfaceContainerLowest: '#ffffff',    // Lightest/brightest
-    surfaceContainerLow: '#f2f1f0',       // Slightly dimmed
-    surfaceContainer: '#ececeb',          // Standard container
-    surfaceContainerHigh: '#e6e8eb',      // More prominent
-    surfaceContainerHighest: '#ddd9d0',   // Darkest surface
+    onSurface: '#09090b',
+    onSurfaceVariant: '#52525b',
+    onSurfaceDisabled: '#a1a1aa',
 
-    // Text colors for light theme
-    onSurface: '#191c1e',        // Primary text (dark)
-    onSurfaceVariant: '#49494a', // Secondary text (medium)
-    onSurfaceDisabled: '#9a9a9c', // Disabled text (light)
+    // Semantic accents
+    progress: '#16a34a',
+    learning: '#2563eb',
+    focus: '#ea580c',
+    memory: '#9333ea',
 
-    // Kinetic Primary - Orange/Red (metabolic, active states)
-    primary: '#a93102',         // Kinetic Orange base
-    primaryDim: '#d97956',      // Dimmed variant
-    primaryBright: '#7d2410',   // Bright variant
-    onPrimary: '#ffffff',       // Text on primary
+    positivity: '#16a34a',
+    info: '#2563eb',
+    warning: '#d97706',
+    error: '#dc2626',
 
-    // Kinetic Secondary - Blue (cognitive, monitoring)
-    secondary: '#444bce',       // Neurological Blue base
-    secondaryDim: '#7d85f2',    // Dimmed variant
-    secondaryBright: '#2d3297', // Bright variant
-    onSecondary: '#ffffff',     // Text on secondary
-
-    // Kinetic Tertiary - Purple (hormonal, recovery)
-    tertiary: '#9c6dd6',        // Synthetic Purple base
-    tertiaryDim: '#c5a0e3',     // Dimmed variant
-    tertiaryBright: '#6a4689',  // Bright variant
-    onTertiary: '#ffffff',      // Text on tertiary
-
-    // Semantic colors
-    success: '#059669',
-    warning: '#B45309',
-    error: '#DC2626',
-    info: '#1D4ED8',
-
-    // Category colors (light)
-    categoryLearn: '#7C3AED',
-    categoryFocus: '#1D4ED8',
-    categoryProductivity: '#059669',
-    categoryStudy: '#B45309',
+    border: '#e4e4e7',
+    glass: 'rgba(0, 0, 0, 0.03)',
   },
 
-  // ===== TYPOGRAPHY SCALE =====
+  // ===== TYPOGRAPHY SCALE (v4.0 Spec) =====
   typography: {
-    // Display level - single-word markers, large data
-    displayLg: {
-      fontFamily: 'Manrope_700Bold',
+    h1: {
+      fontFamily: 'Syne_700Bold',
       fontSize: 32,
       lineHeight: 40,
-      letterSpacing: -0.02, // em units
+      letterSpacing: -0.02,
     },
-    // Headline level
-    headlineMd: {
-      fontFamily: 'Manrope_700Bold',
+    h2: {
+      fontFamily: 'Syne_700Bold',
       fontSize: 24,
       lineHeight: 32,
-      letterSpacing: 0,
+      letterSpacing: -0.01,
     },
-    // Title level
-    titleLg: {
-      fontFamily: 'Inter_500Medium',
+    h3: {
+      fontFamily: 'PlusJakartaSans_700Bold',
       fontSize: 20,
       lineHeight: 28,
-      letterSpacing: 0.01,
+      letterSpacing: 0,
     },
-    // Body text - primary content
-    bodyMd: {
-      fontFamily: 'Inter_400Regular',
+    bodyLg: {
+      fontFamily: 'PlusJakartaSans_400Regular',
+      fontSize: 18,
+      lineHeight: 26,
+    },
+    body: {
+      fontFamily: 'PlusJakartaSans_400Regular',
       fontSize: 16,
       lineHeight: 24,
-      letterSpacing: 0,
     },
-    bodySm: {
-      fontFamily: 'Inter_400Regular',
+    caption: {
+      fontFamily: 'PlusJakartaSans_500Medium',
       fontSize: 14,
       lineHeight: 20,
-      letterSpacing: 0,
     },
-    // Label - technical metadata (all caps)
-    labelSm: {
-      fontFamily: 'Inter_700Bold',
+    label: {
+      fontFamily: 'PlusJakartaSans_600SemiBold',
       fontSize: 12,
       lineHeight: 16,
-      letterSpacing: 0.05, // "Wide tracking" for caps
-      textTransform: 'uppercase',
+      letterSpacing: 0.05,
     },
-    // Mono - code/technical
-    monoMd: {
-      fontFamily: 'JetBrainsMono_400Regular',
-      fontSize: 14,
-      lineHeight: 20,
-      letterSpacing: 0,
+    mono: {
+      fontFamily: 'JetBrainsMono_500Medium',
+      fontSize: 13,
+      lineHeight: 18,
     },
   },
 
-  // ===== ELEVATION & SHADOWS =====
-  elevation: {
-    // Ambient shadow - for floating elements (60px blur, 6% opacity)
-    ambient: {
-      blur: 60,
-      opacity: 0.06,
-    },
-    // Standard elevation
-    level1: {
-      blur: 8,
-      offset: 2,
-      opacity: 0.1,
-    },
-    level2: {
-      blur: 16,
-      offset: 4,
-      opacity: 0.15,
-    },
-    level3: {
-      blur: 24,
-      offset: 8,
-      opacity: 0.2,
-    },
-  },
-
-  // ===== RADIUS (Corner Curvature) =====
-  radius: {
-    // Pill-shaped (buttons, chips)
-    full: 999,
-    // Large cards/containers
-    xl: 24,
-    // Standard cards/elements
-    lg: 22,
-    // Small UI elements
-    md: 16,
-    sm: 10,
-    xs: 4,
-  },
-
-  // ===== SPACING SCALE =====
+  // ===== GRID & SPACING (v4.0 Spec) =====
   spacing: {
-    // Micro spacing
+    grid: 8,
+    padding: 24,        // Spec: 16-24px
+    sectionGap: 32,     // Spec: 24-32px
     xs: 4,
     sm: 8,
     md: 16,
     lg: 24,
     xl: 32,
-    // Section gaps (per design system)
-    sectionGap: 48,
-    // Page/container padding
-    page: 20,
+    xxl: 48,
   },
 
-  // ===== FONTS =====
-  font: {
-    display: 'Manrope_700Bold',
-    displayRegular: 'Manrope_400Regular',
-    body: 'Inter_400Regular',
-    bodyMedium: 'Inter_500Medium',
-    bodyBold: 'Inter_700Bold',
-    mono: 'JetBrainsMono_400Regular',
+  // ===== SHAPE & ELEVATION =====
+  radius: {
+    full: 999,
+    xl: 28,
+    lg: 24,
+    md: 16,
+    sm: 8,
   },
 
-  // ===== OPACITY SCALE =====
-  opacity: {
-    disabled: 0.38,
-    hover: 0.08,
-    focus: 0.12,
-    pressed: 0.16,
-    glassmorphism: 0.6, // For floating elements with blur
+  elevation: {
+    glass: {
+      blur: 20,
+      opacity: 0.1,
+    },
   },
 };

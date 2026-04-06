@@ -2,7 +2,7 @@
 
 We are building **Product+ive** — a production-level, cross-platform mobile productivity app using:
 
-* React Native + Expo SDK 52
+* React Native + Expo SDK 55
 * TypeScript (strict mode)
 * Modern architecture patterns (config-driven engines)
 * Clean monochromatic design system
@@ -82,7 +82,7 @@ No undocumented modifications allowed.
 
 # 7️⃣ TECH STACK
 
-* React Native + Expo SDK 52
+* React Native + Expo SDK 55
 * TypeScript (strict mode)
 * expo-router (file-based navigation)
 * Zustand (state management)

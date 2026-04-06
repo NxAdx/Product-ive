@@ -1,10 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { CheckCircle, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react-native';
+import { ThemedText } from '../components/ThemedText';
 
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
+import { usePositivityStore } from '../store/positivityStore';
 import { useTheme } from '../theme/ThemeContext';
+import { tokens } from '../theme/tokens';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -137,6 +140,7 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
 
   const handleComplete = () => {
     session.endSession();
+    usePositivityStore.getState().addPoints(rule.pointsPerSession || 15, 'rule_session', rule.id);
     setSessionStarted(false);
     setCurrentStep(0);
     setResponses({});
@@ -146,20 +150,21 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
     return (
       <View style={styles.intentScreen}>
         <View style={styles.intentContent}>
-          <Text style={[styles.intentTitle, { color: t.ink }]}>{rule.name}</Text>
-          <Text style={[styles.intentDesc, { color: t.inkMid }]}>{rule.description}</Text>
+          <ThemedText variant="h1">{rule.name}</ThemedText>
+          <ThemedText variant="body" color={t.textSecondary}>{rule.description}</ThemedText>
 
           <View style={styles.stepsList}>
             {prompts.map((prompt, idx) => (
               <View key={`${prompt.title}-${idx}`} style={styles.stepItem}>
-                <ChevronRight size={16} color={color} />
-                <Text style={[styles.stepText, { color: t.ink }]}>{prompt.title}</Text>
+                <ArrowRight size={16} color={color} />
+                <ThemedText variant="caption" color={t.text}>{prompt.title}</ThemedText>
               </View>
             ))}
           </View>
 
           <Pressable onPress={handleStart} style={[styles.startBtn, { backgroundColor: color }]}>
-            <Text style={styles.startBtnText}>Begin {rule.name}</Text>
+            <ThemedText variant="h3" style={{ color: '#000', fontWeight: '800' }}>Begin {rule.name}</ThemedText>
+            <ArrowRight size={20} color="#000" strokeWidth={3} style={{ marginLeft: 12 }} />
           </Pressable>
         </View>
       </View>
@@ -169,9 +174,11 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
   return (
     <View style={styles.container}>
       <View style={styles.progress}>
-        <Text style={[styles.progressText, { color: t.inkMid }]}>
-          Step {currentStep + 1} of {prompts.length}
-        </Text>
+        {prompts.length > 1 && (
+          <ThemedText variant="label" color={t.textSecondary}>
+            Step {currentStep + 1} of {prompts.length}
+          </ThemedText>
+        )}
         <View
           style={[
             styles.progressBar,
@@ -194,15 +201,15 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
         </View>
       </View>
 
-      <ScrollView style={styles.promptArea} contentContainerStyle={styles.promptContent}>
-        <Text style={[styles.promptTitle, { color: t.ink }]}>{currentPrompt.title}</Text>
-        <Text style={[styles.promptDesc, { color: t.inkMid }]}>{currentPrompt.description}</Text>
+      <ScrollView style={styles.promptArea} contentContainerStyle={styles.promptContent} showsVerticalScrollIndicator={false}>
+        <ThemedText variant="h3">{currentPrompt.title}</ThemedText>
+        <ThemedText variant="body" color={t.textSecondary}>{currentPrompt.description}</ThemedText>
 
         <TextInput
           style={[
             styles.input,
             {
-              color: t.ink,
+              color: t.text,
               backgroundColor: t.isDark
                 ? 'rgba(255,255,255,0.05)'
                 : 'rgba(0,0,0,0.05)',
@@ -210,7 +217,7 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
             },
           ]}
           placeholder={currentPrompt.placeholder}
-          placeholderTextColor={t.inkDim}
+          placeholderTextColor={t.textDisabled}
           multiline
           value={responses[currentStep] || ''}
           onChangeText={handleResponseChange}
@@ -226,23 +233,23 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
             {
               opacity: currentStep === 0 ? 0.4 : 1,
               backgroundColor: t.isDark
-                ? 'rgba(242,241,238,0.1)'
-                : 'rgba(13,13,13,0.08)',
+                ? 'rgba(255,255,255,0.1)'
+                : 'rgba(0,0,0,0.05)',
             },
           ]}
         >
-          <ChevronLeft size={20} color={t.ink} />
+          <ChevronLeft size={20} color={t.text} />
         </Pressable>
 
         {isLastStep ? (
           <Pressable onPress={handleComplete} style={[styles.mainBtn, { backgroundColor: color }]}>
-            <CheckCircle size={20} color="#FFF" />
-            <Text style={styles.mainBtnText}>Complete</Text>
+            <CheckCircle size={20} color="#000" strokeWidth={2.5} />
+            <ThemedText variant="h3" style={{ color: '#000', fontWeight: '800', fontSize: 16 }}>Complete</ThemedText>
           </Pressable>
         ) : (
           <Pressable onPress={handleNext} style={[styles.mainBtn, { backgroundColor: color }]}>
-            <Text style={styles.mainBtnText}>Next</Text>
-            <ChevronRight size={20} color="#FFF" />
+            <ThemedText variant="h3" style={{ color: '#000', fontWeight: '800', fontSize: 16 }}>Next</ThemedText>
+            <ChevronRight size={20} color="#000" strokeWidth={2.5} />
           </Pressable>
         )}
       </View>
@@ -253,21 +260,11 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
 const styles = StyleSheet.create({
   intentScreen: {
     flex: 1,
-    justifyContent: 'center',
+    paddingTop: '15%',
     paddingHorizontal: 24,
   },
   intentContent: {
-    gap: 24,
-  },
-  intentTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    fontFamily: 'Manrope_700Bold',
-  },
-  intentDesc: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '400',
+    gap: 20,
   },
   stepsList: {
     gap: 10,
@@ -278,22 +275,18 @@ const styles = StyleSheet.create({
     gap: 8,
     alignItems: 'center',
   },
-  stepText: {
-    fontSize: 14,
-    fontWeight: '500',
-    flex: 1,
-    lineHeight: 20,
-  },
   startBtn: {
-    paddingVertical: 16,
-    borderRadius: 20,
+    height: 64,
+    borderRadius: 32,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 12,
-  },
-  startBtnText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
+    justifyContent: 'center',
+    marginTop: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
   },
   container: {
     flex: 1,
@@ -304,10 +297,6 @@ const styles = StyleSheet.create({
   progress: {
     gap: 12,
     marginBottom: 24,
-  },
-  progressText: {
-    fontSize: 13,
-    fontWeight: '500',
   },
   progressBar: {
     height: 4,
@@ -325,15 +314,6 @@ const styles = StyleSheet.create({
   promptContent: {
     gap: 16,
   },
-  promptTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  promptDesc: {
-    fontSize: 14,
-    fontWeight: '400',
-    lineHeight: 20,
-  },
   input: {
     borderRadius: 16,
     paddingHorizontal: 16,
@@ -341,7 +321,7 @@ const styles = StyleSheet.create({
     minHeight: 120,
     borderWidth: 1,
     fontSize: 14,
-    fontFamily: 'Inter_400Regular',
+    fontFamily: 'PlusJakartaSans_400Regular',
     textAlignVertical: 'top',
   },
   controls: {
@@ -364,10 +344,5 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 12,
     borderRadius: 16,
-  },
-  mainBtnText: {
-    color: '#FFF',
-    fontSize: 15,
-    fontWeight: '600',
   },
 });

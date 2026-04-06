@@ -1,17 +1,15 @@
 import React from 'react';
 import { View, Pressable, StyleSheet, Platform } from 'react-native';
 import { Home, Plus, BarChart3, Compass } from 'lucide-react-native';
+import { ThemedText } from './ThemedText';
 import { useTheme } from '../theme/ThemeContext';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { logRuntimeEvent } from '../utils/runtimeLogs';
+import { tokens } from '../theme/tokens';
+import * as Haptics from 'expo-haptics';
 
 export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps) {
   const t = useTheme();
-
-  const activeRouteName = state.routes[state.index]?.name;
-  if (activeRouteName !== 'index') {
-    return null;
-  }
 
   // Map route names to tab indices for active state
   const getIsActive = (routeName: string) => {
@@ -19,76 +17,107 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
     return route?.name === routeName;
   };
 
+  const handlePress = (routeName: string) => {
+    const isActive = getIsActive(routeName);
+    if (!isActive) {
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+      logRuntimeEvent('nav_tap', { to: routeName }).catch(() => {});
+      navigation.navigate(routeName);
+    }
+  };
+
+  // Only show on primary top-level tabs to maintain "Zero Distraction" focus
+  const activeRouteName = state.routes[state.index]?.name;
+  const hideNavOn = ['rule/[id]', 'category/[id]', 'todo']; 
+  // Note: expo-router might use different internal names for stack routes
+  
   return (
     <View style={styles.container}>
       <View style={[
         styles.pill,
         {
-          backgroundColor: t.isDark ? 'rgba(30,30,30,0.97)' : 'rgba(242,241,238,0.97)',
-          borderColor: t.isDark ? 'rgba(242,241,238,0.06)' : 'transparent',
-          borderWidth: t.isDark ? 1 : 0,
-          shadowColor: t.isDark ? 'transparent' : '#0D0D0D',
+          backgroundColor: t.isDark ? 'rgba(20,20,20,0.85)' : 'rgba(255,255,255,0.9)',
+          borderColor: t.border,
+          borderWidth: 1,
         }
       ]}>
         
         {/* Home Tab */}
         <Pressable 
-          onPress={() => {
-            logRuntimeEvent('nav_tap', { to: 'index' }).catch(() => {});
-            navigation.navigate('index');
-          }}
+          onPress={() => handlePress('index')}
           style={styles.navItem}
         >
           <Home 
             size={20} 
-            color={getIsActive('index') ? t.ink : t.inkMid} 
+            color={getIsActive('index') ? t.progress : t.textDisabled} 
             strokeWidth={getIsActive('index') ? 2.5 : 2}
           />
+          <ThemedText 
+            variant="label" 
+            color={getIsActive('index') ? t.progress : t.textDisabled}
+            style={{ fontSize: 10, marginTop: 4, textTransform: 'none' }}
+          >
+            Home
+          </ThemedText>
         </Pressable>
 
-        {/* Center Add Button */}
+        {/* Add Tab (Prominent) */}
         <Pressable 
-          onPress={() => {
-            logRuntimeEvent('nav_tap', { to: 'todo' }).catch(() => {});
-            navigation.navigate('todo');
-          }}
+          onPress={() => handlePress('add')}
           style={styles.navItem}
         >
           <Plus
-            size={20}
-            color={getIsActive('todo') ? t.ink : t.inkMid}
-            strokeWidth={getIsActive('todo') ? 2.5 : 2}
+            size={22}
+            color={getIsActive('add') ? t.text : t.textDisabled}
+            strokeWidth={getIsActive('add') ? 3 : 2}
           />
+          <ThemedText 
+            variant="label" 
+            color={getIsActive('add') ? t.text : t.textDisabled}
+            style={{ fontSize: 10, marginTop: 4, textTransform: 'none' }}
+          >
+            Add
+          </ThemedText>
         </Pressable>
 
         {/* Explore Tab */}
         <Pressable 
-          onPress={() => {
-            logRuntimeEvent('nav_tap', { to: 'explore' }).catch(() => {});
-            navigation.navigate('explore');
-          }}
+          onPress={() => handlePress('explore')}
           style={styles.navItem}
         >
           <Compass 
             size={20} 
-            color={getIsActive('explore') ? t.ink : t.inkMid}
+            color={getIsActive('explore') ? t.learning : t.textDisabled}
             strokeWidth={getIsActive('explore') ? 2.5 : 2}
           />
+          <ThemedText 
+            variant="label" 
+            color={getIsActive('explore') ? t.learning : t.textDisabled}
+            style={{ fontSize: 10, marginTop: 4, textTransform: 'none' }}
+          >
+            Explore
+          </ThemedText>
         </Pressable>
 
-        {/* Meter Tab */}
+        {/* Stats Tab */}
         <Pressable 
-          onPress={() => {
-            logRuntimeEvent('nav_tap', { to: 'meter' }).catch(() => {});
-            navigation.navigate('meter');
-          }}
+          onPress={() => handlePress('stats')}
           style={styles.navItem}
         >
           <BarChart3 
             size={20} 
-            color={getIsActive('meter') ? t.ink : t.inkMid}
-            strokeWidth={getIsActive('meter') ? 2.5 : 2}
+            color={getIsActive('stats') ? t.memory : t.textDisabled}
+            strokeWidth={getIsActive('stats') ? 2.5 : 2}
           />
+          <ThemedText 
+            variant="label" 
+            color={getIsActive('stats') ? t.memory : t.textDisabled}
+            style={{ fontSize: 10, marginTop: 4, textTransform: 'none' }}
+          >
+            Stats
+          </ThemedText>
         </Pressable>
 
       </View>
@@ -99,7 +128,7 @@ export function BottomNav({ state, descriptors, navigation }: BottomTabBarProps)
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingBottom: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
     paddingTop: 12,
     alignItems: 'center',
     position: 'absolute',
@@ -112,23 +141,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: 236,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 9999,
-    ...(Platform.OS !== 'web' && {
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.15,
-      shadowRadius: 24,
-      elevation: 10,
-    }),
-    ...(Platform.OS === 'web' && {
-      boxShadow: '0 8px 24px rgba(13, 13, 13, 0.15)',
+    width: 280,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 32,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.2,
+        shadowRadius: 16,
+      },
+      android: {
+        elevation: 8,
+      },
+      web: {
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+      }
     }),
   },
   navItem: {
-    width: 44,
-    height: 36,
+    flex: 1,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },

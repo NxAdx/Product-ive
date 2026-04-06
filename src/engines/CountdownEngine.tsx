@@ -4,6 +4,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { Play, Square, Pause } from 'lucide-react-native';
+import { usePositivityStore } from '../store/positivityStore';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -13,18 +14,23 @@ interface EngineProps {
 export function CountdownEngine({ rule, color }: EngineProps) {
   const t = useTheme();
   const session = useSessionStore();
-  const [timeLeft, setTimeLeft] = useState(rule.engineConfig.workDuration || 25 * 60);
+  const initialTime = rule.engineConfig.workDuration || 0;
+  const isStopwatch = initialTime === 0;
+  
+  const [time, setTime] = useState(initialTime);
   const isRunning = session.phase === 'work' && session.activeRuleId === rule.id && !session.pausedAt;
 
-  // Extremely basic timer implementation for standard spec requirement
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
     if (isRunning) {
       interval = setInterval(() => {
-        setTimeLeft((prev: number) => {
+        setTime((prev: number) => {
+          if (isStopwatch) {
+            return prev + 1;
+          }
           if (prev <= 1) {
             session.endSession();
-            // TODO: dispatch positivity points
+            usePositivityStore.getState().addPoints(rule.pointsPerSession || 25, 'rule_session', rule.id);
             return 0;
           }
           return prev - 1;
@@ -36,11 +42,11 @@ export function CountdownEngine({ rule, color }: EngineProps) {
         clearInterval(interval);
       }
     };
-  }, [isRunning, session]);
+  }, [isRunning, session, isStopwatch, rule]);
 
   const handleToggle = () => {
     if (session.activeRuleId !== rule.id) {
-      setTimeLeft(rule.engineConfig.workDuration || 25 * 60);
+      setTime(initialTime);
       session.startSession(rule.id);
     } else if (session.pausedAt) {
       session.resumeSession();
@@ -51,21 +57,23 @@ export function CountdownEngine({ rule, color }: EngineProps) {
 
   const handleStop = () => {
     session.endSession();
-    setTimeLeft(rule.engineConfig.workDuration || 25 * 60);
+    setTime(initialTime);
   };
 
-  const minutes = Math.floor(Math.max(0, timeLeft) / 60);
-  const seconds = Math.max(0, timeLeft) % 60;
+  const minutes = Math.floor(Math.abs(time) / 60);
+  const seconds = Math.abs(time) % 60;
   const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
   return (
     <View style={styles.container}>
       
-      {/* Circular Timer Placeholder (Needs SVG or Reanimated for ring) */}
+      {/* Circular Timer Ring */}
       <View style={[styles.timerRing, { borderColor: t.border }]}>
         <Text style={[styles.timerText, { color: t.ink }]}>{timeString}</Text>
         <Text style={[styles.timerLabel, { color: t.inkDim }]}>
-          {session.phase === 'work' ? (session.pausedAt ? 'PAUSED' : 'FOCUS') : 'READY'}
+          {session.phase === 'work' 
+            ? (session.pausedAt ? 'PAUSED' : (isStopwatch ? 'ELAPSED' : 'FOCUS')) 
+            : 'READY'}
         </Text>
       </View>
 

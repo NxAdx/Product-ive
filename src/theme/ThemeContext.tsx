@@ -5,13 +5,13 @@ import { tokens } from './tokens';
 export type Mode = 'light' | 'dark';
 
 interface ThemeColors {
-  // Base
+  // Base layer
   bg: string;
   
-  // Surface hierarchy (for layering)
+  // Surface hierarchy (for layering and bento cards)
   surfaceLowest: string;
   surfaceLow: string;
-  surface: string;
+  surfaceContainer: string; // v4.0 Primary Card Surface
   surfaceHigh: string;
   surfaceHighest: string;
   
@@ -20,30 +20,17 @@ interface ThemeColors {
   textSecondary: string;
   textDisabled: string;
   
-  // Kinetic accents
-  primary: string;
-  primaryDim: string;
-  primaryBright: string;
+  // Semantic Kinetic Accents (v4.0)
+  progress: string; 
+  learning: string;
+  focus: string;
+  memory: string;
   
-  secondary: string;
-  secondaryDim: string;
-  secondaryBright: string;
-  
-  tertiary: string;
-  tertiaryDim: string;
-  tertiaryBright: string;
-  
-  // Semantic
+  // Semantic Alerts
   success: string;
   warning: string;
   error: string;
   info: string;
-  
-  // Category colors
-  learn: string;
-  focus: string;
-  prod: string;
-  study: string;
 }
 
 interface Theme extends ThemeColors {
@@ -51,7 +38,7 @@ interface Theme extends ThemeColors {
   isDark: boolean;
   toggle: () => Promise<void>;
   
-  // Legacy compatibility (deprecated, use semantic colors instead)
+  // Legacy / Quick access mappings
   card: string;
   ink: string;
   inkMid: string;
@@ -90,7 +77,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     // Surface container hierarchy
     surfaceLowest: colorScheme.surfaceContainerLowest,
     surfaceLow: colorScheme.surfaceContainerLow,
-    surface: colorScheme.surfaceContainer,
+    surfaceContainer: colorScheme.surfaceContainer,
     surfaceHigh: colorScheme.surfaceContainerHigh,
     surfaceHighest: colorScheme.surfaceContainerHighest,
     
@@ -99,18 +86,11 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     textSecondary: colorScheme.onSurfaceVariant,
     textDisabled: colorScheme.onSurfaceDisabled,
     
-    // Kinetic accents (primary, secondary, tertiary)
-    primary: colorScheme.primary,
-    primaryDim: colorScheme.primaryDim,
-    primaryBright: colorScheme.primaryBright,
-    
-    secondary: colorScheme.secondary,
-    secondaryDim: colorScheme.secondaryDim,
-    secondaryBright: colorScheme.secondaryBright,
-    
-    tertiary: colorScheme.tertiary,
-    tertiaryDim: colorScheme.tertiaryDim,
-    tertiaryBright: colorScheme.tertiaryBright,
+    // Kinetic accents
+    progress: colorScheme.progress,
+    learning: colorScheme.learning,
+    focus: colorScheme.focus,
+    memory: colorScheme.memory,
     
     // Semantic colors
     success: colorScheme.success,
@@ -118,21 +98,13 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     error: colorScheme.error,
     info: colorScheme.info,
     
-    // Category colors
-    learn: colorScheme.categoryLearn,
-    focus: colorScheme.categoryFocus,
-    prod: colorScheme.categoryProductivity,
-    study: colorScheme.categoryStudy,
-    
-    // Legacy compatibility mappings (deprecated)
+    // Legacy compatibility mappings
     card: colorScheme.surfaceContainer,
     ink: colorScheme.onSurface,
     inkMid: colorScheme.onSurfaceVariant,
     inkDim: colorScheme.onSurfaceDisabled,
-    border: mode === 'dark' 
-      ? 'rgba(242,241,238,0.08)' 
-      : 'rgba(13,13,13,0.07)',
-    positivity: colorScheme.success,
+    border: colorScheme.border,
+    positivity: colorScheme.positivity,
   };
 
   return (

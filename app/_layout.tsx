@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Stack, SplashScreen } from 'expo-router';
-import { ThemeProvider } from '../src/theme/ThemeContext';
+import { ThemeProvider, useTheme } from '../src/theme/ThemeContext';
 import { useFonts } from 'expo-font';
 import {
   Syne_600SemiBold,
@@ -37,9 +37,14 @@ import { initializeNotifications, requestNotificationPermissions } from '../src/
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+/**
+ * RootContent - The actual app content logic
+ * Separated to ensure it's wrapped by ThemeProvider
+ */
+function RootContent() {
   const [isReady, setIsReady] = useState(false);
   const [initialRouteName, setInitialRouteName] = useState<'(tabs)' | 'onboarding' | null>(null);
+  const { isDark } = useTheme();
 
   const [fontsLoaded] = useFonts({
     Syne_600SemiBold,
@@ -79,7 +84,6 @@ export default function RootLayout() {
       (async () => {
         try {
           await initializeNotifications();
-          // Optionally request permissions (can also be deferred to first use)
           await requestNotificationPermissions();
         } catch (error) {
           console.error('Failed to initialize notifications:', error);
@@ -91,7 +95,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded && isReady && initialRouteName) {
       SplashScreen.hideAsync();
-      SystemUI.setBackgroundColorAsync('#0D0D0D'); // App background color fallback
+      SystemUI.setBackgroundColorAsync('#000000'); // v4.0 Pitch Black
       logRuntimeEvent('app_ready', { initialRouteName }).catch(() => {});
     }
   }, [fontsLoaded, isReady, initialRouteName]);
@@ -101,19 +105,28 @@ export default function RootLayout() {
   }
 
   return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="settings" />
+        <Stack.Screen name="category/[id]" />
+        <Stack.Screen name="rule/[id]" />
+        <Stack.Screen name="todo" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+      </Stack>
+    </>
+  );
+}
+
+/**
+ * RootLayout - The top-level entry with Providers
+ */
+export default function RootLayout() {
+  return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
-        <StatusBar style="auto" />
-        <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-          {/* We decide initialRoute logic dynamically, but expo-router defaults to matching the URL. */}
-          {/* To force redirect if needed: */}
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="settings" />
-          <Stack.Screen name="category/[id]" />
-          <Stack.Screen name="rule/[id]" />
-          <Stack.Screen name="todo" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
-        </Stack>
+        <RootContent />
       </ThemeProvider>
     </GestureHandlerRootView>
   );

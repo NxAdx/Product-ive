@@ -23,45 +23,48 @@ export interface WellnessStore {
   updateNotificationTime: (id: WellnessNotification['id'], hour: number) => void;
   markNotificationTriggered: (id: WellnessNotification['id']) => void;
   shouldTriggerNotification: (id: WellnessNotification['id']) => boolean;
+  _migrate: () => void;
 }
 
 const DEFAULT_WELLNESS_NOTIFICATIONS: WellnessNotification[] = [
   {
     id: 'blink-eye',
-    label: 'Blink Eye',
-    description: 'Remember to blink and rest your eyes',
+    label: 'Eye Rest',
+    description: 'Reduces digital eye strain and fatigue.',
     enabled: true,
     intervalMinutes: 30,
   },
   {
     id: 'drink-water',
-    label: 'Drink Water',
-    description: 'Stay hydrated - drink a glass of water',
+    label: 'Hydration',
+    description: 'Improves cognitive focus and clarity.',
     enabled: true,
     intervalMinutes: 45,
   },
   {
     id: 'sleep-time',
-    label: 'Sleep Reminder',
-    description: 'Get good sleep for better productivity',
+    label: 'Circadian Reset',
+    description: 'Aligns biological sleep-wake peaks for restorative rest.',
     enabled: false,
-    notificationTime: 23, // 11 PM (default, user can change)
+    notificationTime: 22, // 10 PM (default)
   },
   {
     id: 'posture-check',
     label: 'Posture Check',
-    description: 'Sit up straight and stretch your shoulders',
+    description: 'Stabilizes core and lung capacity.',
     enabled: true,
     intervalMinutes: 60,
   },
   {
     id: '20-20-20',
     label: '20-20-20 Rule',
-    description: 'Look 20 feet away for 20 seconds every 20 minutes',
+    description: 'Reset your gaze: 20 feet away for 20 seconds.',
     enabled: true,
     intervalMinutes: 20,
   },
 ];
+
+import { scheduleWellnessReminders } from '../services/NotificationManager';
 
 export const useWellnessStore = create<WellnessStore>()(
   persist(
@@ -70,12 +73,35 @@ export const useWellnessStore = create<WellnessStore>()(
       vibrationEnabled: true,
       soundEnabled: true,
 
-      setNotificationEnabled: (id, enabled) => {
+      // v4.0/4.1 Deep Scrub: Clean emojis, dashes, and legacy artifacts
+      _migrate: () => {
+        const current = get().notifications;
+        const cleaned = current.map(n => {
+          let label = n.label
+            .replace(/[\u2700-\u27bf]|[\u1f300-\u1f64f]|[\u1f680-\u1f6ff]|[\u2600-\u26ff]|[\uD83C|\uD83D|\uD83E][\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '')
+            .replace(/^[- \s]+|[- \s]+$/g, '') // Remove leading/trailing dashes/spaces
+            .replace(/--+/g, '') // Remove double dashes
+            .trim();
+          
+          // If scrubbed label is empty or invalid, restore from defaults
+          if (!label || label === '' || label === '--') {
+            const defaultRitual = DEFAULT_WELLNESS_NOTIFICATIONS.find(d => d.id === n.id);
+            label = defaultRitual ? defaultRitual.label : n.id;
+          }
+
+          return { ...n, label };
+        });
+        set({ notifications: cleaned });
+      },
+
+      setNotificationEnabled: async (id, enabled) => {
         set((state) => ({
           notifications: state.notifications.map((n) =>
             n.id === id ? { ...n, enabled } : n
           ),
         }));
+        // Sync with OS
+        await scheduleWellnessReminders(get().notifications);
       },
 
       setVibrationEnabled: (enabled) => {
@@ -86,20 +112,24 @@ export const useWellnessStore = create<WellnessStore>()(
         set({ soundEnabled: enabled });
       },
 
-      updateNotificationInterval: (id, minutes) => {
+      updateNotificationInterval: async (id, minutes) => {
         set((state) => ({
           notifications: state.notifications.map((n) =>
             n.id === id ? { ...n, intervalMinutes: minutes } : n
           ),
         }));
+        // Sync with OS
+        await scheduleWellnessReminders(get().notifications);
       },
 
-      updateNotificationTime: (id, hour) => {
+      updateNotificationTime: async (id, hour) => {
         set((state) => ({
           notifications: state.notifications.map((n) =>
             n.id === id ? { ...n, notificationTime: hour } : n
           ),
         }));
+        // Sync with OS
+        await scheduleWellnessReminders(get().notifications);
       },
 
       markNotificationTriggered: (id) => {

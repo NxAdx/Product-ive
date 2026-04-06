@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, TextInput } from 'react-native';
+import { View, StyleSheet, Pressable, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../src/theme/ThemeContext';
 import { X } from 'lucide-react-native';
+import { ThemedText } from '../src/components/ThemedText';
+import { useTodoStore } from '../src/store/todoStore';
 
 export default function TodoModal() {
   const t = useTheme();
   const router = useRouter();
+  const addTodo = useTodoStore((s) => s.addTodo);
+  
   const [task, setTask] = useState('');
+  const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
+
+  const handleSave = () => {
+    if (task.trim()) {
+      addTodo(task.trim(), [], priority);
+      router.back();
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: t.bg }]}>
@@ -26,12 +38,13 @@ export default function TodoModal() {
       </View>
 
       <View style={styles.content}>
-        <Text style={[styles.title, { color: t.ink }]}>Capture a Task</Text>
+        <ThemedText variant="h1" style={styles.title}>Capture a Task</ThemedText>
+        
         <TextInput
           style={[
             styles.input, 
             { 
-              backgroundColor: t.card, 
+              backgroundColor: t.surfaceLow, 
               color: t.ink, 
               borderColor: t.border 
             }
@@ -41,16 +54,51 @@ export default function TodoModal() {
           autoFocus
           value={task}
           onChangeText={setTask}
+          onSubmitEditing={handleSave}
         />
 
+        <View style={styles.priorityLabelRow}>
+          <ThemedText variant="label" color={t.textSecondary}>Priority</ThemedText>
+        </View>
+
+        <View style={styles.priorityContainer}>
+          {(['low', 'medium', 'high'] as const).map((p) => (
+            <Pressable
+              key={p}
+              onPress={() => setPriority(p)}
+              style={[
+                styles.priorityPill,
+                {
+                  backgroundColor: priority === p ? (p === 'high' ? t.focus : (p === 'medium' ? t.warning : t.positivity)) : t.surfaceHigh,
+                  borderColor: priority === p ? 'transparent' : t.border,
+                }
+              ]}
+            >
+              <ThemedText 
+                variant="label" 
+                style={{ 
+                  color: priority === p ? '#000' : t.textSecondary,
+                  textTransform: 'capitalize'
+                }}
+              >
+                {p}
+              </ThemedText>
+            </Pressable>
+          ))}
+        </View>
+
         <Pressable 
-          style={[styles.saveBtn, { backgroundColor: t.isDark ? '#F2F1EE' : '#0D0D0D' }]}
-          onPress={() => {
-            // TODO: dispatch to TodoStore
-            router.back();
-          }}
+          style={[
+            styles.saveBtn, 
+            { 
+              backgroundColor: task.trim() ? t.positivity : t.surfaceHigh,
+              opacity: task.trim() ? 1 : 0.5 
+            }
+          ]}
+          onPress={handleSave}
+          disabled={!task.trim()}
         >
-          <Text style={[styles.saveText, { color: t.isDark ? '#0D0D0D' : '#FFFFFF' }]}>Save to Inbox</Text>
+          <ThemedText variant="h3" style={[styles.saveText, { color: '#000' }]}>Save to Inbox</ThemedText>
         </Pressable>
       </View>
 
@@ -89,8 +137,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   title: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 28,
     marginBottom: 24,
     letterSpacing: -0.02,
   },
@@ -103,13 +149,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 24,
   },
+  priorityLabelRow: {
+    marginBottom: 12,
+  },
+  priorityContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 40,
+  },
+  priorityPill: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
   saveBtn: {
     paddingVertical: 18,
     borderRadius: 9999,
     alignItems: 'center',
   },
   saveText: {
-    fontFamily: 'Inter_700Bold',
+    fontWeight: '800',
     fontSize: 16,
   }
 });

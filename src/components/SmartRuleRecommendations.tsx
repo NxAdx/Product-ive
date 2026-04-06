@@ -1,10 +1,13 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
+import { tokens } from '../theme/tokens';
 import { usePositivityStore } from '../store/positivityStore';
 import { RULES, getRuleById } from '../data/rules';
 import { useRouter } from 'expo-router';
-import { Lightbulb, X, Play } from 'lucide-react-native';
+import { Lightbulb, X, ArrowRight, Flame } from 'lucide-react-native';
+import { BentoCard } from './BentoCard';
+import { ThemedText } from './ThemedText';
 
 interface RecommendedRule {
   ruleId: string;
@@ -21,47 +24,25 @@ export function SmartRuleRecommendations() {
 
   // Generate recommendations based on usage patterns
   const recommendations: RecommendedRule[] = useMemo(() => {
-    // Count rule usage frequency
     const usageCount = new Map<string, number>();
     rulesUsed.forEach((ruleId) => {
       usageCount.set(ruleId, (usageCount.get(ruleId) || 0) + 1);
     });
 
-    // Get all rules that haven't been used much
     const candidates: RecommendedRule[] = [];
-
     RULES.forEach((rule) => {
-      if (dismissedRecs.includes(rule.id)) {
-        return; // Skip dismissed recommendations
-      }
+      if (dismissedRecs.includes(rule.id)) return;
 
       const timesSeen = usageCount.get(rule.id) || 0;
       let score = 0;
       let reason = '';
 
       if (timesSeen === 0) {
-        // New rule - suggest based on category diversity
-        const usedCategories = new Set(
-          Array.from(usageCount.keys())
-            .map((id) => getRuleById(id)?.categoryId)
-            .filter(Boolean)
-        );
-
-        if (!usedCategories.has(rule.categoryId)) {
-          score = 85;
-          reason = `Try a new ${rule.categoryId} technique`;
-        } else {
-          score = 60;
-          reason = `Explore more in ${rule.categoryId}`;
-        }
+        score = 85;
+        reason = `New ${rule.categoryId} ritual`;
       } else if (timesSeen === 1) {
-        // Used once - recommend similar ones
         score = 50;
-        reason = 'You might like this too';
-      } else {
-        // Used multiple times - suggest variation
-        score = 40;
-        reason = 'Mix it up with this approach';
+        reason = 'Perfect for your flow';
       }
 
       if (score > 0) {
@@ -69,63 +50,66 @@ export function SmartRuleRecommendations() {
       }
     });
 
-    // Sort by score and return top 3
-    return candidates.sort((a, b) => b.score - a.score).slice(0, 3);
+    return candidates.sort((a, b) => b.score - a.score).slice(0, 4);
   }, [rulesUsed, dismissedRecs]);
 
-  if (recommendations.length === 0) {
-    return null;
-  }
+  if (recommendations.length === 0) return null;
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { borderBottomColor: t.border }]}>
-        <Lightbulb size={16} color={t.positivity} strokeWidth={2} />
-        <Text style={[styles.headerText, { color: t.ink }]}>Recommended for You</Text>
+      <View style={styles.header}>
+        <Lightbulb size={16} color={t.positivity} strokeWidth={2.5} />
+        <ThemedText variant="h3" style={{ marginLeft: 8, fontSize: 16 }}>
+          Recommended
+        </ThemedText>
       </View>
 
+      {/* Horizontal Scroll with Bleed Effect */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        // Negate the parent padding (24) to bleed to screen edges
+        style={styles.bleedScroll}
         contentContainerStyle={styles.scrollContent}
         scrollEventThrottle={16}
+        decelerationRate="fast"
+        snapToInterval={250 + 12} // Matches card width + gap exactly
       >
         {recommendations.map((rec) => {
           const rule = getRuleById(rec.ruleId);
           if (!rule) return null;
 
           return (
-            <View
+            <Pressable
               key={rec.ruleId}
-              style={[styles.card, { backgroundColor: t.card, borderColor: t.border }]}
+              onPress={() => router.push(`/rule/${rule.id}` as any)}
+              style={[styles.card, { backgroundColor: t.isDark ? '#0d0d0d' : t.surfaceContainer, borderColor: t.border }]}
             >
               <View style={styles.cardHeader}>
-                <Text style={[styles.ruleCategory, { color: t.positivity }]}>
+                <ThemedText variant="mono" color={t.positivity} style={{ fontSize: 10 }}>
                   {rule.categoryId.toUpperCase()}
-                </Text>
-                <Pressable
-                  onPress={() => dismissRecommendation(rule.id)}
-                  hitSlop={8}
-                >
-                  <X size={16} color={t.inkDim} strokeWidth={2} />
+                </ThemedText>
+                <Pressable onPress={() => dismissRecommendation(rule.id)} hitSlop={12}>
+                  <X size={14} color={t.textDisabled} />
                 </Pressable>
               </View>
 
-              <Text style={[styles.ruleName, { color: t.ink }]} numberOfLines={2}>
-                {rule.name}
-              </Text>
-              <Text style={[styles.reason, { color: t.inkMid }]} numberOfLines={1}>
-                {rec.reason}
-              </Text>
-
-              <Pressable
-                onPress={() => router.push(`/rule/${rule.id}`)}
-                style={[styles.startBtn, { backgroundColor: t.positivity }]}
-              >
-                <Play size={14} color="#FFF" strokeWidth={2.5} fill="#FFF" />
-                <Text style={styles.startBtnText}>Start</Text>
-              </Pressable>
-            </View>
+              <View style={styles.cardBody}>
+                <View>
+                  <ThemedText variant="h3" style={{ fontSize: 16 }} numberOfLines={1}>
+                    {rule.name}
+                  </ThemedText>
+                  <ThemedText variant="caption" color={t.textSecondary} style={{ marginTop: 2 }} numberOfLines={2}>
+                    {rec.reason}
+                  </ThemedText>
+                </View>
+                
+                <View style={[styles.startPill, { backgroundColor: t.positivity }]}>
+                  <ThemedText variant="label" style={{ color: '#000', fontWeight: '900', fontSize: 10 }}>START</ThemedText>
+                  <ArrowRight size={14} color="#000" strokeWidth={3} style={{ marginLeft: 6 }} />
+                </View>
+              </View>
+            </Pressable>
           );
         })}
       </ScrollView>
@@ -135,63 +119,44 @@ export function SmartRuleRecommendations() {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
-    marginHorizontal: 24,
+    marginBottom: tokens.spacing.xl,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingBottom: 12,
-    marginBottom: 12,
+    marginBottom: 16,
   },
-  headerText: {
-    fontSize: 13,
-    fontFamily: 'Inter_700Bold',
-    textTransform: 'uppercase',
+  bleedScroll: {
+    marginHorizontal: -tokens.spacing.padding, // Negate parent padding
   },
   scrollContent: {
-    paddingRight: 16,
-    gap: 10,
+    paddingHorizontal: tokens.spacing.padding, // Restore padding internally for first/last items
+    gap: 12,
   },
   card: {
-    width: 150,
-    padding: 12,
-    borderRadius: 16,
-    justifyContent: 'space-between',
+    width: 250, 
+    height: 155, // Tightened from 165
+    padding: 16,
+    borderRadius: tokens.radius.lg,
+    borderWidth: 1,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
   },
-  ruleCategory: {
-    fontSize: 10,
-    fontFamily: 'JetBrainsMono_500Medium',
+  cardBody: {
+    flex: 1,
+    justifyContent: 'space-between', // Push pill to bottom
+    marginTop: 8,
   },
-  ruleName: {
-    fontSize: 13,
-    fontFamily: 'Inter_700Bold',
-    marginBottom: 4,
-  },
-  reason: {
-    fontSize: 11,
-    fontFamily: 'Inter_400Regular',
-    marginBottom: 10,
-  },
-  startBtn: {
+  startPill: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  startBtnText: {
-    fontSize: 12,
-    fontFamily: 'Inter_500Medium',
-    color: '#FFF',
+    height: 32,
+    borderRadius: tokens.radius.full,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-end', // Float to right
   },
 });

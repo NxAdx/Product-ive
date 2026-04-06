@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { usePositivityStore } from './positivityStore';
 
 export interface Todo {
   id: string;
@@ -47,6 +48,9 @@ export const useTodoStore = create<TodoStore>()(
       },
 
       toggleTodo: (id) => {
+        const todo = get().todos.find(t => t.id === id);
+        const wasCompleted = todo?.completed;
+        
         set(s => ({
           todos: s.todos.map(t =>
             t.id === id
@@ -54,6 +58,11 @@ export const useTodoStore = create<TodoStore>()(
               : t
           ),
         }));
+
+        // Reward points on completion
+        if (!wasCompleted) {
+          usePositivityStore.getState().addPoints(10, 'task_completion');
+        }
       },
 
       updateTodo: (id, updates) => {

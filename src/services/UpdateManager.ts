@@ -32,6 +32,7 @@ class UpdateManager {
     try {
       const lastCheck = await AsyncStorage.getItem(UPDATES_CHECK_KEY);
       const now = Date.now();
+      const currentVersion = Constants.expoConfig?.version || '1.0.0';
 
       if (lastCheck) {
         const lastCheckTime = parseInt(lastCheck, 10);
@@ -40,29 +41,35 @@ class UpdateManager {
         if (hoursSinceCheck < CHECK_INTERVAL_HOURS) {
           const cached = await AsyncStorage.getItem(UPDATE_INFO_KEY);
           if (cached) {
-            return JSON.parse(cached);
+            const parsed = JSON.parse(cached);
+            if (parsed.currentVersion === currentVersion) {
+              return parsed;
+            }
           }
         }
       }
 
-      // Get current version from Constants
-      const currentVersion = Constants.expoConfig?.version || '1.0.0';
-      
-      // In production: fetch from API endpoint
-      // const response = await fetch('https://api.product-ive.app/version');
-      // const latestVersion = await response.json();
+      // Live fetch from GitHub
+      const response = await fetch('https://api.github.com/repos/Aadarsh-Lokhande/Productive-Plus/releases/latest', {
+        headers: { Accept: 'application/vnd.github.v3+json' },
+      });
 
-      // For now: simulate checking (always returns "up to date")
-      // In real app, this would compare versions
-      const isUpdateAvailable = false;
-      const latestVersion = currentVersion;
+      if (!response.ok) {
+        throw new Error('GitHub API request failed');
+      }
+
+      const latestRelease = await response.json();
+      const latestVersion = latestRelease.tag_name.replace('v', '');
+      
+      // Semantic comparison: simplified - in prod we'd use a semver lib
+      const isAvailable = latestVersion !== currentVersion;
 
       const updateInfo: UpdateInfo = {
-        isAvailable: isUpdateAvailable,
+        isAvailable,
         currentVersion,
         latestVersion,
-        releaseNotes: 'New version available. Please update to get the latest features and bug fixes.',
-        releaseDate: new Date().toISOString(),
+        releaseNotes: latestRelease.body || 'New version available with improvements and fixes.',
+        releaseDate: latestRelease.published_at,
       };
 
       await AsyncStorage.setItem(UPDATES_CHECK_KEY, now.toString());
@@ -70,7 +77,7 @@ class UpdateManager {
 
       return updateInfo;
     } catch (error) {
-      console.error('Update check error:', error);
+      console.warn('Update check failed (likely network or missing repo):', error);
       return {
         isAvailable: false,
         currentVersion: Constants.expoConfig?.version || '1.0.0',

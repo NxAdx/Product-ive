@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, View, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Bug, CircleAlert, Info, Download } from 'lucide-react-native';
+import { ArrowLeft, Bug, CircleAlert, Info, Download, User as UserIcon, Check, ChevronRight, Eye, Droplets, Accessibility, Moon } from 'lucide-react-native';
+import { useEffect } from 'react';
 
 import { useTheme } from '../src/theme/ThemeContext';
 import { useSettingsStore } from '../src/store/settingsStore';
@@ -15,6 +16,9 @@ import { useTodoStore } from '../src/store/todoStore';
 import { useWellnessStore } from '../src/store/wellnessStore';
 import { getRuntimeLogs, logRuntimeEvent } from '../src/utils/runtimeLogs';
 import { UpdateManager } from '../src/services/UpdateManager';
+import { getPermissionStatus, requestNotificationPermissions as requestPerms } from '../src/services/NotificationManager';
+import { ThemedText } from '../src/components/ThemedText';
+import { tokens } from '../src/theme/tokens';
 
 const CURRENT_VERSION_CHANGES = [
   'Android CI build reliability and performance improved.',
@@ -29,47 +33,135 @@ function WellnessNotificationsSection() {
   const notifications = useWellnessStore((s) => s.notifications);
   const setNotificationEnabled = useWellnessStore((s) => s.setNotificationEnabled);
 
+  const groups = [
+    { name: 'Vision', ids: ['blink-eye', '20-20-20'], icon: <Eye size={12} color={t.positivity} /> },
+    { name: 'Hydration', ids: ['drink-water'], icon: <Droplets size={12} color={t.positivity} /> },
+    { name: 'Body', ids: ['posture-check'], icon: <Accessibility size={12} color={t.positivity} /> },
+    { name: 'Recovery', ids: ['sleep-time'], icon: <Moon size={12} color={t.positivity} /> },
+  ];
+
+  const [permStatus, setPermStatus] = useState<{ granted: boolean; canAskAgain: boolean } | null>(null);
+
+  useEffect(() => {
+    getPermissionStatus().then(setPermStatus);
+  }, []);
+
+  const handleToggle = async (id: string, enabled: boolean) => {
+    if (enabled && permStatus && !permStatus.granted) {
+      const granted = await requestPerms();
+      setPermStatus({ granted, canAskAgain: true });
+      if (!granted) {
+        Alert.alert('Permission Required', 'Notifications are disabled for Productive+. Please enable them in your system settings to use wellness reminders.', [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Settings', onPress: () => { /* Add Linking to settings if needed */ } }
+        ]);
+        return;
+      }
+    }
+    setNotificationEnabled(id as any, enabled);
+    logRuntimeEvent('settings_toggle_wellness_notification', { notification: id, enabled }).catch(() => {});
+  };
+
   return (
-    <View style={{ gap: 10, marginTop: 8 }}>
-      {notifications.map((notification) => (
-        <View key={notification.id} style={{ gap: 6 }}>
-          <View style={styles.notificationRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.notificationLabel, { color: t.ink }]}>
-                {notification.label}
-              </Text>
-              <Text style={[styles.notificationDesc, { color: t.inkDim }]}>
-                {notification.description}
-              </Text>
+    <View style={{ gap: 12, marginTop: 8 }}>
+      {!permStatus?.granted && (
+        <Pressable 
+          onPress={async () => {
+            const granted = await requestPerms();
+            setPermStatus({ granted, canAskAgain: true });
+          }}
+          style={[styles.notificationWarning, { backgroundColor: t.isDark ? 'rgba(255,165,0,0.1)' : 'rgba(255,165,0,0.05)', borderColor: t.warning }]}
+        >
+          <CircleAlert size={14} color={t.warning} />
+          <ThemedText variant="caption" color={t.warning} style={{ marginLeft: 8, fontWeight: '700' }}>
+            Notifications are Restricted
+          </ThemedText>
+          <ThemedText variant="caption" color={t.warning} style={{ marginLeft: 'auto', textDecorationLine: 'underline' }}>Fix</ThemedText>
+        </Pressable>
+      )}
+      {groups.map((group) => {
+        const groupNotifications = notifications.filter(n => group.ids.includes(n.id) && n.label && n.label !== '--');
+        if (groupNotifications.length === 0) return null;
+        
+        return (
+          <View key={group.name} style={{ marginTop: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              {group.icon}
+              <ThemedText variant="label" color={t.positivity} style={{ fontSize: 10 }}>{group.name}</ThemedText>
             </View>
-            <Switch
-              value={notification.enabled}
-              onValueChange={(enabled) => {
-                setNotificationEnabled(notification.id, enabled);
-                logRuntimeEvent('settings_toggle_wellness_notification', {
-                  notification: notification.id,
-                  enabled,
-                }).catch(() => {});
-              }}
-              trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
-              thumbColor={notification.enabled ? '#FFFFFF' : '#F2F1EE'}
-            />
+            {groupNotifications.map((notification) => (
+              <View key={notification.id} style={styles.notificationInner}>
+                <View style={styles.notificationRow}>
+                  <View style={{ flex: 1 }}>
+                    <ThemedText variant="body" style={{ fontWeight: '700' }} color={t.text}>
+                      {notification.label}
+                    </ThemedText>
+                    <ThemedText variant="caption" color={t.textSecondary}>
+                      {notification.description}
+                    </ThemedText>
+                  </View>
+                  <Switch
+                    value={notification.enabled}
+                    onValueChange={(enabled) => handleToggle(notification.id, enabled)}
+                    trackColor={{ false: 'rgba(255,255,255,0.05)', true: t.positivity }}
+                    thumbColor={notification.enabled ? '#FFFFFF' : '#888'}
+                  />
+                </View>
+                {notification.enabled && (
+                  <View style={{ marginTop: 12 }}>
+                    {(notification.notificationTime !== undefined || notification.id === 'sleep-time') ? (
+                      <View>
+                        <ThemedText variant="caption" color={t.textSecondary} style={{ marginBottom: 8 }}>
+                          Triggers at {((notification.notificationTime || 22) === 0 ? '12 AM' : (notification.notificationTime || 22) === 12 ? '12 PM' : (notification.notificationTime || 22) > 12 ? `${(notification.notificationTime || 22) - 12} PM` : `${(notification.notificationTime || 22)} PM`)}
+                        </ThemedText>
+                        <ScrollView 
+                          horizontal 
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={{ gap: 6, paddingRight: 20 }}
+                        >
+                          {[20, 21, 22, 23, 0].map((hour) => (
+                            <Pressable
+                              key={hour}
+                              onPress={() => useWellnessStore.getState().updateNotificationTime(notification.id, hour)}
+                              style={[
+                                styles.timePill,
+                                {
+                                  backgroundColor: notification.notificationTime === hour ? t.positivity : t.surfaceHigh,
+                                  borderColor: notification.notificationTime === hour ? t.positivity : 'transparent',
+                                }
+                              ]}
+                            >
+                              <ThemedText 
+                                variant="caption" 
+                                style={{ 
+                                  color: notification.notificationTime === hour ? '#000' : t.textSecondary,
+                                  fontWeight: notification.notificationTime === hour ? '800' : '500'
+                                }}
+                              >
+                                {hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} PM`}
+                              </ThemedText>
+                            </Pressable>
+                          ))}
+                          <Pressable
+                            onPress={() => Alert.alert('Custom Trigger', 'Native time picker integration is coming in the next build. For now, please use the available presets.')}
+                            style={[styles.timePill, { backgroundColor: t.surfaceHigh, borderColor: 'transparent' }]}
+                          >
+                            <ThemedText variant="caption" color={t.textSecondary}>Custom</ThemedText>
+                          </Pressable>
+                        </ScrollView>
+                      </View>
+                    ) : (
+                      <ThemedText variant="caption" color={t.textSecondary}>
+                        Every {notification.intervalMinutes} min
+                      </ThemedText>
+                    )}
+                  </View>
+                )}
+              </View>
+            ))}
           </View>
-          {notification.enabled && (
-            <View style={{ paddingHorizontal: 0, marginLeft: 12 }}>
-              {notification.notificationTime !== undefined ? (
-                <Text style={[styles.intervalLabel, { color: t.inkMid }]}>
-                  Notify at {notification.notificationTime.toString().padStart(2, '0')}:00 PM
-                </Text>
-              ) : (
-                <Text style={[styles.intervalLabel, { color: t.inkMid }]}>
-                  Every {notification.intervalMinutes} min
-                </Text>
-              )}
-            </View>
-          )}
-        </View>
-      ))}
+        );
+      })}
     </View>
   );
 }
@@ -79,25 +171,38 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const t = useTheme();
 
+  const userName = useSettingsStore((s) => s.userName);
+  const setUserName = useSettingsStore((s) => s.setUserName);
   const autoCheckUpdates = useSettingsStore((s) => s.autoCheckUpdates);
   const setAutoCheckUpdates = useSettingsStore((s) => s.setAutoCheckUpdates);
+  const migrateWellness = useWellnessStore((s) => s._migrate as () => void);
 
   const [showChangelog, setShowChangelog] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(userName);
+
+  // v4.0 Migration: Scrub emojis on load
+  useEffect(() => {
+    if (migrateWellness) migrateWellness();
+  }, [migrateWellness]);
 
   const currentVersion = useMemo(() => Constants.expoConfig?.version || '1.0.0', []);
 
-  const handleExportBugReport = async () => {
-    if (isExporting) {
-      return;
+  const handleUpdateName = () => {
+    if (tempName.trim()) {
+      setUserName(tempName.trim());
+      setIsEditingName(false);
     }
+  };
 
+  const handleExportBugReport = async () => {
+    if (isExporting) return;
     try {
       setIsExporting(true);
       await logRuntimeEvent('settings_export_bug_report_start');
-
       const positivity = usePositivityStore.getState();
       const session = useSessionStore.getState();
       const todo = useTodoStore.getState();
@@ -113,25 +218,18 @@ export default function SettingsScreen() {
         'Session Snapshot',
         `activeRuleId: ${session.activeRuleId ?? 'none'}`,
         `phase: ${session.phase}`,
-        `pausedAt: ${session.pausedAt ?? 'none'}`,
         '',
         'Positivity Snapshot',
         `weeklyScore: ${positivity.weeklyScore}`,
         `lifetimeScore: ${positivity.lifetimeScore}`,
         `weeklyStreak: ${positivity.weeklyStreak}`,
-        `currentLevel: ${positivity.currentLevel}`,
-        `rulesUsedCount: ${positivity.rulesUsed.length}`,
         '',
         'Todo Snapshot',
         `totalTodos: ${todo.todos.length}`,
-        `activeTodos: ${todo.todos.filter((x) => !x.completed).length}`,
-        `completedTodos: ${todo.todos.filter((x) => x.completed).length}`,
         '',
         'Settings Snapshot',
+        `userName: ${settings.userName}`,
         `autoCheckUpdates: ${settings.autoCheckUpdates}`,
-        `notificationsEnabled: ${settings.notificationsEnabled}`,
-        `soundEnabled: ${settings.soundEnabled}`,
-        `hapicsEnabled: ${settings.hapicsEnabled}`,
         '',
         'Runtime Logs',
         ...(runtimeLogs.length
@@ -140,29 +238,19 @@ export default function SettingsScreen() {
       ].join('\n');
 
       const baseDir = FileSystem.documentDirectory || FileSystem.cacheDirectory;
-      if (!baseDir) {
-        throw new Error('No writable directory available.');
-      }
+      if (!baseDir) throw new Error('No writable directory available.');
 
       const fileUri = `${baseDir}product-ive-bug-report-${Date.now()}.txt`;
-      await FileSystem.writeAsStringAsync(fileUri, report, {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
+      await FileSystem.writeAsStringAsync(fileUri, report, { encoding: FileSystem.EncodingType.UTF8 });
 
       if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: 'text/plain',
-          dialogTitle: 'Share bug report',
-        });
+        await Sharing.shareAsync(fileUri, { mimeType: 'text/plain', dialogTitle: 'Share bug report' });
       } else {
         Alert.alert('Bug report saved', `Saved to:\n${fileUri}`);
       }
-
       await logRuntimeEvent('settings_export_bug_report_success', { fileUri });
     } catch (error) {
-      await logRuntimeEvent('settings_export_bug_report_error', {
-        message: error instanceof Error ? error.message : 'unknown',
-      });
+      logRuntimeEvent('settings_export_bug_report_error', { message: error instanceof Error ? error.message : 'unknown' });
       Alert.alert('Export failed', 'Could not export bug report.');
     } finally {
       setIsExporting(false);
@@ -171,194 +259,186 @@ export default function SettingsScreen() {
 
   const handleCheckUpdates = async () => {
     if (isCheckingUpdates) return;
-
     try {
       setIsCheckingUpdates(true);
-      await logRuntimeEvent('settings_check_updates_start');
-
       const updateInfo = await UpdateManager.checkForUpdates();
-
       if (updateInfo.isAvailable) {
-        Alert.alert(
-          'Update Available',
-          `A new version (${updateInfo.latestVersion}) is available.\n\n${updateInfo.releaseNotes}`,
-          [
-            { text: 'Later', style: 'cancel' },
-            {
-              text: 'Update Now',
-              onPress: async () => {
-                try {
-                  await UpdateManager.downloadAndInstall();
-                } catch (e) {
-                  Alert.alert('Update Failed', 'Could not install the update. Please try again later.');
-                  await logRuntimeEvent('settings_update_install_error', {
-                    message: e instanceof Error ? e.message : 'unknown',
-                  });
-                }
-              },
-            },
-          ]
-        );
+        Alert.alert('Update Available', `New version (${updateInfo.latestVersion}) available.\n\n${updateInfo.releaseNotes}`, [
+          { text: 'Later', style: 'cancel' },
+          { text: 'Update Now', onPress: () => UpdateManager.downloadAndInstall() },
+        ]);
       } else {
-        Alert.alert('Up to Date', `You are running the latest version (${updateInfo.currentVersion}).`);
+        Alert.alert('Up to Date', `Running latest version (${updateInfo.currentVersion}).`);
       }
-
-      await logRuntimeEvent('settings_check_updates_success', { isAvailable: updateInfo.isAvailable });
     } catch (error) {
-      await logRuntimeEvent('settings_check_updates_error', {
-        message: error instanceof Error ? error.message : 'unknown',
-      });
-      Alert.alert('Check Failed', 'Could not check for updates. Please try again later.');
+      Alert.alert('Check Failed', 'Could not check for updates.');
     } finally {
       setIsCheckingUpdates(false);
     }
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: t.bg, paddingTop: insets.top }]}>
+    <View style={[styles.container, { backgroundColor: t.isDark ? '#000' : t.bg, paddingTop: insets.top }]}>
       <View style={styles.topBar}>
         <Pressable
           onPress={() => router.back()}
-          style={[
-            styles.iconBtn,
-            {
-              backgroundColor: t.isDark ? 'rgba(242,241,238,0.08)' : 'rgba(13,13,13,0.06)',
-              borderColor: t.border,
-            },
-          ]}
+          style={[styles.iconBtn, { backgroundColor: t.surfaceLow, borderColor: t.border }]}
         >
           <ArrowLeft size={18} color={t.ink} strokeWidth={2} />
         </Pressable>
-        <Text style={[styles.title, { color: t.ink }]}>Settings</Text>
+        <ThemedText variant="h3">Settings</ThemedText>
         <View style={styles.iconBtnPlaceholder} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[styles.sectionCard, { backgroundColor: t.card, borderColor: t.border }]}>
-          <Text style={[styles.sectionTitle, { color: t.ink }]}>Appearance</Text>
-          <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: t.ink }]}>Theme</Text>
-            <View style={styles.rowControl}>
-              <Text style={[styles.rowValue, { color: t.inkMid }]}>{t.mode === 'dark' ? 'Dark' : 'Light'}</Text>
-              <Switch
-                value={t.mode === 'dark'}
-                onValueChange={() => {
-                  t.toggle();
-                  logRuntimeEvent('settings_toggle_theme', { next: t.mode === 'dark' ? 'light' : 'dark' }).catch(
-                    () => {}
-                  );
-                }}
-                trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
-                thumbColor={t.mode === 'dark' ? '#FFFFFF' : '#F2F1EE'}
-              />
-            </View>
+        <View style={[styles.identityCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
+          <View style={[styles.avatarBox, { backgroundColor: t.surfaceHigh }]}>
+            <UserIcon size={24} color={t.positivity} />
+          </View>
+          <View style={styles.nameInputContainer}>
+            <TextInput
+              value={tempName}
+              onChangeText={setTempName}
+              onFocus={() => setIsEditingName(true)}
+              placeholder="Your name"
+              placeholderTextColor={t.textSecondary}
+              style={[styles.nameInput, { color: t.text }]}
+              onSubmitEditing={handleUpdateName}
+            />
+            {isEditingName ? (
+              <Pressable 
+                onPress={handleUpdateName}
+                style={[
+                  styles.saveBtn, 
+                  { 
+                    backgroundColor: t.positivity,
+                    width: 60,
+                    borderRadius: 12
+                  }
+                ]}
+              >
+                <ThemedText variant="label" style={{ color: '#000', fontWeight: '800' }}>Done</ThemedText>
+              </Pressable>
+            ) : (
+              <ChevronRight size={16} color={t.textDisabled} style={{ opacity: 0.5 }} />
+            )}
           </View>
         </View>
 
-        <View style={[styles.sectionCard, { backgroundColor: t.card, borderColor: t.border }]}>
-          <Text style={[styles.sectionTitle, { color: t.ink }]}>Support</Text>
-
-          <Pressable style={styles.actionRow} onPress={handleExportBugReport}>
-            <View style={styles.actionLeft}>
-              <Bug size={18} color={t.ink} />
-              <Text style={[styles.rowLabel, { color: t.ink }]}>Report bug</Text>
-            </View>
-            {isExporting ? <ActivityIndicator color={t.ink} /> : <Text style={[styles.rowValue, { color: t.inkMid }]}>Export .txt</Text>}
-          </Pressable>
-
-          <Pressable style={styles.actionRow} onPress={handleCheckUpdates} disabled={isCheckingUpdates}>
-            <View style={styles.actionLeft}>
-              <Download size={18} color={t.ink} />
-              <Text style={[styles.rowLabel, { color: t.ink }]}>Check for updates</Text>
-            </View>
-            {isCheckingUpdates ? <ActivityIndicator color={t.ink} /> : <Text style={[styles.rowValue, { color: t.inkMid }]}>Auto</Text>}
-          </Pressable>
-
-          <Pressable style={styles.actionRow} onPress={() => setShowChangelog((prev) => !prev)}>
-            <View style={styles.actionLeft}>
-              <CircleAlert size={18} color={t.ink} />
-              <Text style={[styles.rowLabel, { color: t.ink }]}>Changelog</Text>
-            </View>
-            <Text style={[styles.rowValue, { color: t.inkMid }]}>v{currentVersion}</Text>
-          </Pressable>
-
-          {showChangelog && (
-            <View style={[styles.expandBox, { borderColor: t.border }]}>
-              <Text style={[styles.expandTitle, { color: t.ink }]}>Current version changes</Text>
-              {CURRENT_VERSION_CHANGES.map((item, index) => (
-                <Text key={index} style={[styles.expandLine, { color: t.inkMid }]}>
-                  {index + 1}. {item}
-                </Text>
-              ))}
-            </View>
-          )}
-
-          <Pressable style={styles.actionRow} onPress={() => setShowAbout((prev) => !prev)}>
-            <View style={styles.actionLeft}>
-              <Info size={18} color={t.ink} />
-              <Text style={[styles.rowLabel, { color: t.ink }]}>About</Text>
-            </View>
-            <Text style={[styles.rowValue, { color: t.inkMid }]}>App info</Text>
-          </Pressable>
-
-          {showAbout && (
-            <View style={[styles.expandBox, { borderColor: t.border }]}>
-              <Text style={[styles.expandTitle, { color: t.ink }]}>Product +ive</Text>
-              <Text style={[styles.expandLine, { color: t.inkMid }]}>Version: {currentVersion}</Text>
-              <Text style={[styles.expandLine, { color: t.inkMid }]}>Rules that work. Habits that last.</Text>
-              <Text style={[styles.expandLine, { color: t.inkMid }]}>
-                Offline-first productivity app with guided rule engines and positivity tracking.
-              </Text>
-              <Text style={[styles.expandLine, { color: t.inkMid, marginTop: 12, fontWeight: '600' }]}>
-                Created by Aadarsh Lokhande
-              </Text>
-            </View>
-          )}
+        {/* Section: Appearance */}
+        <View style={[styles.sectionCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
+          <ThemedText variant="label" color={t.inkDim} style={{ marginBottom: 4 }}>Appearance</ThemedText>
+          <View style={styles.row}>
+            <ThemedText variant="body" color={t.ink}>Dark Mode</ThemedText>
+            <Switch
+              value={t.mode === 'dark'}
+              onValueChange={t.toggle}
+              trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
+              thumbColor={t.mode === 'dark' ? '#FFFFFF' : '#F2F1EE'}
+            />
+          </View>
         </View>
 
-        <View style={[styles.sectionCard, { backgroundColor: t.card, borderColor: t.border }]}>
-          <Text style={[styles.sectionTitle, { color: t.ink }]}>Wellness Reminders</Text>
+        {/* Section: Wellness */}
+        <View style={[styles.sectionCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
+          <ThemedText variant="label" color={t.inkDim}>Biological Optimization</ThemedText>
+          <WellnessNotificationsSection />
+        </View>
+
+        {/* Section: Hardware & Interaction */}
+        <View style={[styles.sectionCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
+          <ThemedText variant="label" color={t.inkDim}>Hardware & Interaction</ThemedText>
           <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: t.ink }]}>Vibration</Text>
+            <View style={{ flex: 1 }}>
+              <ThemedText variant="body" color={t.ink}>Haptic Feedback</ThemedText>
+              <ThemedText variant="caption" color={t.inkDim}>Tactile physical cues</ThemedText>
+            </View>
             <Switch
               value={useWellnessStore((s) => s.vibrationEnabled)}
-              onValueChange={(value) => {
-                useWellnessStore.getState().setVibrationEnabled(value);
-                logRuntimeEvent('settings_toggle_vibration', { value }).catch(() => {});
-              }}
+              onValueChange={(v) => useWellnessStore.getState().setVibrationEnabled(v)}
               trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
               thumbColor={useWellnessStore((s) => s.vibrationEnabled) ? '#FFFFFF' : '#F2F1EE'}
             />
           </View>
-          <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: t.ink }]}>Sound</Text>
-            <Switch
-              value={useWellnessStore((s) => s.soundEnabled)}
-              onValueChange={(value) => {
-                useWellnessStore.getState().setSoundEnabled(value);
-                logRuntimeEvent('settings_toggle_wellness_sound', { value }).catch(() => {});
-              }}
-              trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
-              thumbColor={useWellnessStore((s) => s.soundEnabled) ? '#FFFFFF' : '#F2F1EE'}
-            />
-          </View>
-          <WellnessNotificationsSection />
         </View>
 
-        <View style={[styles.sectionCard, { backgroundColor: t.card, borderColor: t.border }]}>
-          <Text style={[styles.sectionTitle, { color: t.ink }]}>Updater</Text>
-          <View style={styles.row}>
-            <Text style={[styles.rowLabel, { color: t.ink }]}>Auto check updates</Text>
-            <Switch
-              value={autoCheckUpdates}
-              onValueChange={(value) => {
-                setAutoCheckUpdates(value);
-                logRuntimeEvent('settings_toggle_auto_update', { value }).catch(() => {});
-              }}
-              trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
-              thumbColor={autoCheckUpdates ? '#FFFFFF' : '#F2F1EE'}
-            />
-          </View>
+        {/* Section: System & Support */}
+        <View style={[styles.sectionCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
+          <ThemedText variant="label" color={t.inkDim}>System</ThemedText>
+          
+          <Pressable style={styles.actionRow} onPress={handleExportBugReport}>
+            <View style={styles.actionLeft}>
+              <Bug size={18} color={t.inkMid} />
+              <ThemedText variant="body">Diagnostics</ThemedText>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              {isExporting ? <ActivityIndicator size="small" /> : <ThemedText variant="caption" color={t.inkDim}>Export Logs</ThemedText>}
+              <ChevronRight size={16} color={t.inkDim} style={{ opacity: 0.3 }} />
+            </View>
+          </Pressable>
+
+          <Pressable style={styles.actionRow} onPress={handleCheckUpdates}>
+            <View style={styles.actionLeft}>
+              <Download size={18} color={t.inkMid} />
+              <ThemedText variant="body">Software Update</ThemedText>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              {!isCheckingUpdates && (
+                <>
+                  <ThemedText variant="caption" color={t.inkDim}>Latest</ThemedText>
+                  <ChevronRight size={16} color={t.inkDim} style={{ opacity: 0.3 }} />
+                </>
+              )}
+              {isCheckingUpdates && <ActivityIndicator size="small" />}
+            </View>
+          </Pressable>
+
+          <Pressable style={styles.actionRow} onPress={() => setShowChangelog(!showChangelog)}>
+            <View style={styles.actionLeft}>
+              <CircleAlert size={18} color={t.inkMid} />
+              <ThemedText variant="body">What's New</ThemedText>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <ThemedText variant="caption" color={t.inkDim}>History</ThemedText>
+              <ChevronRight size={16} color={t.inkDim} style={{ transform: [{ rotate: showChangelog ? '90deg' : '0deg' }], opacity: 0.3 }} />
+            </View>
+          </Pressable>
+
+          {showChangelog && (
+            <View style={[styles.expandBox, { backgroundColor: t.surfaceLow }]}>
+              {CURRENT_VERSION_CHANGES.map((txt, i) => (
+                <ThemedText key={i} variant="caption" style={{ marginBottom: 4 }}>• {txt}</ThemedText>
+              ))}
+            </View>
+          )}
+
+          <Pressable style={styles.actionRow} onPress={() => setShowAbout(!showAbout)}>
+            <View style={styles.actionLeft}>
+              <Info size={18} color={t.inkMid} />
+              <ThemedText variant="body">Protocol Details</ThemedText>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <ThemedText variant="caption" color={t.inkDim}>About</ThemedText>
+              <ChevronRight size={16} color={t.inkDim} style={{ transform: [{ rotate: showAbout ? '90deg' : '0deg' }], opacity: 0.3 }} />
+            </View>
+          </Pressable>
+
+          {showAbout && (
+            <View style={[styles.expandBox, { backgroundColor: t.surfaceLow }]}>
+              <ThemedText variant="body" style={{ fontWeight: '700' }}>Productive+</ThemedText>
+              <ThemedText variant="caption">Rules and habits designed for cognitive excellence.</ThemedText>
+              <ThemedText variant="caption" style={{ marginTop: 8 }}>Created by Aadarsh Lokhande</ThemedText>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.footer}>
+          <ThemedText variant="caption" color={t.textDisabled} align="center">
+            VERSION {currentVersion}
+          </ThemedText>
+          <ThemedText variant="caption" color={t.textDisabled} align="center" style={{ marginTop: 4, letterSpacing: 1 }}>
+             PRISTINE PRECISION • v4.4.0
+          </ThemedText>
         </View>
       </ScrollView>
     </View>
@@ -375,102 +455,105 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
   },
-  iconBtnPlaceholder: {
-    width: 36,
-    height: 36,
-  },
-  title: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 20,
-    letterSpacing: -0.02,
-  },
+  iconBtnPlaceholder: { width: 40 },
   content: {
-    paddingHorizontal: 16,
-    paddingBottom: 28,
-    gap: 12,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    gap: 16,
   },
   sectionCard: {
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    gap: 10,
-  },
-  sectionTitle: {
-    fontFamily: 'Manrope_700Bold',
-    fontSize: 14,
-    letterSpacing: -0.02,
+    padding: 16,
+    borderRadius: tokens.radius.lg,
+    borderWidth: 1,
+    marginBottom: 16,
   },
   row: {
-    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 10,
-  },
-  rowControl: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+    minHeight: 44,
   },
   actionRow: {
-    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 10,
+    minHeight: 48,
   },
   actionLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    flex: 1,
-  },
-  rowLabel: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: 14,
-  },
-  rowValue: {
-    fontFamily: 'JetBrainsMono_500Medium',
-    fontSize: 12,
+    gap: 12,
   },
   expandBox: {
-    borderTopWidth: 1,
-    paddingTop: 10,
-    gap: 6,
+    marginTop: 4,
+    padding: 12,
+    borderRadius: 16,
   },
-  expandTitle: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: 13,
-  },
-  expandLine: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 12,
-    lineHeight: 18,
+  notificationInner: {
+    paddingVertical: 8,
   },
   notificationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 12,
+  },
+  footer: {
+    marginTop: 20,
+    paddingBottom: 20,
+  },
+  identityCard: {
+    padding: 16,
+    borderRadius: tokens.radius.lg,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  avatarBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nameInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 16,
+    gap: 8,
+  },
+  nameInput: {
+    flex: 1,
+    fontSize: 20,
+    fontFamily: 'PlusJakartaSans_600SemiBold',
+    paddingVertical: 8,
+  },
+  saveBtn: {
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timePill: {
+    paddingHorizontal: 12,
     paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
   },
-  notificationLabel: {
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: 13,
-  },
-  notificationDesc: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 11,
-    marginTop: 2,
-  },
-  intervalLabel: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: 11,
-  },
+  notificationWarning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 8,
+  }
 });
