@@ -396,7 +396,7 @@ export default function SettingsScreen() {
           <Pressable style={styles.actionRow} onPress={() => setShowChangelog(!showChangelog)}>
             <View style={styles.actionLeft}>
               <CircleAlert size={18} color={t.inkMid} />
-              <ThemedText variant="body">What's New</ThemedText>
+              <ThemedText variant="body">What&apos;s New</ThemedText>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <ThemedText variant="caption" color={t.inkDim}>History</ThemedText>

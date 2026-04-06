@@ -66,7 +66,7 @@ export function SessionReflection({ visible, onClose, ruleName }: SessionReflect
 
           <BentoCard variant="default" style={{ backgroundColor: t.surfaceLow, padding: 16, marginBottom: 24 }}>
              <ThemedText variant="caption" color={t.textSecondary} style={{ fontStyle: 'italic' }}>
-               "You focus best in 25–40 min sessions based on your biological peak."
+               &quot;You focus best in 25–40 min sessions based on your biological peak.&quot;
              </ThemedText>
           </BentoCard>
 

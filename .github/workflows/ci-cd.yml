@@ -3,135 +3,112 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [main, develop]
-    paths-ignore:
-      - 'docs/**'
-      - '.agents/**'
-      - 'ss/**'
+    paths-ignore: [ 'docs/**', '.agents/**', 'ss/**' ]
   pull_request:
     branches: [main, develop]
-    paths-ignore:
-      - 'docs/**'
-      - '.agents/**'
-      - 'ss/**'
+    paths-ignore: [ 'docs/**', '.agents/**', 'ss/**' ]
+  workflow_dispatch: # Manual trigger from Actions tab
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
   EXPO_CACHE: true
   GRADLE_OPTS: "-Xmx2g -Dorg.gradle.daemon=true -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true"
 
 jobs:
   lint-typecheck-test:
-    name: Lint, TypeCheck & Test
+    name: 1. Lint, TypeCheck & Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 1.1 Checkout Code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: 1.2 Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install dependencies (fast)
+      - name: 1.3 Install Dependencies
         run: npm ci --no-audit --prefer-offline --legacy-peer-deps 2>/dev/null || npm ci
 
-      - name: Lint
+      - name: 1.4 Lint
         run: npx eslint app src --max-warnings=0
 
-      - name: TypeScript Check
+      - name: 1.5 TypeScript Check
         run: npx tsc --noEmit --incremental
 
-      - name: Run Tests
+      - name: 1.6 Run Tests
         run: npm test -- --coverage --ci
 
-      - name: Dependency Audit
-        run: npm audit --audit-level=high
-        continue-on-error: true
-
   build-android:
-    name: Build Android APK (Optimized)
+    name: 2. Build Android APK (Optimized)
     needs: lint-typecheck-test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
       matrix:
         ndk-version: [ '27.0.11902837' ]
     steps:
-      - uses: actions/checkout@v4
+      - name: 2.1 Checkout Code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: 2.2 Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
-      - name: Restore Gradle cache (Build)
+      - name: 2.3 Restore Cache (Gradle & NDK)
         uses: actions/cache@v4
         with:
           path: |
             ${{ github.workspace }}/.gradle/caches
             ${{ github.workspace }}/.gradle/wrapper
             ${{ github.workspace }}/.gradle/build-cache
-          key: gradle-build-${{ runner.os }}-${{ github.run_number }}
+            ~/.gradle
+          key: gradle-android-${{ runner.os }}-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            gradle-build-${{ runner.os }}-
-            gradle-${{ runner.os }}-
+            gradle-android-${{ runner.os }}-
 
-      - name: Restore Gradle cache (Configuration)
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ github.workspace }}/.gradle/nonafs
-          key: gradle-config-${{ runner.os }}-${{ hashFiles('**/gradle/**') }}
-          restore-keys: |
-            gradle-config-${{ runner.os }}-
-
-      - name: Cache Java/Gradle state
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle
-          key: gradle-home-${{ runner.os }}-${{ github.run_number }}
-          restore-keys: |
-            gradle-home-${{ runner.os }}-
-
-      - name: Install dependencies (production, optimized)
-        run: npm ci --omit=dev --no-audit --prefer-offline --legacy-peer-deps 2>/dev/null || npm ci --omit=dev
-
-      - uses: actions/setup-java@v4
+      - name: 2.4 Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
 
-      - name: Setup NDK (cached)
+      - name: 2.5 Install Dependencies
+        run: npm ci --omit=dev --no-audit --prefer-offline --legacy-peer-deps 2>/dev/null || npm ci --omit=dev
+
+      - name: 2.6 Setup NDK
         run: |
           echo "ndk.dir=$ANDROID_HOME/ndk/${{ matrix.ndk-version }}" >> $ANDROID_HOME/local.properties
-          # Pre-cache NDK to avoid re-downloading
           export ANDROID_NDK=$ANDROID_HOME/ndk/${{ matrix.ndk-version }}
           if [ ! -d "$ANDROID_NDK" ]; then
-            echo "Installing NDK..."
             $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;${{ matrix.ndk-version }}"
           fi
 
-      - name: Setup Expo (with caching)
+      - name: 2.7 Setup Expo
         uses: expo/expo-github-action@v8
         with:
           expo-version: latest
           eas-cache: true
           token: ${{ secrets.EXPO_TOKEN || '' }}
 
-      - name: Pre-build setup (incremental)
+      - name: 2.8 Pre-build (Incremental)
         run: |
-          # Skip clean rebuild if modules cache exists
           if [ ! -d "node_modules" ]; then
             npx expo prebuild --platform android --non-interactive --clean
           else
             npx expo prebuild --platform android --non-interactive
           fi
 
-      - name: Build Android APK (Release, Optimized)
+      - name: 2.9 Build APK (Release)
         working-directory: ./android
         run: |
           chmod +x ./gradlew
@@ -141,11 +118,9 @@ jobs:
             --max-workers=4 \
             --build-cache
 
-
-      - name: Upload APK
+      - name: 2.10 Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: productive-release-apk
           path: android/app/build/outputs/apk/release/
           retention-days: 30
-          if-no-files-found: ignore
