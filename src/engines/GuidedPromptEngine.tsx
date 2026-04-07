@@ -5,7 +5,6 @@ import { ThemedText } from '../components/ThemedText';
 
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
-import { usePositivityStore } from '../store/positivityStore';
 import { useTheme } from '../theme/ThemeContext';
 
 interface EngineProps {
@@ -139,7 +138,6 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
 
   const handleComplete = () => {
     session.endSession();
-    usePositivityStore.getState().addPoints(rule.pointsPerSession || 15, 'rule_session', rule.id);
     setSessionStarted(false);
     setCurrentStep(0);
     setResponses({});

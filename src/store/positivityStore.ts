@@ -2,6 +2,12 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export interface ReflectionEntry {
+  ruleId: string;
+  score: number;
+  createdAt: string;
+}
+
 export interface PositivityStore {
   weeklyScore: number;
   lifetimeScore: number;
@@ -13,8 +19,10 @@ export interface PositivityStore {
   dismissedRecommendations: string[];
   weeklySessionsCompleted: number;
   weeklyFocusTimeSeconds: number;
+  reflectionEntries: ReflectionEntry[];
   addPoints: (amount: number, source: string, ruleId?: string) => void;
   addSessionMetric: (durationSeconds: number) => void;
+  addReflectionScore: (ruleId: string, score: number) => void;
   markRuleUsed: (ruleId: string) => boolean;
   checkAndResetWeekly: () => void;
   dismissRecommendation: (ruleId: string) => void;
@@ -76,11 +84,24 @@ export const usePositivityStore = create<PositivityStore>()(
       dismissedRecommendations: [],
       weeklySessionsCompleted: 0,
       weeklyFocusTimeSeconds: 0,
+      reflectionEntries: [],
 
       addSessionMetric: (durationSeconds) => {
         set((state) => ({
           weeklySessionsCompleted: state.weeklySessionsCompleted + 1,
           weeklyFocusTimeSeconds: state.weeklyFocusTimeSeconds + durationSeconds,
+        }));
+      },
+
+      addReflectionScore: (ruleId, score) => {
+        const clamped = Math.max(1, Math.min(5, Math.round(score)));
+        const entry: ReflectionEntry = {
+          ruleId,
+          score: clamped,
+          createdAt: new Date().toISOString(),
+        };
+        set((state) => ({
+          reflectionEntries: [...state.reflectionEntries, entry].slice(-200),
         }));
       },
 

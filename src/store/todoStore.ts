@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePositivityStore } from './positivityStore';
+import { insertPointEvents } from '../db/sessionRepository';
+import { logRuntimeEvent } from '../utils/runtimeLogs';
 
 export interface Todo {
   id: string;
@@ -62,6 +64,12 @@ export const useTodoStore = create<TodoStore>()(
         // Reward points on completion
         if (!wasCompleted) {
           usePositivityStore.getState().addPoints(10, 'task_completion');
+          insertPointEvents([{ amount: 10, source: 'task_completion' }]).catch((error) => {
+            logRuntimeEvent('sqlite_task_point_event_insert_failed', {
+              message: error instanceof Error ? error.message : 'unknown',
+              todoId: id,
+            }).catch(() => {});
+          });
         }
       },
 

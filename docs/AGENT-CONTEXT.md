@@ -1,123 +1,107 @@
 # Product +ive - Agent Handoff Context
 
 > Last Updated: 2026-04-07 (IST)
-> Updated By: Antigravity
+> Updated By: Codex
 
 ## 1) Current Snapshot
 
 - Branch: `main`
-- Working tree: clean
-- Focus of this handoff: Finalizing v1.0.0 release by integrating native `@notifee` foreground timer logic, fixing static UI countdown bugs, and restoring GitHub Action pipeline stability.
+- Working tree: expected dirty during this session (stabilization + docs sync + test infra)
+- Focus of this handoff: complete pending implementation gaps and resolve code/doc mismatches with verification-first workflow.
 
 ## 2) Completed In This Session
 
-### CI/CD & Pipeline
-- Removed erroneous `@notifee/react-native` plugin reference from `app.json` plugins array, which previously caused `expo prebuild` to panic and fail.
-- Restored successful continuous delivery pipeline for automatic APK generation via SDK 50+ autolinking.
+### A) Core risk fixes
 
-### Architecture (Timers)
-- Transitioned JS-bound `SessionStatusBadge` timers to native-OS rendering via `@notifee/react-native`.
-- Sticky notifications orchestrate accurate Android Chronometers ticking identically to application duration lengths natively.
-- Eliminated all static `25:00` display defaults by explicitly parsing variable lengths across `engineConfig.workDuration` and `intervalMinutes`.
-- Application correctly handles 2-min, 90-min, and 25-min UI countdowns natively.
-- **Critical Fix**: React Native JS Thread is purposely kept awake using Top-Level Headless Tasks (`notifee.registerForegroundService` inside `_layout.tsx`). This empowers native chronometers to be manually halted via standard `setTimeout` exactly when reaching 0, circumventing Android's tendency to count endlessly into negative numbers (`-00:22`).
+- Removed duplicate session points awarding in:
+  - `src/engines/CountdownEngine.tsx`
+  - `src/engines/GuidedPromptEngine.tsx`
+- Reflection score now persists to positivity history.
+- Onboarding step typing corrected (removed unused `availability` union member).
 
-### UX/UI
-- Home:
-  - Kept right-side settings action
-  - Normalized brand to `Product +ive`
-- Settings:
-  - Theme toggle
-  - Bug report export (`.txt`) with runtime log data
-  - Changelog (current version only) + About
-- Bottom nav:
-  - Home-only visibility
-  - Uniform icons and plus style (old white circle removed)
-- Todo:
-  - Overlap with bottom nav fixed by route-aware nav behavior and spacing
-- Explore:
-  - Text overflow/clip fixes
-  - Stable icon rendering
-- Category/Rule:
-  - Category icons moved to stable Lucide mapping
-  - Rule-row arrow UI fixed (no oversized white circle)
-  - Safer title rendering and layout
+### B) SQLite persistence wiring
 
-### Crash / engine stability
+- Added DB bootstrap/migrations:
+  - `src/db/database.native.ts`
+- Added web-safe DB adapter + shared DB interfaces:
+  - `src/db/database.web.ts`
+  - `src/db/types.ts`
+- Added repositories:
+  - `src/db/sessionRepository.ts`
+- Wired session persistence from `sessionStore.endSession()`:
+  - writes `sessions`
+  - writes related `point_events`
+- Wired task-completion point-event persistence from `todoStore`.
+- Startup DB initialization added in `app/_layout.tsx`.
 
-- Replaced `GuidedPromptEngine` prompt parsing to safely handle:
-  - `prompts` arrays
-  - `steps` arrays (strings and objects)
-  - `sections` arrays
-  - single `prompt` fallback
-- This addresses the object-render crash path for some rules.
-- Updated `IntervalReminderEngine` to support both `interval` and `intervalMinutes`.
-- Updated reminder message mapping from `reminderMessage` or `prompt`.
+### C) Notifications/updater improvements
 
-### Data/text quality
+- Added `notifyNow()` in `NotificationManager`.
+- `IntervalReminderEngine` now emits immediate OS local notifications.
+- `UpdateManager` hardened:
+  - semantic version compare
+  - GitHub release APK asset detection
+  - real install handoff path (removed simulated timeout flow)
+- Settings update UX moved to themed modal actions.
 
-- Removed non-ASCII corruption in `app/` and `src/` source files.
-- Standardized visible typography usage with Syne / Plus Jakarta Sans / JetBrains Mono.
-- Removed unused legacy DM font packages.
+### D) Real automated test suite
 
-## 3) Validation Evidence
+- Replaced placeholder `npm test` script with Jest.
+- Added:
+  - `jest.config.js`
+  - `jest.setup.ts`
+  - `src/store/__tests__/positivityStore.test.ts`
+  - `src/store/__tests__/todoStore.test.ts`
+  - `src/store/__tests__/sessionStore.test.ts`
 
-- `npx eslint app src --max-warnings=0` -> PASS
+## 3) Validation Evidence (Session)
+
+- `npm test -- --coverage --ci` -> PASS
 - `npx tsc --noEmit` -> PASS
-- `npx expo-doctor` -> PASS (17/17)
+- `npx eslint app src --max-warnings=0` -> PASS
+- `npx expo-doctor` -> PASS (16/16)
 - `npx expo export --platform web --clear` -> PASS
+- `cd android && .\\gradlew.bat assembleRelease` -> FAIL (`SDK location not found` in current local environment)
 
-## 4) CI Deprecation Status
+## 4) Remaining Work / Known Gaps
 
-Remaining `npm ci` deprecation warnings are transitive and currently upstream:
-
-- `inflight@1.0.6`
-- `glob@7.2.3`
-- `rimraf@3.0.2`
-
-Current dependency chain (observed locally):
-
-- Expo CLI and React Native toolchain transitive packages.
-
-No direct app dependency currently pins these deprecated versions.
+1. Updater native PackageInstaller bridge is not yet implemented (current flow downloads APK and hands off through share/install intent path).
+2. Some engine reminder paths still rely on alert-style UX and are not fully unified.
+3. Session history UI is not yet surfaced from SQLite data.
+4. Some legacy docs still have historical claims/encoding artifacts and may need deeper cleanup.
+5. Local Android SDK path is not configured on this machine, so native release artifact build remains blocked until environment setup.
 
 ## 5) Important Files Changed In This Session
 
-- `.github/workflows/ci-cd.yml`
-- `app/settings.tsx`
-- `app/(tabs)/index.tsx`
-- `app/(tabs)/todo.tsx`
-- `app/(tabs)/explore.tsx`
-- `app/(tabs)/meter.tsx`
-- `app/category/[id].tsx`
-- `app/rule/[id].tsx`
+- `app/_layout.tsx`
 - `app/onboarding.tsx`
-- `src/components/BottomNav.tsx`
-- `src/components/CategoryCard.tsx`
-- `src/components/CategoryIcon.tsx` (new)
-- `src/components/RuleRow.tsx`
-- `src/data/categories.ts`
-- `src/data/rules.ts`
+- `app/settings.tsx`
+- `src/engines/CountdownEngine.tsx`
 - `src/engines/GuidedPromptEngine.tsx`
 - `src/engines/IntervalReminderEngine.tsx`
-- `src/engines/FreeWriteRecallEngine.tsx`
 - `src/store/positivityStore.ts`
 - `src/store/sessionStore.ts`
-- `src/utils/runtimeLogs.ts` (new)
+- `src/store/todoStore.ts`
+- `src/services/NotificationManager.ts`
+- `src/services/UpdateManager.ts`
+- `src/services/ForegroundTimerService.ts`
+- `src/db/database.native.ts` (new)
+- `src/db/database.web.ts` (new)
+- `src/db/database.ts` (fallback export)
+- `src/db/types.ts` (new)
+- `src/db/sessionRepository.ts` (new)
+- `jest.config.js` (new)
+- `jest.setup.ts` (new)
+- `src/store/__tests__/positivityStore.test.ts` (new)
+- `src/store/__tests__/todoStore.test.ts` (new)
+- `src/store/__tests__/sessionStore.test.ts` (new)
 - `package.json`
 - `package-lock.json`
-- `app.json`
+- `tsconfig.json`
+- `android/gradlew.bat`
 
-## 6) Remaining Work / Known Gaps
+## 6) Next-Agent Checklist
 
-1. Real automated tests are still not implemented (`npm test` placeholder).
-2. SQLite persistence and notification wiring remain incomplete.
-3. In-app updater logic remains planned, not shipped.
-4. Some docs still contain legacy encoding issues (outside core files updated in this session).
-
-## 7) Next-Agent Checklist
-
-1. Run `npm ci`.
-2. Run lint, typecheck, doctor, and export checks.
-3. Review latest GitHub Actions logs after push.
-4. Keep `docs/update-logs.md` and this file synchronized before ending session.
+1. Run full checks (`npm test`, lint, typecheck, doctor, export/build).
+2. Confirm push and monitor CI completion.
+3. Keep `docs/update-logs.md`, `CHANGELOG.md`, and this file synchronized with final outcomes.

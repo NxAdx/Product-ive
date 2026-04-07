@@ -1,6 +1,6 @@
 # Product+ive - Development Roadmap
 
-> Last Updated: 2026-04-02 (IST)
+> Last Updated: 2026-04-07 (IST)
 
 ## Status Summary
 
@@ -8,10 +8,10 @@
 - Phase 1: COMPLETE
 - Phase 2: COMPLETE
 - Phase 3: PARTIAL
-- Phase 4: PARTIAL (Persistence Refined)
-- Phase 5: PARTIAL (Updater Specs Ready)
-- Phase 6: COMPLETE (v1.0.0 Elite Polish)
-- Phase 7: IN PROGRESS (v1.0.0 Release)
+- Phase 4: PARTIAL
+- Phase 5: PARTIAL
+- Phase 6: COMPLETE
+- Phase 7: IN PROGRESS
 
 ## Phase 0 - Foundation (COMPLETE)
 
@@ -23,59 +23,67 @@
 
 ## Phase 1 - Core Screens (COMPLETE)
 
-- Home, Category, Rule, Todo, Explore, Meter screens
+- Home, Category, Rule, Todo, Explore, Stats screens
 - Bottom nav and route flow
-- Baseline responsive layout behavior
+- Responsive baseline layouts
 
 ## Phase 2 - Engines (COMPLETE)
 
 - All 7 engines implemented and integrated through rule routing
-- Engine-specific interactions and session controls
+- Engine-specific session interactions
 
 ## Phase 3 - Persistence + Integration (PARTIAL)
 
 Done:
-- Todo and positivity stores with AsyncStorage persistence
+- AsyncStorage-backed stores (todo, positivity, settings, wellness)
+- SQLite bootstrap + migration wiring
+- Session + point-event SQLite persistence
 
 Pending:
-- SQLite data model and repositories
-- Durable session history persistence
-- Stronger positivity/task integration events
+- Broader repository layer for full app data domains
+- Session history/query UI on top of SQLite data
 
-## Phase 4 - Notifications (NOT STARTED)
+## Phase 4 - Notifications (PARTIAL)
 
-- Schedule local reminders
-- Session/streak/review notification templates
-- Notification preference wiring
+Done:
+- Notification permission bootstrap
+- Wellness reminder scheduling to OS
+- Foreground chronometer session notifications
+- Immediate local notifications from interval engine reminders
 
-## Phase 5 - In-App Updater (NOT STARTED)
+Pending:
+- Rule/session/streak templates for all relevant engines and flows
+- Full replacement of remaining alert-based reminder UX
 
-- GitHub release version check
-- APK download and progress UI
-- Android install flow + fallback handling
-- Security checks and install permission flow
+## Phase 5 - In-App Updater (PARTIAL)
+
+Done:
+- GitHub latest release check
+- Semantic version comparison
+- APK asset discovery and download handoff flow
+- Settings update modal + install action
+
+Pending:
+- Native PackageInstaller direct-install bridge
+- OEM fallback hardening and installer permission guidance
 
 ## Phase 6 - Polish (COMPLETE)
 
-- ✅ **Retention Engine**: Post-session reflection modal with focus scoring (1-5).
-
-- ✅ **Semantic Discovery**: Explore screen re-architected with "Quick Wins", "Deep Work", and category-tinted borders.
-- ✅ **Gamification 2.0**: Daily Delta (+15 pts) and "🏆 Level:" rank branding.
-- ✅ **UI/UX Polish**: Unified any navigation to `ChevronRight` and standard Green (#22C55E).
-- ✅ **Metadata Discovery**: Multi-pill metadata (⏱ 25 min • Easy) on all rule cards.
-- ✅ **Friction Reduction**: "Quick Add" suggestions row in Commitments screen.
-- ✅ **Active Session State**: Pulsing timer indicator in status badge.
+- Onboarding flow integrated and routed
+- Timer/status UX stabilized
+- Explore, settings, and navigation polish completed
+- Reflection and recommendation UX improvements applied
 
 ## Phase 7 - Release Prep (IN PROGRESS)
 
-- Real automated test coverage
-- Play Store release pipeline and signing workflow
-- Regression passes and release checklist
+- Real automated tests are now in place (Jest store regression suite)
+- CI quality gates verified locally (lint, typecheck, tests)
+- Web export verification completed (`expo export --platform web --clear`)
+- Android release build tracking started; local environment currently missing valid Android SDK path
 
 ## Immediate Priority Order
 
-1. Implement real tests (replace placeholder `npm test`).
-2. Add SQLite schema + repositories.
-3. Wire notifications into rule/session lifecycle.
-4. Build updater implementation.
-5. Finish onboarding and screen polish.
+1. Complete native installer bridge for updater finalization.
+2. Expand notification lifecycle coverage across engines.
+3. Surface SQLite session history in UI.
+4. Raise CI quality bar with repository/integration test coverage.

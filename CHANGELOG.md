@@ -6,6 +6,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased] - 2026-04-07
+
+### Added
+
+- Real automated test suite with Jest + `jest-expo`:
+  - `jest.config.js`
+  - `jest.setup.ts`
+  - store regression tests for positivity/todo/session flows
+- SQLite bootstrap + migrations via `src/db/database.native.ts`.
+- Platform-safe SQLite web adapter via `src/db/database.web.ts` and `src/db/types.ts`.
+- SQLite session/point-event repositories via `src/db/sessionRepository.ts`.
+- `notifyNow()` utility for immediate local notification events.
+
+### Changed
+
+- `npm test` now runs Jest (replacing placeholder test script).
+- `UpdateManager` now performs semantic version comparison and release APK asset detection.
+- Settings updater UX now uses themed modal actions for update prompt/install trigger.
+- Interval reminders now issue local notifications through `NotificationManager`.
+
+### Fixed
+
+- Removed duplicate point awarding path in `CountdownEngine`.
+- Removed duplicate point awarding path in `GuidedPromptEngine`.
+- Session reflection score is now persisted into positivity state history.
+- Onboarding step type drift corrected (`availability` removed from union type).
+- Restored web export compatibility by avoiding `expo-sqlite` bundling on web paths.
+- Fixed `android/gradlew.bat` empty `CLASSPATH` bug preventing Gradle startup.
+
 ## [1.0.0] - 2026-04-06
 
 ### Release: Product +ive v1.0.0 — Pristine Precision & Elite Baseline 🚀
@@ -17,7 +46,7 @@ This is the definitive "v1.0.0" release of Product +ive, featuring the completio
 **✨ Pristine Precision Enhancements (Final Review Fixes)**
 - **Onboarding Flow Integration**: Fresh installations correctly route to the immersive Welcome & Setup screens.
 - **Dynamic Weekly Stats**: Hardcoded placeholders replaced with real-time tracking for Focus Sessions completed and Total Focus Time (hrs).
-- **Themed Global Modals**: Removed iOS/Android native alerts in favor of `AppModal` (e.g., used for the Custom Time Picker in Biological Optimization and Bug Reports).
+- **Themed Modal Adoption**: Expanded `AppModal` usage across key settings and custom picker flows for consistent UX.
 - **Intelligent Timer Countdown**: Activity badge timers automatically detect `countdown` or `interval` engine rules to run backwards relative to the configured limit rather than chronologically forward. All timer badges correctly scale to exact duration boundaries (e.g. 2 minutes vs 90 minutes).
 
 **🔥 Native OS Synchronization (NEW)**

@@ -33,6 +33,7 @@ import * as SystemUI from 'expo-system-ui';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { logRuntimeEvent } from '../src/utils/runtimeLogs';
 import { initializeNotifications, requestNotificationPermissions } from '../src/services/NotificationManager';
+import { initializeDatabase } from '../src/db/database';
 import notifee from '@notifee/react-native';
 
 // Register background task for Notifee strictly outside of React lifecycle.
@@ -94,6 +95,7 @@ function RootContent() {
     if (isReady) {
       (async () => {
         try {
+          await initializeDatabase();
           await initializeNotifications();
           await requestNotificationPermissions();
         } catch (error) {

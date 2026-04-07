@@ -130,6 +130,32 @@ export async function initializeNotifications(): Promise<void> {
 }
 
 /**
+ * Fire an immediate local notification for active in-app events.
+ */
+export async function notifyNow(
+  title: string,
+  body: string,
+  data?: Record<string, unknown>
+): Promise<void> {
+  const Notifications = getNotifications();
+  if (!Notifications) return;
+
+  try {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title,
+        body,
+        data: data || {},
+        sound: true,
+      },
+      trigger: null,
+    });
+  } catch (error) {
+    console.error('Error sending immediate notification:', error);
+  }
+}
+
+/**
  * Schedule or sync wellness reminders with the OS
  */
 export async function scheduleWellnessReminders(notifications: any[]): Promise<void> {

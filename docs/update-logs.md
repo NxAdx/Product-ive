@@ -4,10 +4,61 @@
 
 ---
 
+## 2026-04-07 - Stabilization Sprint: Pending Closure + Risk Fixes
+
+### Core correctness fixes
+- Removed duplicate session point attribution in:
+  - `src/engines/CountdownEngine.tsx`
+  - `src/engines/GuidedPromptEngine.tsx`
+- Persisted post-session reflection scores to positivity history (previously collected but not stored).
+- Cleaned onboarding step type drift (`availability` union member removed).
+
+### Persistence implementation
+- Added SQLite bootstrap + migrations (`src/db/database.native.ts`).
+- Added web-safe DB adapter (`src/db/database.web.ts`) to prevent web bundling failures.
+- Added session and point-event repositories (`src/db/sessionRepository.ts`).
+- Wired session completion persistence in `sessionStore`.
+- Wired todo completion point-event persistence in `todoStore`.
+- Added startup DB initialization in `app/_layout.tsx`.
+
+### Build closure updates
+- Fixed broken Android wrapper startup by restoring `CLASSPATH` in `android/gradlew.bat`.
+- Resolved web export blocker caused by SQLite web worker resolution path.
+- Current local Android release build is blocked by missing SDK path (`ANDROID_SDK_ROOT` points to non-existent directory on this machine).
+
+### Notifications and updater
+- Added immediate local notification helper `notifyNow()` in `NotificationManager`.
+- Interval reminders now trigger OS local notifications instead of relying only on alert prompts.
+- Hardened updater:
+  - semantic version comparison
+  - APK asset detection from GitHub release payload
+  - real download/install handoff path (removed simulated timeout install flow)
+- Settings update action now uses themed modal UX.
+
+### Automated testing
+- Replaced placeholder test script with Jest.
+- Added:
+  - `jest.config.js`
+  - `jest.setup.ts`
+  - store regression tests for positivity/todo/session logic
+
+### Validation
+- `npm test -- --coverage --ci` -> PASS
+- `npx tsc --noEmit` -> PASS
+- `npx eslint app src --max-warnings=0` -> PASS
+- `npx expo-doctor` -> PASS (16/16)
+- `npx expo export --platform web --clear` -> PASS
+- `cd android && .\\gradlew.bat assembleRelease` -> FAIL (environment: Android SDK location not configured)
+
+### Documentation synchronization
+- Updated: `CHANGELOG.md`, `docs/implementation.md`, `docs/roadmap.md`, `docs/requirements.md`,
+  `docs/AGENT-CONTEXT.md`, `docs/architecture.md`, `docs/testing-strategy.md`, `docs/feature-list.md`.
+- Corrected outdated assumptions in status docs where implementation had already moved forward.
+
 ## 2026-04-07 - Pristine Precision & v1.0.0 Release
 
 ### Stabilization & Polish
-- **Pristine Precision Unification**: Removed native mobile alerts globally in favor of a unified `<AppModal>` theme system.
+- **Pristine Precision Unification**: Expanded unified `<AppModal>` usage across key settings and custom picker flows.
 - **Onboarding Pipeline Fixed**: Connected `onboarded` async storage explicitly inside `_layout.tsx` to launch the Setup Wizard cleanly.
 - **Dynamic Session Metrics:** Swapped the Weekly Summary from hard-coded stats to real-time `positivityStore` trackers.
 - **Intelligent Timers**: Re-engineered internal badge timers to intelligently count DOWN backwards for constraints like Pomodoro.

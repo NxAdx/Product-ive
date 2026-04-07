@@ -1,46 +1,53 @@
-﻿# Product+ive - Testing Strategy
+# Product+ive - Testing Strategy
 
-> Last Updated: 2026-04-02 (IST)
+> Last Updated: 2026-04-07 (IST)
 
 ## Current Reality
 
-- There is no real automated test suite yet.
-- `npm test` currently runs a placeholder script.
-- CI executes the placeholder test command, so it does not currently verify app behavior.
+- A real automated test suite is now configured with Jest.
+- `npm test` now executes Jest (not a placeholder script).
+- CI test step (`npm test -- --coverage --ci`) is now meaningful.
 
-## Target Testing Stack
+## Implemented Test Stack
 
-- Unit/component tests: Jest + React Native Testing Library
-- Integration tests: Jest (store + engine interactions)
-- E2E smoke tests: Maestro or Detox (later phase)
+- Test runner: Jest (`jest-expo` preset)
+- Coverage: Jest built-in coverage reports
+- Current suite focus: store-level regression tests
+  - positivity scoring/streak/reset
+  - todo completion scoring integration
+  - session scoring (including duplicate-point regression guard)
 
-## Priority Test Plan
+## Current Test Files
 
-### Priority 1 (must add first)
+- `src/store/__tests__/positivityStore.test.ts`
+- `src/store/__tests__/todoStore.test.ts`
+- `src/store/__tests__/sessionStore.test.ts`
 
-1. Engine behavior tests
-   - timer start/pause/end
-   - interval prompt scheduling
-   - guided prompt progression
-2. Store logic tests
-   - positivity scoring and streak updates
-   - todo add/toggle/remove flows
-3. Route-level smoke tests for key screens
-   - home
-   - todo
-   - rule detail
+## Next Testing Priorities
+
+### Priority 1
+
+1. Add SQLite repository tests (`src/db/*`).
+2. Add engine behavior tests for:
+   - countdown completion
+   - interval reminder notifications
+   - guided progression
+3. Add navigation/screen smoke tests for home/rule/settings routes.
 
 ### Priority 2
 
-1. Notifications scheduling logic tests
-2. SQLite repository tests once persistence layer is added
-3. Regression tests for onboarding and navigation edge cases
+1. Notification scheduling integration tests.
+2. Updater flow tests (version parse + asset selection + fallback paths).
+3. Onboarding and edge-case regression tests.
 
-## Proposed CI gate after tests are added
+## CI Gate (Current)
 
 - `npm ci`
 - `npx eslint app src --max-warnings=0`
 - `npx tsc --noEmit`
 - `npm test -- --coverage --ci`
 
-Once real tests exist, add a minimum coverage threshold in CI.
+## Planned CI Hardening
+
+1. Add minimum coverage threshold once repository/integration tests are expanded.
+2. Add dedicated build validation job outputs for release readiness tracking.

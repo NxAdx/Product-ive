@@ -130,12 +130,12 @@ app/
 
 ## 🛠️ Technology Stack
 
-- **Framework:** React Native 0.81
+- **Framework:** React Native 0.83.4
 - **Build Tool:** Expo SDK 55
 - **Language:** TypeScript (strict mode)
 - **Navigation:** Expo Router
 - **State Management:** Zustand
-- **Persistence:** AsyncStorage
+- **Persistence:** AsyncStorage + SQLite (native) + web-safe SQLite adapter
 - **Animations:** Reanimated 3
 - **Icons:** Lucide React Native
 - **CI/CD:** GitHub Actions
@@ -197,26 +197,22 @@ See `docs/PHASE3_RELEASE_CHECKLIST.md` for manual testing procedures.
 - Update manager service
 - Polish & refinement
 
-### Phase 3 Tier 1 ✅ Complete
-- Home screen features
-  - Stats Card
-  - Daily Tips
-  - Progress Bar
-- Comprehensive documentation
-- Release scripts
+### Phase 3 ⚙️ Partial (implemented + expanded)
+- Home experience enhancements
+- Real session metrics and scoring
+- SQLite bootstrap + session/point-event persistence with web-safe adapter split
+- Real automated tests (Jest) now active
 
-### Phase 3 Tier 2 📋 Planned (v1.1.0)
-- Smart recommendations
-- Weekly charts
-- Session indicators
-- Streak calendar
+### Phase 4 ⚙️ Partial
+- Notification permissions and wellness schedules wired
+- Immediate interval reminder notifications wired
+- Additional lifecycle notification coverage still pending
 
-### Phase 3 Tier 3 📋 Planned (v2.0.0)
-- Achievement badges
-- Leaderboards
-- Advanced analytics
-- Customization
-- SQLite database
+### Phase 5 ⚙️ Partial
+- GitHub release version checks
+- Semantic update comparison
+- APK asset detection + download handoff
+- Native PackageInstaller bridge still pending
 
 ## 🚢 Release Information
 
@@ -259,24 +255,25 @@ cce3486 - Phase 3 Tier 1: Home screen features
 
 ## 🐛 Known Limitations
 
-- Rules-used-today counts from active array (full date tracking in v1.1.0)
-- Weekly reset requires manual action (auto-reset in v1.1.0)
-- No offline database (SQLite in v2.0.0)
+- Native direct-installer bridge for updater is still pending
+- Full session history UI on top of SQLite persistence is still pending
+- Some engine reminder paths still use alert-style UX and need full notification parity
+- Local Android release build needs Android SDK configured (`ANDROID_HOME`/`local.properties`) on each machine
 - No user accounts (cloud sync in v2.0+)
 
 ## 🗺️ Roadmap
 
 ### v1.1.0 (Q2 2026)
-- Smart rule recommendations
-- Weekly progress charts
-- Session indicators
-- Streak calendar
+- Updater native installer completion
+- Expanded notification lifecycle templates
+- Session history UI from SQLite
+- Higher coverage integration tests
 
 ### v2.0.0 (Q3 2026)
 - Achievement system
 - Leaderboard
 - Advanced analytics
-- SQLite database
+- Expanded SQLite domain model
 - Cloud sync
 
 ## 🤝 Contributing

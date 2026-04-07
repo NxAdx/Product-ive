@@ -98,7 +98,7 @@ export function SessionStatusBadge() {
         visible={showReflection}
         onClose={(score) => {
           setShowReflection(false);
-          endSession();
+          endSession({ reflectionScore: score });
         }}
         ruleName={rule.name}
       />

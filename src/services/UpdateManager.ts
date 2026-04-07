@@ -10,11 +10,56 @@ export interface UpdateInfo {
   releaseNotes: string;
   downloadSize?: number;
   releaseDate?: string;
+  downloadUrl?: string;
+  assetName?: string;
 }
 
 const UPDATES_CHECK_KEY = 'last_updates_check';
 const UPDATE_INFO_KEY = 'cached_update_info';
 const CHECK_INTERVAL_HOURS = 24;
+const RELEASES_API_URL = 'https://api.github.com/repos/Aadarsh-Lokhande/Productive-Plus/releases/latest';
+
+interface GitHubReleaseAsset {
+  name: string;
+  browser_download_url: string;
+  size?: number;
+}
+
+interface GitHubReleaseResponse {
+  tag_name: string;
+  body?: string;
+  published_at?: string;
+  assets?: GitHubReleaseAsset[];
+}
+
+function sanitizeVersion(version: string): [number, number, number] {
+  const [major = '0', minor = '0', patch = '0'] = version
+    .replace(/^v/i, '')
+    .split(/[.-]/)
+    .slice(0, 3);
+  return [major, minor, patch].map((part) => {
+    const parsed = parseInt(part, 10);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }) as [number, number, number];
+}
+
+function isRemoteVersionNewer(remote: string, local: string): boolean {
+  const [rMajor, rMinor, rPatch] = sanitizeVersion(remote);
+  const [lMajor, lMinor, lPatch] = sanitizeVersion(local);
+
+  if (rMajor !== lMajor) return rMajor > lMajor;
+  if (rMinor !== lMinor) return rMinor > lMinor;
+  return rPatch > lPatch;
+}
+
+function selectApkAsset(assets: GitHubReleaseAsset[] = []) {
+  const apkAssets = assets.filter((asset) => asset.name.toLowerCase().endsWith('.apk'));
+  if (apkAssets.length === 0) return undefined;
+  return (
+    apkAssets.find((asset) => /release/i.test(asset.name)) ??
+    apkAssets[0]
+  );
+}
 
 /**
  * Update Manager for Product +ive
@@ -25,16 +70,15 @@ const CHECK_INTERVAL_HOURS = 24;
  */
 class UpdateManager {
   /**
-   * Check for available updates
-   * For now, simulates update check. In production, would call a version API.
+   * Checks GitHub releases and caches the result.
    */
-  static async checkForUpdates(): Promise<UpdateInfo> {
+  static async checkForUpdates(force = false): Promise<UpdateInfo> {
     try {
       const lastCheck = await AsyncStorage.getItem(UPDATES_CHECK_KEY);
       const now = Date.now();
       const currentVersion = Constants.expoConfig?.version || '1.0.0';
 
-      if (lastCheck) {
+      if (!force && lastCheck) {
         const lastCheckTime = parseInt(lastCheck, 10);
         const hoursSinceCheck = (now - lastCheckTime) / (1000 * 60 * 60);
 
@@ -49,8 +93,7 @@ class UpdateManager {
         }
       }
 
-      // Live fetch from GitHub
-      const response = await fetch('https://api.github.com/repos/Aadarsh-Lokhande/Productive-Plus/releases/latest', {
+      const response = await fetch(RELEASES_API_URL, {
         headers: { Accept: 'application/vnd.github.v3+json' },
       });
 
@@ -58,11 +101,10 @@ class UpdateManager {
         throw new Error('GitHub API request failed');
       }
 
-      const latestRelease = await response.json();
-      const latestVersion = latestRelease.tag_name.replace('v', '');
-      
-      // Semantic comparison: simplified - in prod we'd use a semver lib
-      const isAvailable = latestVersion !== currentVersion;
+      const latestRelease = (await response.json()) as GitHubReleaseResponse;
+      const latestVersion = (latestRelease.tag_name || currentVersion).replace(/^v/i, '');
+      const isAvailable = isRemoteVersionNewer(latestVersion, currentVersion);
+      const apkAsset = selectApkAsset(latestRelease.assets);
 
       const updateInfo: UpdateInfo = {
         isAvailable,
@@ -70,6 +112,9 @@ class UpdateManager {
         latestVersion,
         releaseNotes: latestRelease.body || 'New version available with improvements and fixes.',
         releaseDate: latestRelease.published_at,
+        downloadUrl: apkAsset?.browser_download_url,
+        downloadSize: apkAsset?.size,
+        assetName: apkAsset?.name,
       };
 
       await AsyncStorage.setItem(UPDATES_CHECK_KEY, now.toString());
@@ -88,27 +133,17 @@ class UpdateManager {
   }
 
   /**
-   * Download and install a new update
-   * For Expo managed service, this would trigger a reload
-   * For native APK, this calls the Android updater
+   * Downloads and opens the latest APK installer for Android builds.
    */
-  static async downloadAndInstall() {
-    try {
-      // For Expo managed: would call Updates.fetchUpdateAsync()
-      // For production: would download from API and trigger install
-      console.log('Update download initiated...');
-      
-      // Simulate download/install in development
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          console.log('Update would be installed on next app restart');
-          resolve(undefined);
-        }, 1000);
-      });
-    } catch (error) {
-      console.error('Update installation error:', error);
-      throw error;
+  static async downloadAndInstall(updateInfo?: UpdateInfo): Promise<void> {
+    const info = updateInfo || await this.checkForUpdates(true);
+    if (!info.isAvailable) {
+      throw new Error('No update available.');
     }
+    if (!info.downloadUrl) {
+      throw new Error('Latest release does not include an APK asset.');
+    }
+    await this.downloadAndInstallAPK(info.downloadUrl);
   }
 
   /**
@@ -124,8 +159,6 @@ class UpdateManager {
       if (!fileUri) {
         throw new Error('No writable directory available');
       }
-
-      console.log('Downloading APK from:', apkUrl);
 
       // Download the APK
       const download = FileSystem.createDownloadResumable(
@@ -144,10 +177,7 @@ class UpdateManager {
         throw new Error('Download failed');
       }
 
-      console.log('APK downloaded to:', fileUri);
-
-      // For production: pass to native Android module for PackageInstaller API
-      // For development: attempt to open with system installer
+      // For production fallback in Expo-managed flow: hand off APK to OS installer.
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri, {
           mimeType: 'application/vnd.android.package-archive',

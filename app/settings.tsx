@@ -15,6 +15,7 @@ import { useTodoStore } from '../src/store/todoStore';
 import { useWellnessStore } from '../src/store/wellnessStore';
 import { getRuntimeLogs, logRuntimeEvent } from '../src/utils/runtimeLogs';
 import { UpdateManager } from '../src/services/UpdateManager';
+import type { UpdateInfo } from '../src/services/UpdateManager';
 import { getPermissionStatus, requestNotificationPermissions as requestPerms } from '../src/services/NotificationManager';
 import { ThemedText } from '../src/components/ThemedText';
 import { tokens } from '../src/theme/tokens';
@@ -212,9 +213,14 @@ export default function SettingsScreen() {
   const [showAbout, setShowAbout] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+  const [isInstallingUpdate, setIsInstallingUpdate] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(userName);
   const [mainModal, setMainModal] = useState<{ visible: boolean; title: string; desc: string } | null>(null);
+  const [updateModal, setUpdateModal] = useState<{ visible: boolean; info: UpdateInfo | null }>({
+    visible: false,
+    info: null,
+  });
 
   // v4.0 Migration: Scrub emojis on load
   useEffect(() => {
@@ -293,17 +299,14 @@ export default function SettingsScreen() {
     if (isCheckingUpdates) return;
     try {
       setIsCheckingUpdates(true);
-      const updateInfo = await UpdateManager.checkForUpdates();
+      const updateInfo = await UpdateManager.checkForUpdates(true);
       if (updateInfo.isAvailable) {
-        Alert.alert('Update Available', `New version (${updateInfo.latestVersion}) available.\n\n${updateInfo.releaseNotes}`, [
-          { text: 'Later', style: 'cancel' },
-          { text: 'Update Now', onPress: () => UpdateManager.downloadAndInstall() },
-        ]);
+        setUpdateModal({ visible: true, info: updateInfo });
       } else {
-        Alert.alert('Up to Date', `Running latest version (${updateInfo.currentVersion}).`);
+        setMainModal({ visible: true, title: 'Up to Date', desc: `Running latest version (${updateInfo.currentVersion}).` });
       }
     } catch {
-      Alert.alert('Check Failed', 'Could not check for updates.');
+      setMainModal({ visible: true, title: 'Check Failed', desc: 'Could not check for updates.' });
     } finally {
       setIsCheckingUpdates(false);
     }
@@ -488,6 +491,52 @@ export default function SettingsScreen() {
         description={mainModal?.desc || ''}
         onClose={() => setMainModal(null)}
       />
+
+      <AppModal
+        visible={updateModal.visible}
+        title="Update Available"
+        description={
+          updateModal.info
+            ? `Version ${updateModal.info.latestVersion} is available.\n\n${updateModal.info.releaseNotes || 'New fixes and improvements are ready.'}`
+            : ''
+        }
+        onClose={() => setUpdateModal({ visible: false, info: null })}
+      >
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <Pressable
+            style={[styles.modalBtn, { backgroundColor: t.surfaceHigh }]}
+            onPress={() => setUpdateModal({ visible: false, info: null })}
+          >
+            <ThemedText variant="label" color={t.textSecondary}>Later</ThemedText>
+          </Pressable>
+          <Pressable
+            style={[styles.modalBtn, { backgroundColor: t.positivity, opacity: isInstallingUpdate ? 0.7 : 1 }]}
+            disabled={isInstallingUpdate}
+            onPress={async () => {
+              if (!updateModal.info) return;
+              try {
+                setIsInstallingUpdate(true);
+                await UpdateManager.downloadAndInstall(updateModal.info);
+                setUpdateModal({ visible: false, info: null });
+              } catch (error) {
+                setMainModal({
+                  visible: true,
+                  title: 'Install Failed',
+                  desc: error instanceof Error ? error.message : 'Unable to start update installation.',
+                });
+              } finally {
+                setIsInstallingUpdate(false);
+              }
+            }}
+          >
+            {isInstallingUpdate ? (
+              <ActivityIndicator size="small" color="#000" />
+            ) : (
+              <ThemedText variant="label" style={{ color: '#000', fontWeight: '800' }}>Update Now</ThemedText>
+            )}
+          </Pressable>
+        </View>
+      </AppModal>
     </View>
   );
 }
@@ -602,5 +651,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     marginBottom: 8,
+  },
+  modalBtn: {
+    flex: 1,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   }
 });

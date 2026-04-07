@@ -1,6 +1,6 @@
 # Product +ive CI/CD Guide
 
-> Last Updated: 2026-04-02 (IST)
+> Last Updated: 2026-04-07 (IST)
 
 ## Workflow File
 
@@ -15,56 +15,46 @@
   - `.agents/**`
   - `ss/**`
 
-## Global Runtime Settings
+## Runtime Settings
 
 - Runner: `ubuntu-latest`
 - Node: `22`
 - Java: Temurin `17`
-- Action runtime flag: `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`
-- Concurrency enabled:
-  - `cancel-in-progress: true` for same workflow/ref
+- Concurrency: enabled (`cancel-in-progress: true`)
 
-## Job 1: Lint, TypeCheck & Test
+## Job 1: Lint, TypeCheck, Test
 
-1. `actions/checkout@v6`
-2. `actions/setup-node@v6` with npm cache
-3. `npm ci --no-audit --prefer-offline`
+1. `actions/checkout@v4`
+2. `actions/setup-node@v4` (npm cache)
+3. `npm ci --no-audit --prefer-offline --legacy-peer-deps || npm ci`
 4. `npx eslint app src --max-warnings=0`
-5. `npx tsc --noEmit`
-6. `npm test -- --coverage --ci` (currently placeholder)
-7. `npm audit --audit-level=high` (non-blocking)
+5. `npx tsc --noEmit --incremental`
+6. `npm test -- --coverage --ci`
 
 ## Job 2: Build Android APK
 
 Runs only when:
 
 - event is `push`
-- branch is `main`
+- branch is `main` or `develop`
 - lint/typecheck/test job passed
 
 Steps:
 
-1. `actions/checkout@v6`
-2. `actions/setup-node@v6` with npm cache
-3. `npm ci --omit=dev --no-audit --prefer-offline`
-4. `expo/expo-github-action@v8` with `eas-cache: true`
-5. Prebuild Android if missing:
-   - `npx expo prebuild --platform android --non-interactive --no-install`
-6. `actions/setup-java@v5` with `cache: gradle`
-7. Build APK:
-   - `./gradlew assembleRelease --no-daemon --parallel --build-cache`
-8. Upload artifact:
-   - `actions/upload-artifact@v4`
+1. `actions/checkout@v4`
+2. `actions/setup-node@v4` (npm cache)
+3. `actions/setup-java@v4` with `cache: gradle`
+4. `npm ci --omit=dev --no-audit --prefer-offline --legacy-peer-deps || npm ci --omit=dev`
+5. `expo/expo-github-action@v8`
+6. `npx expo prebuild --platform android --non-interactive`
+7. `./gradlew assembleRelease --no-daemon --parallel --max-workers=2 --build-cache`
+8. `actions/upload-artifact@v4` (release APK output)
 
-## Why Java Setup Is After Prebuild
+## Current Notes
 
-`actions/setup-java` with `cache: gradle` scans for Gradle files.
-In managed Expo apps, those files do not exist until `expo prebuild` creates `android/`.
-If Java caching runs first, the job fails with:
-
-- `No file ... matched to [**/*.gradle* ...]`
-
-## Known Warnings
-
-- Some npm deprecation warnings are currently transitive (Expo/RN toolchain).
-- These are tracked in `docs/update-logs.md` and should be rechecked after each push/build.
+- Automated tests are now active and part of CI gating.
+- Some npm deprecation warnings are transitive from Expo/RN toolchains and tracked in docs.
+- Local Android builds need a configured SDK path (`ANDROID_HOME` or `android/local.properties`).
+- Local verification (2026-04-07):
+  - `npx expo export --platform web --clear` -> PASS
+  - `cd android && .\\gradlew.bat assembleRelease` -> blocked in local environment until SDK path is set

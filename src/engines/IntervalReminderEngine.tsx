@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { CheckCircle, Clock } from 'lucide-react-native';
 
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { useTheme } from '../theme/ThemeContext';
+import { notifyNow } from '../services/NotificationManager';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -55,9 +56,10 @@ export function IntervalReminderEngine({ rule, color }: EngineProps) {
       intervalId = setInterval(() => {
         setNextReminder((prev) => {
           if (prev <= 1) {
-            Alert.alert(`${rule.name} Reminder`, reminderMessage, [
-              { text: 'OK', onPress: () => {} },
-            ]);
+            notifyNow(`${rule.name} Reminder`, reminderMessage, {
+              ruleId: rule.id,
+              type: 'interval_reminder',
+            }).catch(() => {});
             setReminderCount((count) => count + 1);
             return intervalSeconds;
           }
@@ -71,7 +73,7 @@ export function IntervalReminderEngine({ rule, color }: EngineProps) {
         clearInterval(intervalId);
       }
     };
-  }, [isRunning, intervalSeconds, reminderMessage, rule.name]);
+  }, [isRunning, intervalSeconds, reminderMessage, rule.id, rule.name]);
 
   const handleStart = () => {
     if (session.activeRuleId !== rule.id) {

@@ -1,14 +1,14 @@
 ﻿# Product+ive - Feature List
 
-> Last Updated: 2026-04-02 (IST)
+> Last Updated: 2026-04-07 (IST)
 
 ## Core Screens
 
 ### Home
 
 - [x] 2x2 category grid (4 cards)
-- [ ] Theme toggle button (theme system exists, direct UI toggle is pending)
-- [ ] About action wiring (icon exists, action pending)
+- [x] Theme toggle button
+- [x] About action wiring
 - [x] Floating bottom nav (Home, Tasks, Explore, Meter)
 - [x] Card press animation with spring feedback
 
@@ -20,8 +20,8 @@
 - [ ] Quick 2-min section
 - [ ] 1-3-5 section layout
 - [x] Active/completed task sections
-- [ ] Positivity points on task completion (not fully integrated yet)
-- [ ] Modal `app/todo.tsx` save action to store (TODO in code)
+- [x] Positivity points on task completion
+- [x] Modal `app/todo.tsx` save action to store
 
 ### Positivity Meter
 
@@ -57,7 +57,7 @@
 ### Onboarding
 
 - [x] Basic onboarding screen
-- [ ] Full multi-step onboarding flow
+- [x] Full multi-step onboarding flow
 
 ## Engines
 
@@ -74,16 +74,16 @@
 - [x] Theme architecture with AsyncStorage persistence
 - [x] Positivity store and session store
 - [x] Todo store and settings store
-- [ ] Notifications wiring to live app flows
-- [ ] SQLite persistence layer wiring
-- [ ] Real automated test suite
+- [x] Notifications wiring to live app flows
+- [x] SQLite persistence layer wiring
+- [x] Real automated test suite
 
 ## In-App Updater (Android)
 
-- [ ] GitHub releases version check
-- [ ] Update available state + UI
-- [ ] Changelog display
-- [ ] APK download with progress
+- [x] GitHub releases version check
+- [x] Update available state + UI
+- [x] Changelog display
+- [ ] APK download with progress UI
 - [ ] Package installer flow
 - [ ] MIUI fallback behavior
 - [ ] Auto-check toggle in settings

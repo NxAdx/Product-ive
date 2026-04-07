@@ -1,48 +1,44 @@
 # Product +ive Requirements
 
-> Last Updated: 2026-04-02 (IST)
+> Last Updated: 2026-04-07 (IST)
 
 ## 1) Core Product Requirements
 
 1. Ship 20 rule-driven experiences across 4 categories.
 2. Keep 7 reusable engines as the execution layer for rules.
 3. Keep app behavior offline-first with local persistence.
-4. Track consistency with positivity score, levels, and streak logic.
-5. Keep Android updater flow planned and documented until implementation is complete.
+4. Track consistency with positivity score, levels, streak logic, and reflection history.
+5. Maintain updater behavior through safe staged rollout (GitHub check -> APK handoff -> native installer completion).
 
-## 2) Active UX Requirements (From Current Owner)
+## 2) Active UX Requirements
 
-1. Home top bar must have one actionable icon on the right (Settings).
-2. Settings must include:
+1. Home top bar keeps one actionable icon on the right (Settings).
+2. Settings includes:
    - Theme toggle
-   - Report bug export as `.txt` with runtime logs
-   - Changelog with alert icon, version, and current-version-only notes
-   - About section
-3. Bottom nav must only appear on Home.
-4. Bottom nav plus icon must not use the old white circular style.
-5. All bottom nav icons must be aligned and visually consistent.
-6. Category labels and typography must be clean and readable.
-7. App brand text must render as `Product +ive`.
-8. Explore list text must not overflow cards.
-9. Todo screen must not be overlapped by bottom nav.
-10. Category rule rows must use a clean arrow affordance (no large white circles).
-11. Rule screens must fail safely without crashes when invalid/missing config appears.
+   - Bug report export as `.txt` with runtime logs
+   - Changelog section
+   - About/Protocol details
+   - Software update check and action flow
+3. App brand text renders as `Product +ive`.
+4. Rule screens fail safely for invalid/missing config.
+5. Timed sessions show reliable countdown behavior in-app and through foreground notifications.
 
-## 3) Positivity Meter Requirements
+## 3) Positivity and Scoring Requirements
 
-1. Completing a session adds rule base points.
+1. Session completion adds rule base points.
 2. First completion of a unique rule adds one-time discovery bonus.
 3. Weekly score resets by week boundary.
 4. Lifetime score never resets.
-5. Meter UI must explain scoring rules directly in-app.
+5. Reflection score input (1-5) is recorded for post-session insight history.
 
 ## 4) Engineering Requirements
 
 1. TypeScript strict mode remains enabled.
 2. CI lint must pass with zero warnings.
 3. Type-check must pass before merge.
-4. Docs and handoff context must be updated with each non-trivial change.
-5. Dependency changes must remain Expo SDK compatible.
+4. Real automated tests must run in CI (`npm test -- --coverage --ci`).
+5. Docs and handoff context must be updated for each non-trivial change.
+6. Dependency changes must remain Expo SDK compatible.
 
 ## 5) CI/CD Requirements
 
@@ -51,6 +47,7 @@ Required checks:
 - `npm ci`
 - `npx eslint app src --max-warnings=0`
 - `npx tsc --noEmit`
+- `npm test -- --coverage --ci`
 - `npx expo-doctor`
 
 Recommended release checks:
@@ -58,20 +55,15 @@ Recommended release checks:
 - `npx expo export --platform web --clear`
 - Android release build via generated `android/` project
 
-## 6) Deprecation Policy
-
-1. Remove deprecated direct dependencies whenever feasible.
-2. Track unavoidable transitive deprecations from Expo/React Native toolchain.
-3. Keep CI logs reviewed after each push/build and record unresolved upstream warnings in docs.
-
-## 7) Environment Requirements
+## 6) Environment Requirements
 
 - Node.js >= 20.19.4 (22 LTS recommended)
 - npm 10.x+
 - Java 17 (Temurin)
 - Android SDK API 34+
+- Either `ANDROID_HOME`/`ANDROID_SDK_ROOT` must point to a valid SDK path or `android/local.properties` must define `sdk.dir=...` for local release builds.
 
-## 8) Role / Folder / Skills Context
+## 7) Role / Folder / Skills Context
 
 ### Primary role reference
 
@@ -80,46 +72,31 @@ Recommended release checks:
 ### Important folders
 
 - `app/` routes and screens
-- `src/` engines, stores, data, theme
+- `src/` engines, stores, data, theme, db
 - `.github/workflows/` CI/CD
 - `docs/` handoff and product documentation
-- `ss/` screenshot references
 - `.agents/skills/` installed project skills
 
 ### Most relevant skills for current phase
 
-- `react-native-design`
 - `react-native-expert`
+- `react-native-testing`
 - `react-native-architecture`
 - `expo-cicd-workflows`
-- `upgrading-expo`
 - `android-updater-patterns`
 
-## 9) Completed in Phase 1 (2026-04-02)
+## 8) Current Completion Snapshot
 
-1. ✅ All 20 rules fully configured across 4 categories
-2. ✅ All 7 engines implemented (Countdown, Interval, Guided, Sorter, Spaced, Awareness, FreeWrite)
-3. ✅ Positivity store with points, levels, streaks, weekly resets
-4. ✅ Session status badge with real-time pulsing indicator
-5. ✅ Theme system (light/dark mode with AsyncStorage persistence)
+1. All 20 rules configured across 4 categories.
+2. All 7 engines implemented and routed.
+3. Positivity, todo, session, settings, wellness state stores are active.
+4. SQLite bootstrap + session/point-event repository persistence added.
+5. Updater now uses live release checks with semver comparison and APK asset detection.
+6. Real Jest test suite is active (store regression coverage).
 
-## 10) Completed in Phase 2: "Elite" Retention (2026-04-06)
+## 9) Remaining Implementation Work
 
-1. ✅ **Retention Engine**: Post-session reflection modal with focus scoring (1-5).
-2. ✅ **Semantic Discovery**: Explore screen re-architected with "Quick Wins", "Deep Work", and category-tinted borders.
-3. ✅ **Gamification 2.0**: Daily Delta (+15 pts) and "🏆 Level:" rank branding.
-4. ✅ **UI/UX Polish**: Unified all navigation to `ChevronRight` and standard Green (#22C55E) for all selected states.
-5. ✅ **Metadata Discovery**: Multi-pill metadata (⏱ 25 min • Easy) on all rule cards.
-6. ✅ **Friction Reduction**: "Quick Add" suggestions row in Commitments screen.
-
-## 11) Remaining Implementation Work (Post-v1.0.0)
-
-1. SQLite persistence layer (schema + repository wiring).
-2. Advanced Notification scheduling (Rule-specific generic triggers - mostly complete via foreground chronometers).
-3. In-app updater native bridge.
-4. Weekly progress charts and visualizations.
-5. Achievement badges system (Visual trophies).
-
-## 12) Native Architecture Dependencies (v1.0.0+)
-1. **Background Chronometers**: To circumvent React Native JS-thread suspension mechanisms when apps are minimized on Android/iOS, Productive utilizes `@notifee/react-native` for `FOREGROUND_SERVICE` integration.
-2. Note: `@notifee/react-native` must be autolinked via Expo Prebuild (SDK 50+), NOT placed statically inside `app.json` `.plugins`, to prevent pipeline structural failures.
+1. Native Android PackageInstaller bridge for direct updater install completion.
+2. Full notifications coverage across all engine lifecycle flows.
+3. Session history and analytics UI backed by SQLite data.
+4. Broader repository test coverage and CI quality threshold hardening.

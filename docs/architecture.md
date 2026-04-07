@@ -1,77 +1,69 @@
-# Product+ive — Architecture
+# Product+ive - Architecture
 
-> **Last Updated:** 2026-04-01 | **Status:** Planning Phase
+> Last Updated: 2026-04-07 (IST) | Status: Active
 
----
+## System Model
 
-## System Architecture
+Product+ive uses a config-driven rule architecture:
 
-### Config-Driven Rule Engine
+`RuleConfig -> Engine Component -> Session Store -> Positivity + Persistence`
 
-The core architectural decision: **all 20 rules are data, not code**. Each rule is a `RuleConfig` JSON object that specifies which of the 7 reusable engine components to use and what parameters to pass.
+The app keeps the 20 rules as data and maps each rule to one of 7 reusable engines.
 
-```
-RuleConfig → Engine Component → Session → Points → Positivity Meter
-```
+## Runtime Layers
 
-### 7 Reusable Engines
+### 1) UI and Navigation
 
-1. **CountdownTimerEngine** — Pomodoro, 90-min Ultradian, 2-Minute Rule
-2. **IntervalReminderEngine** — 20-20-20 Rule  
-3. **GuidedPromptEngine** — Feynman, Cornell, SQ3R, Mind Mapping, Elaborative Interrogation
-4. **SmartTaskSorterEngine** — Eat the Frog, 1-3-5, 80/20
-5. **SpacedRepetitionEngine** — SRS, 1-4-7 Rule
-6. **AwarenessReflectionEngine** — Parkinson's Law, 5-Second Rule
-7. **FreeWriteRecallEngine** — Active Recall, Blurting, Chunking, Interleaving
+- Expo Router for stack + tabs.
+- Primary tabs: Home, Add, Explore, Stats.
+- Rule/category/settings/onboarding are stack routes.
 
-### Navigation Architecture
+### 2) State Layer (Zustand)
 
-- **Bottom Tab Nav** (3 items): Home | + (Todo create) | Meter
-- **Stack Nav**: Home → Category List → Rule Page
+- `positivityStore`: score, streaks, rule usage, reflection entries.
+- `sessionStore`: active session state and completion logic.
+- `todoStore`: task lifecycle and completion scoring.
+- `settingsStore`: user preferences.
+- `wellnessStore`: reminder configuration.
 
-### State Management
+### 3) Persistence Layer
 
-- **Zustand stores**: themeStore, positivityStore, todoStore, sessionStore, settingsStore
-- **SQLite** (expo-sqlite): persistent sessions, tasks, positivity data
-- **AsyncStorage**: theme preference, settings
+- AsyncStorage for user/state preferences.
+- SQLite (`expo-sqlite`) for structured runtime history:
+  - `sessions`
+  - `point_events`
+- Bootstrap + migration entry:
+  - `src/db/database.native.ts`
+- Web-safe adapter:
+  - `src/db/database.web.ts`
+- repositories:
+  - `src/db/sessionRepository.ts`
 
-### Data Flow
+### 4) Notification Layer
 
-```
-User Action → Engine Component → PointsEventEmitter → Positivity Store → UI Update
-```
+- `@notifee/react-native` foreground chronometer for active timed sessions.
+- `expo-notifications` for permission checks, wellness schedules, and immediate local reminders.
+- `NotificationManager` mediates notification behavior and Expo Go safety checks.
 
-### In-App Updater Architecture
+### 5) Updater Layer
 
-The app is primarily offline, but the **updater module** is the single exception that requires internet access.
+- `UpdateManager` checks GitHub latest release metadata.
+- Uses semantic version comparison.
+- Detects APK release assets and triggers download/install handoff.
+- Native PackageInstaller bridge remains pending for full direct-install flow.
 
-```
-App Launch → UpdaterService.checkForUpdate()
-  → GitHub Releases API (GET /repos/{owner}/{repo}/releases/latest)
-  → Compare semver: current vs latest tag
-  → If update available:
-      → Show update card in About / Settings
-      → User taps "Update Now"
-      → Download APK to cache (with progress bar)
-      → PackageInstaller.Session API → direct install
-      → MIUI fallback: Intent.ACTION_VIEW
-```
+## Data Flow Examples
 
-**Key Components:**
-- `src/services/UpdaterService.ts` — GitHub API check, version comparison, download logic
-- `src/stores/updaterStore.ts` — Zustand store (updateAvailable, downloadProgress, latestVersion, changelog)
-- Native module: `PackageInstaller` session (Android only, via Expo config plugin or custom native module)
+### Session completion flow
 
-**Permissions Required:**
-- `android.permission.INTERNET` — only for update check + APK download
-- `android.permission.REQUEST_INSTALL_PACKAGES` — for direct APK install
-- `android.permission.FOREGROUND_SERVICE` — for background download
+`Engine end -> sessionStore.endSession() -> positivity points/streak -> SQLite session + point_events write -> foreground timer cleanup`
 
-**Research:** See `D:\Development\Production\research\docs\research\updater-logic\` for CloudStream vs ImageToolbox comparative study.
+### Task completion flow
 
----
+`todoStore.toggleTodo() -> positivity +10 -> SQLite point_event write`
 
-## Folder Structure
+## Constraints / Open Design Items
 
-See `docs/Your_Role.md` section 5 for complete project structure.
-
+1. Updater still needs native installer bridge completion.
+2. Session history UI should be added on top of current SQLite tables.
+3. Full notification parity across all engines is still incremental.

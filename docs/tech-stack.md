@@ -1,12 +1,12 @@
 ﻿# Product+ive - Tech Stack and Versions
 
-> Last Updated: 2026-04-02 (IST)
+> Last Updated: 2026-04-07 (IST)
 
 ## Core Runtime
 
 | Technology | Version in repo | Notes |
 |---|---|---|
-| Expo | `^55.0.9` | SDK 55 line |
+| Expo | `~55.0.12` | SDK 55 line |
 | React Native | `0.83.4` | Locked by Expo SDK 55 compatibility |
 | React | `19.2.0` | Current project lock |
 | React DOM | `19.2.0` | For web target |
@@ -16,10 +16,10 @@
 
 | Package | Version |
 |---|---|
-| `expo-router` | `~55.0.8` |
+| `expo-router` | `~55.0.11` |
 | `zustand` | `^5.0.0` |
-| `expo-sqlite` | `~55.0.11` |
-| `expo-notifications` | `~55.0.14` |
+| `expo-sqlite` | `~55.0.14` |
+| `expo-notifications` | `~55.0.17` |
 | `@react-native-async-storage/async-storage` | `2.2.0` |
 | `react-native-reanimated` | `4.2.1` |
 | `react-native-worklets` | `0.7.2` |
@@ -37,6 +37,11 @@
 | `eslint` | `^9.25.0` |
 | `eslint-config-expo` | `~55.0.0` |
 | `@types/react` | `~19.2.10` |
+| `@types/jest` | `^29.5.14` |
+| `jest` | `^29.7.0` |
+| `jest-expo` | `~55.0.14` |
+| `@testing-library/react-native` | `^13.3.3` |
+| `react-test-renderer` | `^19.2.0` |
 | `typescript` | `~5.9.2` |
 
 ## CI/CD Stack

@@ -16,7 +16,7 @@ async function ensureChannel() {
   });
 }
 
-let activeTimer: NodeJS.Timeout | null = null;
+let activeTimer: ReturnType<typeof setTimeout> | null = null;
 
 /**
  * Starts a foreground service that displays a ticking chronometer.

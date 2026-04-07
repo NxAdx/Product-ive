@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { requestNotificationPermissions } from '../src/services/NotificationManager';
 import { useSettingsStore } from '../src/store/settingsStore';
 
-type OnboardingStep = 'welcome' | 'name' | 'goal' | 'availability' | 'permissions' | 'success';
+type OnboardingStep = 'welcome' | 'name' | 'goal' | 'permissions' | 'success';
 
 export default function OnboardingScreen() {
   const router = useRouter();

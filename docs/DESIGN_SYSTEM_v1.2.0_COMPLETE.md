@@ -4,6 +4,10 @@
 **Status:** ✅ Complete  
 **Version:** 1.2.0-rc1
 
+> Note (2026-04-07): This file is a historical v1.2.0 snapshot.
+> Subsequent iterations intentionally changed some typography and border usage.
+> Use `docs/implementation.md` and `docs/requirements.md` for current-state truth.
+
 ---
 
 ## Overview

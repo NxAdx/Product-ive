@@ -1,75 +1,57 @@
-# Product+ive — Database Schema
+# Product+ive - Database Schema
 
-> **Last Updated:** 2026-04-01 | **Database:** SQLite (expo-sqlite)
+> Last Updated: 2026-04-07 (IST)
+> Database: SQLite (`expo-sqlite`)
 
----
+Implementation files:
+- Native runtime: `src/db/database.native.ts`
+- Web fallback/no-op adapter: `src/db/database.web.ts`
+- Repository writes: `src/db/sessionRepository.ts`
 
-## Tables
+## Current Implemented Tables (v1)
 
 ### sessions
+
 ```sql
 CREATE TABLE IF NOT EXISTS sessions (
-  id TEXT PRIMARY KEY,
+  id TEXT PRIMARY KEY NOT NULL,
   rule_id TEXT NOT NULL,
-  started_at INTEGER NOT NULL,      -- Unix timestamp
-  completed_at INTEGER,             -- NULL if abandoned
-  points_earned INTEGER DEFAULT 0,
-  engine_data TEXT DEFAULT '{}',    -- JSON: engine-specific data
+  engine TEXT NOT NULL,
+  started_at INTEGER NOT NULL,
+  completed_at INTEGER NOT NULL,
+  duration_seconds INTEGER NOT NULL DEFAULT 0,
+  points_earned INTEGER NOT NULL DEFAULT 0,
+  reflection_score INTEGER,
   created_at TEXT NOT NULL
-);
-```
-
-### tasks
-```sql
-CREATE TABLE IF NOT EXISTS tasks (
-  id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  rule_id TEXT,                     -- Optional rule tag
-  priority TEXT DEFAULT 'general',  -- 'frog' | 'quick' | 'big' | 'medium' | 'small' | 'general'
-  completed INTEGER DEFAULT 0,
-  completed_at INTEGER,
-  due_time INTEGER,                 -- Optional Unix timestamp
-  created_at TEXT NOT NULL
-);
-```
-
-### positivity
-```sql
-CREATE TABLE IF NOT EXISTS positivity (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  weekly_score INTEGER DEFAULT 0,
-  lifetime_score INTEGER DEFAULT 0,
-  current_level TEXT DEFAULT 'seed',
-  weekly_streak INTEGER DEFAULT 0,
-  longest_streak INTEGER DEFAULT 0,
-  rules_used TEXT DEFAULT '[]',     -- JSON array of rule IDs
-  achievements TEXT DEFAULT '[]',   -- JSON array of achievement IDs
-  week_start TEXT NOT NULL          -- ISO date of week start (Monday)
 );
 ```
 
 ### point_events
+
 ```sql
 CREATE TABLE IF NOT EXISTS point_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT,
   amount INTEGER NOT NULL,
-  source TEXT NOT NULL,             -- 'session' | 'task' | 'bonus' | 'streak' | 'discovery'
+  source TEXT NOT NULL,
   rule_id TEXT,
-  description TEXT,
   created_at TEXT NOT NULL
 );
 ```
 
-### spaced_reviews
+Indexes:
+
 ```sql
-CREATE TABLE IF NOT EXISTS spaced_reviews (
-  id TEXT PRIMARY KEY,
-  topic TEXT NOT NULL,
-  rule_id TEXT NOT NULL,            -- 'srs' or '147'
-  intervals TEXT NOT NULL,          -- JSON array: [1,3,7,14,30] or [1,4,7]
-  current_step INTEGER DEFAULT 0,
-  next_review_at INTEGER,           -- Unix timestamp
-  completed INTEGER DEFAULT 0,
-  created_at TEXT NOT NULL
-);
+CREATE INDEX IF NOT EXISTS idx_point_events_session_id ON point_events(session_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_completed_at ON sessions(completed_at);
 ```
+
+## Planned Next Tables
+
+The following remain planned for expanded persistence:
+
+- tasks
+- positivity snapshots
+- spaced_reviews
+
+These domains are still represented in Zustand + AsyncStorage today and will be progressively moved into repository-backed persistence.

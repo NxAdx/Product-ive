@@ -4,7 +4,6 @@ import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { Play, Square, Pause } from 'lucide-react-native';
-import { usePositivityStore } from '../store/positivityStore';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -56,7 +55,6 @@ export function CountdownEngine({ rule, color }: EngineProps) {
           }
           if (prev <= 1) {
             session.endSession();
-            usePositivityStore.getState().addPoints(rule.pointsPerSession || 25, 'rule_session', rule.id);
             return 0;
           }
           return prev - 1;
