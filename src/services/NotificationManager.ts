@@ -156,9 +156,9 @@ export async function scheduleWellnessReminders(notifications: any[]): Promise<v
             sound: true,
           },
           trigger: {
+            type: 'daily',
             hour: notificationTime,
             minute: 0,
-            repeats: true,
           },
         });
       }
@@ -173,6 +173,7 @@ export async function scheduleWellnessReminders(notifications: any[]): Promise<v
             sound: true,
           },
           trigger: {
+            type: 'timeInterval',
             seconds: intervalMinutes * 60,
             repeats: true,
           },
