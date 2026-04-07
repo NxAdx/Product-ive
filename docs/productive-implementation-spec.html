@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product+ive — Implementation & UX Spec</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF8;--bg2:#F2F1EC;--bg3:#ECEAE4;
+  --ink:#0D0D0D;--ink2:#5A5A58;--ink3:#9A9A98;
+  --acc:#059669;--rule:rgba(13,13,13,0.09);
+  --learn:#7C3AED;--focus:#1D4ED8;--prod:#059669;--study:#B45309;
+  --fd:'DM Serif Display',Georgia,serif;--fb:'DM Sans',system-ui,sans-serif;--fm:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;display:flex}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:248px;background:var(--bg2);border-right:1px solid var(--rule);overflow-y:auto;padding:28px 0;z-index:100;display:flex;flex-direction:column}
+.sb-brand{padding:0 22px 22px;border-bottom:1px solid var(--rule);margin-bottom:10px}
+.sb-name{font-family:var(--fd);font-size:18px;letter-spacing:-0.01em}
+.sb-name em{font-style:italic;color:var(--acc)}
+.sb-sub{font-family:var(--fm);font-size:9px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;margin-top:3px}
+.sb-sec{padding:12px 22px 4px;font-family:var(--fm);font-size:9px;color:var(--ink3);letter-spacing:0.12em;text-transform:uppercase}
+.sb-link{display:block;padding:6px 22px;font-size:13px;color:var(--ink2);text-decoration:none;border-left:2px solid transparent;transition:all .15s}
+.sb-link:hover{color:var(--ink);background:rgba(13,13,13,0.04)}
+.sb-link.a{color:var(--ink);border-left-color:var(--ink);background:rgba(13,13,13,0.04);font-weight:500}
+.sb-foot{margin-top:auto;padding:16px 22px 0;border-top:1px solid var(--rule);font-family:var(--fm);font-size:9px;color:var(--ink3);line-height:1.8}
+.main{margin-left:248px;padding:64px 64px 100px;max-width:900px}
+.hero{background:var(--ink);color:#fff;border-radius:18px;padding:56px 48px;margin-bottom:64px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;bottom:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(5,150,105,0.15)}
+.hero-ey{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:14px}
+.hero-t{font-family:var(--fd);font-size:52px;letter-spacing:-0.03em;line-height:1;margin-bottom:8px}
+.hero-t em{font-style:italic;color:var(--acc)}
+.hero-s{font-size:15px;color:rgba(255,255,255,0.5);max-width:480px;line-height:1.7}
+.section{margin-bottom:64px;scroll-margin-top:20px}
+.sl{font-family:var(--fm);font-size:9px;color:var(--ink3);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.sl::after{content:'';flex:1;height:1px;background:var(--rule)}
+.st{font-family:var(--fd);font-size:32px;font-weight:400;letter-spacing:-0.02em;line-height:1.1;margin-bottom:10px}
+.ss{font-size:14px;color:var(--ink2);line-height:1.7;max-width:560px;margin-bottom:32px}
+.divider{height:1px;background:var(--rule);margin:64px 0}
+h3{font-family:var(--fd);font-size:20px;font-weight:400;letter-spacing:-0.01em;margin:32px 0 12px}
+h4{font-family:var(--fm);font-size:10px;color:var(--ink3);letter-spacing:0.1em;text-transform:uppercase;margin:20px 0 8px}
+p{font-size:14px;color:var(--ink2);line-height:1.75;margin-bottom:12px}
+strong{color:var(--ink);font-weight:600}
+ul,ol{padding-left:18px;margin-bottom:12px}
+li{font-size:14px;color:var(--ink2);line-height:1.75;margin-bottom:4px}
+code{font-family:var(--fm);background:rgba(13,13,13,0.06);padding:2px 6px;border-radius:4px;font-size:11px;color:var(--ink)}
+pre{background:var(--ink);border-radius:12px;padding:18px 20px;overflow-x:auto;margin:12px 0;position:relative}
+pre code{background:none;padding:0;font-size:11px;color:rgba(255,255,255,0.78);line-height:1.75}
+.pl{position:absolute;top:8px;right:14px;font-family:var(--fm);font-size:8px;color:rgba(255,255,255,0.2);letter-spacing:0.1em;text-transform:uppercase}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.tbl th{font-family:var(--fm);font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;padding:9px 12px;text-align:left;border-bottom:2px solid var(--rule);background:var(--bg2)}
+.tbl td{padding:9px 12px;color:var(--ink2);border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}
+.tbl tr:last-child td{border-bottom:none}
+.badge{display:inline-flex;padding:2px 9px;border-radius:9999px;font-family:var(--fm);font-size:9px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-right:3px}
+.bl{background:#EDE9FE;color:var(--learn);border:1px solid rgba(124,58,237,0.2)}
+.bf{background:#DBEAFE;color:var(--focus);border:1px solid rgba(29,78,216,0.2)}
+.bp{background:#D1FAE5;color:var(--prod);border:1px solid rgba(5,150,105,0.2)}
+.bs{background:#FEF3C7;color:var(--study);border:1px solid rgba(180,83,9,0.2)}
+.bn{background:var(--bg3);color:var(--ink3);border:1px solid var(--rule)}
+.callout{padding:14px 18px;border-radius:12px;margin:14px 0;font-size:14px;line-height:1.7;display:flex;gap:10px}
+.c-pos{background:#D1FAE5;border:1px solid rgba(5,150,105,0.2);color:#065F46}
+.c-neu{background:var(--bg2);border:1px solid var(--rule);color:var(--ink2)}
+.c-dark{background:var(--ink);border:none}
+.c-dark .ci,.c-dark .cb{color:rgba(255,255,255,0.7)}
+.c-dark strong{color:#fff}
+.ci{font-size:16px;flex-shrink:0}
+.cb{flex:1}
+.steps{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.step{display:flex;gap:12px;padding:14px 16px;background:var(--bg2);border:1px solid var(--rule);border-radius:12px}
+.step-n{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:10px;flex-shrink:0;margin-top:1px}
+.step-t{font-weight:600;font-size:14px;color:var(--ink);margin-bottom:3px}
+.step-d{font-size:13px;color:var(--ink2);line-height:1.6}
+blockquote{border-left:3px solid var(--ink);padding:10px 16px;background:var(--bg2);border-radius:0 8px 8px 0;margin:14px 0;font-style:italic;font-size:14px;color:var(--ink2)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-name">Product<em>+</em>ive</div>
+    <div class="sb-sub">Implementation & UX Spec</div>
+  </div>
+  <div class="sb-sec">UX Flows</div>
+  <a href="#onboarding" class="sb-link a">Onboarding</a>
+  <a href="#nav-flow" class="sb-link">Navigation Flow</a>
+  <a href="#about" class="sb-link">About Screen</a>
+  <a href="#edge-cases" class="sb-link">Edge Cases</a>
+  <div class="sb-sec">React Native</div>
+  <a href="#stack" class="sb-link">Full Tech Stack</a>
+  <a href="#folder" class="sb-link">Folder Structure</a>
+  <a href="#theme-impl" class="sb-link">Theme Implementation</a>
+  <a href="#engine-code" class="sb-link">Engine Architecture</a>
+  <a href="#points-system" class="sb-link">Points System Code</a>
+  <div class="sb-sec">Content</div>
+  <a href="#rule-data" class="sb-link">All 20 Rule Configs</a>
+  <a href="#descriptions" class="sb-link">Rule Descriptions</a>
+  <a href="#notif-copy" class="sb-link">Notification Copy</a>
+  <div class="sb-sec">Launch</div>
+  <a href="#accessibility" class="sb-link">Accessibility</a>
+  <a href="#store-listing" class="sb-link">Store Listing Copy</a>
+  <div class="sb-foot">Product+ive · v1.0<br>Implementation Guide</div>
+</nav>
+
+<div class="main">
+
+<div class="hero">
+  <div class="hero-ey">Implementation & UX Spec · v1.0</div>
+  <div class="hero-t">Build guide for<br><em>Product+ive</em></div>
+  <div class="hero-s">Everything the design system and strategy docs don't cover — onboarding flows, edge cases, full RN stack, engine code patterns, all 20 rule configs, notification copy, and store listing.</div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="section" id="onboarding">
+  <div class="sl">01 — UX Flows</div>
+  <div class="st">Onboarding</div>
+  <div class="ss">3-screen onboarding. No account, no form. Duck mascot on each screen. Skip button always visible.</div>
+
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div><div class="step-t">Welcome — The concept</div><div class="step-d">Full-screen. Duck mascot illustration centred. Title: "Rules that work." in DM Serif Display. Sub: "20 science-backed rules to learn, focus, and get things done." Two buttons: "Get Started" (primary) + "Skip" (ghost, top-right).</div></div></div>
+    <div class="step"><div class="step-n">2</div><div><div class="step-t">Positivity Meter — The reward</div><div class="step-d">Shows the Positivity Meter ring animating from 0% to 68%, with "+20 pts" bubbles popping in. Title: "Your effort, rewarded." Sub: "Every session, every task, every rule you practise fills your Positivity Meter." Next button.</div></div></div>
+    <div class="step"><div class="step-n">3</div><div><div class="step-t">Pick your first category</div><div class="step-d">Shows a mini 2×2 category grid. User taps one to highlight it. "Looks great! Tap your favourite to start." — CTA: "Start Exploring →". This selection is remembered and the chosen category card on the home screen is softly highlighted on first session.</div></div></div>
+  </div>
+
+  <h3>Onboarding State Management</h3>
+  <pre><code>// app/_layout.tsx — check onboarding on first launch
+const hasOnboarded = await AsyncStorage.getItem('onboarded')
+if (!hasOnboarded) {
+  router.replace('/onboarding')
+} else {
+  router.replace('/(tabs)')
+}
+
+// After step 3 completion:
+await AsyncStorage.setItem('onboarded', 'true')
+await AsyncStorage.setItem('first_category', selectedCategoryId)
+router.replace('/(tabs)')</code></pre>
+  <div class="pl">TypeScript</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- NAVIGATION FLOW -->
+<div class="section" id="nav-flow">
+  <div class="sl">02 — UX Flows</div>
+  <div class="st">Navigation Flow</div>
+
+  <table class="tbl">
+    <tr><th>Action</th><th>From</th><th>To</th><th>Transition</th></tr>
+    <tr><td>Tap category card</td><td>Home (Screen 1)</td><td>Category List (Screen 4)</td><td>Stack push — slide from right</td></tr>
+    <tr><td>Tap rule row</td><td>Category List (Screen 4)</td><td>Rule Page (Screen 5)</td><td>Stack push — slide from right</td></tr>
+    <tr><td>Tap Info ⓘ button</td><td>Rule Page (Screen 5)</td><td>Description Bottom Sheet</td><td>Sheet slides up from bottom</td></tr>
+    <tr><td>Tap Back ←</td><td>Rule Page / Category List</td><td>Previous screen</td><td>Stack pop — slide to right</td></tr>
+    <tr><td>Tap + button in nav</td><td>Any screen</td><td>Todo create bottom sheet</td><td>Sheet slides up</td></tr>
+    <tr><td>Tap Home icon (nav)</td><td>Any screen</td><td>Home (Screen 1)</td><td>Tab switch — cross-fade</td></tr>
+    <tr><td>Tap Compass icon (nav)</td><td>Any screen</td><td>Positivity Meter (Screen 3)</td><td>Tab switch — cross-fade</td></tr>
+    <tr><td>Deep link from notification</td><td>App closed/background</td><td>Target rule page or meter</td><td>Direct push, no animation</td></tr>
+  </table>
+
+  <h3>Expo Router File Structure</h3>
+  <pre><code>app/
+├── _layout.tsx              — Root layout, ThemeProvider, onboarding check
+├── onboarding.tsx           — 3-step onboarding screens
+├── (tabs)/
+│   ├── _layout.tsx          — Bottom tab navigator (custom pill nav)
+│   ├── index.tsx            — Home (Screen 1) — category grid
+│   └── meter.tsx            — Positivity Meter (Screen 3)
+├── category/[id].tsx        — Category List (Screen 4) — dynamic route
+├── rule/[id].tsx            — Rule Page (Screen 5) — dynamic route
+└── todo.tsx                 — Todo (Screen 2) — modal/sheet</code></pre>
+  <div class="pl">File structure</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ABOUT SCREEN -->
+<div class="section" id="about">
+  <div class="sl">03 — UX Flows</div>
+  <div class="st">About Screen</div>
+  <p>Triggered by the ⓘ button in the top-left of the Home screen. Opens as a bottom sheet (not a full screen — keeps context). Contents:</p>
+  <ul>
+    <li>Large duck mascot illustration (centred, 120px)</li>
+    <li>App name "Product+ive" in DM Serif Display italic</li>
+    <li>Tagline: "Rules that work. Habits that last."</li>
+    <li>Version number (from <code>expo-constants</code>): "Version 1.0.0"</li>
+    <li>Brief copy: "Product+ive is a free, offline productivity companion. No account, no ads, no tracking. Just you and 20 proven rules."</li>
+    <li>Three small links: "Privacy Policy" · "Share App" · "Rate on App Store"</li>
+    <li>Bottom: "Made with ❤ for focus freaks"</li>
+  </ul>
+</div>
+
+<div class="divider"></div>
+
+<!-- EDGE CASES -->
+<div class="section" id="edge-cases">
+  <div class="sl">04 — UX Flows</div>
+  <div class="st">Edge Cases & Empty States</div>
+
+  <h3>Empty States</h3>
+  <table class="tbl">
+    <tr><th>Screen</th><th>Condition</th><th>UI</th></tr>
+    <tr><td>Todo</td><td>No tasks created yet</td><td>Duck mascot illustration + "No tasks yet. Tap + to add your first." + a small hint: "Try tagging it with a rule — Eat the Frog is a great start."</td></tr>
+    <tr><td>Positivity Meter</td><td>Score = 0, first launch</td><td>Ring empty + duck mascot sitting inside the ring + "Your meter starts filling when you complete your first session. Let's go! 🌱"</td></tr>
+    <tr><td>Activity log</td><td>No history yet</td><td>Three ghost/skeleton rows with shimmer animation, then: "Complete a session to see your activity here."</td></tr>
+  </table>
+
+  <h3>Session Interruption</h3>
+  <div class="callout c-neu"><div class="ci">⚠️</div><div class="cb">If the user presses the back button or switches apps during an active timer session, the app must: (1) persist the session start time to AsyncStorage, (2) show a "Resume session?" prompt when returning, (3) if the session was interrupted for more than 30 minutes, offer to mark it complete (partial credit) or discard it.</div></div>
+
+  <h3>Notification Permission Denied</h3>
+  <p>If the user denies notification permission during onboarding, the app must degrade gracefully. Rules that rely on notifications (Spaced Repetition, 20-20-20, SRS) show an in-app banner: "Enable notifications in Settings to get reminders for this rule." — with a direct deep link to the app's notification settings via <code>Linking.openSettings()</code>.</p>
+
+  <h3>First Rule Discovery Bonus</h3>
+  <p>When a user starts a rule for the first time (not in their <code>rulesUsed[]</code> array), show a small toast: "🌟 First time with this rule! +25 discovery bonus points" — animated in from the bottom, auto-dismiss after 2.5s.</p>
+</div>
+
+<div class="divider"></div>
+
+<!-- TECH STACK -->
+<div class="section" id="stack">
+  <div class="sl">05 — React Native</div>
+  <div class="st">Full Technology Stack</div>
+
+  <table class="tbl">
+    <tr><th>Library</th><th>Version</th><th>Purpose</th></tr>
+    <tr><td><code>react-native</code> + <code>expo</code></td><td>0.73+ / SDK 51</td><td>Core cross-platform framework</td></tr>
+    <tr><td><code>expo-router</code></td><td>3.x</td><td>File-based navigation</td></tr>
+    <tr><td><code>react-native-reanimated</code></td><td>3.x</td><td>Card press spring, timer ring animation, meter fill, step dots</td></tr>
+    <tr><td><code>react-native-gesture-handler</code></td><td>2.x</td><td>Swipe to dismiss sheets, press gestures</td></tr>
+    <tr><td><code>@gorhom/bottom-sheet</code></td><td>4.x</td><td>Todo create sheet, Rule info sheet, About sheet</td></tr>
+    <tr><td><code>expo-sqlite</code></td><td>—</td><td>Sessions history, todo items, positivity state</td></tr>
+    <tr><td><code>@react-native-async-storage/async-storage</code></td><td>1.x</td><td>Theme mode, onboarding flag, settings</td></tr>
+    <tr><td><code>expo-notifications</code></td><td>—</td><td>All notification types (timer end, SRS review, daily motivation)</td></tr>
+    <tr><td><code>expo-haptics</code></td><td>—</td><td>Timer start/end vibration, task completion tap</td></tr>
+    <tr><td><code>expo-font</code></td><td>—</td><td>DM Serif Display + DM Sans + DM Mono</td></tr>
+    <tr><td><code>zustand</code></td><td>4.x</td><td>Global state: ThemeMode, PositivityState, active session</td></tr>
+    <tr><td><code>@shopify/flash-list</code></td><td>1.x</td><td>High-performance rule list and todo list</td></tr>
+    <tr><td><code>react-native-svg</code></td><td>14.x</td><td>Timer ring, positivity meter ring (SVG circles)</td></tr>
+    <tr><td><code>react-native-confetti-cannon</code></td><td>—</td><td>Level-up milestone celebrations</td></tr>
+    <tr><td><code>expo-keep-awake</code></td><td>—</td><td>Keep screen on during active timer sessions</td></tr>
+    <tr><td><code>expo-constants</code></td><td>—</td><td>App version in About screen</td></tr>
+    <tr><td><code>expo-linking</code></td><td>—</td><td>Notification deep links, Settings deep link</td></tr>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- FOLDER STRUCTURE -->
+<div class="section" id="folder">
+  <div class="sl">06 — React Native</div>
+  <div class="st">Project Folder Structure</div>
+
+  <pre><code>productive-app/
+├── app/                            # expo-router routes
+│   ├── _layout.tsx                 # Root: ThemeProvider + fonts + onboarding check
+│   ├── onboarding.tsx              # 3-step onboarding
+│   ├── (tabs)/
+│   │   ├── _layout.tsx             # Custom pill bottom nav
+│   │   ├── index.tsx               # Home — 2×2 category grid
+│   │   └── meter.tsx               # Positivity Meter screen
+│   ├── category/[id].tsx           # Category rule list
+│   ├── rule/[id].tsx               # Rule page + engine
+│   └── todo.tsx                    # Todo screen
+│
+├── src/
+│   ├── components/
+│   │   ├── CategoryCard.tsx        # The white 1:1 card with icon
+│   │   ├── RuleRow.tsx             # Pill row with dark circle arrow
+│   │   ├── BottomNav.tsx           # Floating pill nav with + center
+│   │   ├── PositivityRing.tsx      # Animated SVG ring component
+│   │   ├── TimerRing.tsx           # Countdown ring SVG
+│   │   ├── StepDots.tsx            # Progress dots for GuidedEngine
+│   │   ├── TodoItem.tsx            # Checkbox row with rule tag
+│   │   ├── PointsToast.tsx         # "+20 pts" animated toast
+│   │   └── DuckMascot.tsx          # Duck SVG with animations
+│   │
+│   ├── engines/
+│   │   ├── CountdownTimerEngine.tsx
+│   │   ├── IntervalReminderEngine.tsx
+│   │   ├── GuidedPromptEngine.tsx
+│   │   ├── SmartTaskSorterEngine.tsx
+│   │   ├── SpacedRepetitionEngine.tsx
+│   │   ├── AwarenessReflectionEngine.tsx
+│   │   └── FreeWriteRecallEngine.tsx
+│   │
+│   ├── data/
+│   │   ├── rules.ts                # All 20 RuleConfig objects
+│   │   └── categories.ts           # 4 CategoryConfig objects
+│   │
+│   ├── store/
+│   │   ├── themeStore.ts           # Zustand: 'light' | 'dark'
+│   │   ├── positivityStore.ts      # Zustand: scores, sessions, history
+│   │   └── sessionStore.ts         # Zustand: active session state
+│   │
+│   ├── db/
+│   │   ├── schema.ts               # SQLite table creation
+│   │   ├── sessions.ts             # Session CRUD
+│   │   └── todos.ts                # Todo CRUD
+│   │
+│   ├── theme/
+│   │   ├── tokens.ts               # All design tokens (colors, radius, spacing)
+│   │   ├── lightTheme.ts           # Light theme object
+│   │   ├── darkTheme.ts            # Dark theme object
+│   │   └── ThemeContext.tsx        # Context + useTheme hook
+│   │
+│   ├── notifications/
+│   │   ├── scheduler.ts            # Schedule/cancel notifications
+│   │   └── templates.ts            # All notification copy
+│   │
+│   └── utils/
+│       ├── points.ts               # Points event emitter
+│       ├── formatters.ts           # Time formatting for timer display
+│       └── storage.ts              # AsyncStorage helpers
+│
+├── assets/
+│   ├── fonts/                      # DM Serif Display, DM Sans, DM Mono
+│   └── duck/                       # Duck mascot SVG variants
+│
+└── app.json                        # Expo config + notification permissions</code></pre>
+  <div class="pl">Project structure</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- THEME IMPLEMENTATION -->
+<div class="section" id="theme-impl">
+  <div class="sl">07 — React Native</div>
+  <div class="st">Theme Implementation</div>
+
+  <pre><code>// src/theme/tokens.ts — all design tokens
+export const tokens = {
+  colors: {
+    // Base
+    inkLight: '#0D0D0D',
+    inkDark:  '#F2F1EE',
+    bgLight:  '#F9F8F5',
+    bgDark:   '#0D0D0D',
+    cardLight: '#F2F1EE',
+    cardDark:  '#1E1E1E',
+    // Category accents — light
+    learnLight: '#7C3AED',
+    focusLight: '#1D4ED8',
+    prodLight:  '#059669',
+    studyLight: '#B45309',
+    // Category accents — dark
+    learnDark: '#A78BFA',
+    focusDark: '#60A5FA',
+    prodDark:  '#34D399',
+    studyDark: '#FBBF24',
+  },
+  radius: {
+    card: 28,
+    row:  22,
+    btn:  999,
+    icon: 14,
+    sm:   10,
+  },
+  spacing: { xs:4, sm:8, md:16, lg:24, xl:40, xxl:64 },
+  font: {
+    display: 'DM Serif Display',
+    body:    'DM Sans',
+    mono:    'DM Mono',
+  }
+}
+
+// src/theme/ThemeContext.tsx
+type Mode = 'light' | 'dark'
+
+const ThemeContext = createContext({ mode: 'dark' as Mode, toggle: ()=>{} })
+
+export const ThemeProvider = ({ children }) => {
+  const [mode, setMode] = useState&lt;Mode&gt;('dark')
+
+  useEffect(() => {
+    AsyncStorage.getItem('theme').then(v => { if (v) setMode(v as Mode) })
+  }, [])
+
+  const toggle = async () => {
+    const next = mode === 'dark' ? 'light' : 'dark'
+    setMode(next)
+    await AsyncStorage.setItem('theme', next)
+  }
+
+  return &lt;ThemeContext.Provider value={{ mode, toggle }}&gt;{children}&lt;/ThemeContext.Provider&gt;
+}
+
+export const useTheme = () => {
+  const { mode, toggle } = useContext(ThemeContext)
+  const t = tokens
+  const isDark = mode === 'dark'
+  return {
+    mode, toggle, isDark,
+    bg:      isDark ? t.colors.bgDark      : t.colors.bgLight,
+    card:    isDark ? t.colors.cardDark    : t.colors.cardLight,
+    ink:     isDark ? t.colors.inkDark     : t.colors.inkLight,
+    inkMid:  isDark ? 'rgba(242,241,238,0.5)' : '#6B6B6B',
+    learn:   isDark ? t.colors.learnDark   : t.colors.learnLight,
+    focus:   isDark ? t.colors.focusDark   : t.colors.focusLight,
+    prod:    isDark ? t.colors.prodDark    : t.colors.prodLight,
+    study:   isDark ? t.colors.studyDark   : t.colors.studyLight,
+    border:  isDark ? 'rgba(242,241,238,0.08)' : 'rgba(13,13,13,0.07)',
+  }
+}</code></pre>
+  <div class="pl">TypeScript / React Native</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ENGINE ARCHITECTURE -->
+<div class="section" id="engine-code">
+  <div class="sl">08 — React Native</div>
+  <div class="st">Engine Architecture</div>
+
+  <pre><code>// src/data/rules.ts — the RuleConfig interface
+export type EngineType =
+  | 'countdown' | 'interval' | 'guided'
+  | 'sorter' | 'spaced' | 'awareness' | 'freewrite'
+
+export interface RuleConfig {
+  id:                 string
+  name:               string
+  categoryId:         'learning' | 'focus' | 'productivity' | 'study'
+  engine:             EngineType
+  shortDescription:   string       // 1 line — shown in rule row
+  description:        string       // 2–3 sentences — shown in info sheet
+  whyItWorks:         string       // The science
+  bestFor:            string[]
+  engineConfig:       object       // Engine-specific params
+  pointsPerSession:   number
+  discoveryBonus:     number
+}
+
+// src/rule/[id].tsx — engine router
+import { CountdownTimerEngine }      from '../engines/CountdownTimerEngine'
+import { GuidedPromptEngine }         from '../engines/GuidedPromptEngine'
+import { IntervalReminderEngine }     from '../engines/IntervalReminderEngine'
+import { SmartTaskSorterEngine }      from '../engines/SmartTaskSorterEngine'
+import { SpacedRepetitionEngine }     from '../engines/SpacedRepetitionEngine'
+import { AwarenessReflectionEngine }  from '../engines/AwarenessReflectionEngine'
+import { FreeWriteRecallEngine }      from '../engines/FreeWriteRecallEngine'
+
+const ENGINE_MAP = {
+  countdown:  CountdownTimerEngine,
+  interval:   IntervalReminderEngine,
+  guided:     GuidedPromptEngine,
+  sorter:     SmartTaskSorterEngine,
+  spaced:     SpacedRepetitionEngine,
+  awareness:  AwarenessReflectionEngine,
+  freewrite:  FreeWriteRecallEngine,
+}
+
+export default function RulePage() {
+  const { id } = useLocalSearchParams()
+  const rule = getRuleById(id as string)
+  const Engine = ENGINE_MAP[rule.engine]
+  return &lt;Engine config={rule.engineConfig} rule={rule} /&gt;
+}</code></pre>
+  <div class="pl">TypeScript / React Native</div>
+
+  <h3>CountdownTimerEngine pattern</h3>
+  <pre><code>// src/engines/CountdownTimerEngine.tsx
+interface CountdownConfig {
+  workDuration:       number   // seconds
+  breakDuration?:     number   // seconds (optional)
+  longBreakDuration?: number
+  longBreakAfterCycles?: number
+  cycles:             number
+  autoStartBreak?:    boolean
+}
+
+export const CountdownTimerEngine = ({ config, rule }) => {
+  const { workDuration, breakDuration, cycles } = config as CountdownConfig
+  const [phase, setPhase]         = useState&lt;'work' | 'break' | 'done'&gt;('work')
+  const [remaining, setRemaining] = useState(workDuration)
+  const [currentCycle, setCycle]  = useState(1)
+  const [running, setRunning]     = useState(false)
+  const { addPoints }             = usePositivityStore()
+
+  // SVG ring circumference = 2π × r = 2π × 60 ≈ 377
+  const circumference = 377
+  const progress = remaining / (phase === 'work' ? workDuration : breakDuration!)
+  const strokeDashoffset = circumference * (1 - progress)
+
+  useEffect(() => {
+    if (!running) return
+    if (remaining === 0) {
+      if (phase === 'work') {
+        handleWorkComplete()
+      } else {
+        handleBreakComplete()
+      }
+      return
+    }
+    const t = setInterval(() => setRemaining(r => r - 1), 1000)
+    return () => clearInterval(t)
+  }, [running, remaining, phase])
+
+  const handleWorkComplete = async () => {
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    await scheduleNotification('Break time! You earned it 🌿', 'Take 5 minutes away from the screen.')
+    addPoints(rule.pointsPerSession)  // +20 points
+    if (currentCycle &lt; cycles) {
+      setPhase('break'); setRemaining(breakDuration!); setCycle(c => c+1)
+    } else {
+      setPhase('done')
+    }
+  }
+
+  return (
+    &lt;View style={styles.container}&gt;
+      &lt;Svg width={140} height={140} style={{ transform:[{rotate:'-90deg'}] }}&gt;
+        &lt;Circle cx="70" cy="70" r="60" stroke="rgba(0,0,0,0.08)" strokeWidth={7} fill="none"/&gt;
+        &lt;Circle cx="70" cy="70" r="60"
+          stroke={phase === 'break' ? '#059669' : '#0D0D0D'}
+          strokeWidth={7} fill="none"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+        /&gt;
+      &lt;/Svg&gt;
+      &lt;View style={styles.centre}&gt;
+        &lt;Text style={styles.time}&gt;{formatTime(remaining)}&lt;/Text&gt;
+        &lt;Text style={styles.label}&gt;{phase.toUpperCase()}&lt;/Text&gt;
+      &lt;/View&gt;
+    &lt;/View&gt;
+  )
+}</code></pre>
+  <div class="pl">TypeScript / React Native</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- POINTS SYSTEM -->
+<div class="section" id="points-system">
+  <div class="sl">09 — React Native</div>
+  <div class="st">Points System</div>
+
+  <pre><code>// src/store/positivityStore.ts
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
+interface PositivityStore {
+  weeklyScore:    number
+  lifetimeScore:  number
+  currentLevel:   string
+  weeklyStreak:   number
+  rulesUsed:      string[]
+  lastActiveDate: string
+  addPoints: (amount: number, source: string, ruleId?: string) => void
+  markRuleUsed: (ruleId: string) => boolean  // returns true if first time
+  checkAndResetWeekly: () => void
+}
+
+const LEVELS = [
+  { min: 0,    name: 'Getting Started 🌱' },
+  { min: 100,  name: 'Building Momentum 🔥' },
+  { min: 250,  name: 'In the Zone ⚡' },
+  { min: 500,  name: 'Rule Master 🧠' },
+  { min: 1000, name: 'Productively Positive 🏆' },
+]
+
+const getLevel = (score: number) =>
+  [...LEVELS].reverse().find(l => score >= l.min)!.name
+
+export const usePositivityStore = create&lt;PositivityStore&gt;()(
+  persist(
+    (set, get) => ({
+      weeklyScore:   0,
+      lifetimeScore: 0,
+      currentLevel:  'Getting Started 🌱',
+      weeklyStreak:  0,
+      rulesUsed:     [],
+      lastActiveDate: '',
+
+      addPoints: (amount, source, ruleId) => {
+        set(s => {
+          const weekly    = s.weeklyScore + amount
+          const lifetime  = s.lifetimeScore + amount
+          const level     = getLevel(weekly)
+          return { weeklyScore: weekly, lifetimeScore: lifetime, currentLevel: level }
+        })
+        // Emit event for PointsToast animation
+        pointsEventEmitter.emit({ amount, source, ruleId })
+      },
+
+      markRuleUsed: (ruleId) => {
+        const { rulesUsed } = get()
+        if (!rulesUsed.includes(ruleId)) {
+          set(s => ({ rulesUsed: [...s.rulesUsed, ruleId] }))
+          return true  // first time — caller should add discoveryBonus
+        }
+        return false
+      },
+
+      checkAndResetWeekly: () => {
+        const today = new Date().toDateString()
+        const { lastActiveDate } = get()
+        // Reset weekly on Monday
+        if (isNewWeek(lastActiveDate)) {
+          set({ weeklyScore: 0, weeklyStreak: 0 })
+        }
+        set({ lastActiveDate: today })
+      },
+    }),
+    { name: 'positivity', storage: createJSONStorage(() => AsyncStorage) }
+  )
+)</code></pre>
+  <div class="pl">TypeScript / Zustand</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- RULE DATA -->
+<div class="section" id="rule-data">
+  <div class="sl">10 — Content</div>
+  <div class="st">All 20 Rule Configs</div>
+
+  <pre><code>// src/data/rules.ts — selected entries (full file has all 20)
+
+export const rules: RuleConfig[] = [
+
+  { id: 'pomodoro', name: 'Pomodoro Technique', categoryId: 'focus',
+    engine: 'countdown',
+    shortDescription: '25-min focus blocks with 5-min breaks',
+    description: 'Work in focused 25-minute intervals, then take a 5-minute break. After four rounds, take a 15–30 minute break.',
+    whyItWorks: 'Time-boxing reduces cognitive load and decision fatigue. Scheduled breaks prevent burnout and maintain concentration.',
+    bestFor: ['deep work', 'studying', 'writing', 'coding'],
+    engineConfig: { workDuration:25*60, breakDuration:5*60, longBreakDuration:15*60, longBreakAfterCycles:4, cycles:4 },
+    pointsPerSession: 20, discoveryBonus: 25 },
+
+  { id: 'pomodoro_90', name: '90-Min Ultradian Rule', categoryId: 'focus',
+    engine: 'countdown',
+    shortDescription: 'Align work with your 90-min brain cycle',
+    description: 'The brain naturally cycles through high-focus and low-focus states every 90 minutes. Work with one full cycle, then take a genuine 20-minute rest.',
+    whyItWorks: 'Research by Peretz Lavie shows alertness peaks in 90-minute waves (ultradian rhythms). Fighting them causes fatigue.',
+    bestFor: ['creative work', 'complex problem-solving', 'writing'],
+    engineConfig: { workDuration:90*60, breakDuration:20*60, cycles:2 },
+    pointsPerSession: 25, discoveryBonus: 25 },
+
+  { id: '20_20_20', name: '20-20-20 Rule', categoryId: 'focus',
+    engine: 'interval',
+    shortDescription: 'Look 20 feet away for 20 seconds every 20 min',
+    description: 'Every 20 minutes of screen time, look at something 20 feet away for 20 seconds. Reduces digital eye strain significantly.',
+    whyItWorks: 'Focussing on a distant object relaxes the ciliary muscle inside the eye. Recommended by optometrists globally.',
+    bestFor: ['long work sessions', 'studying', 'anyone at a screen'],
+    engineConfig: { intervalMinutes:20, prompt:'Look 20 feet away for 20 seconds', sessionDuration:2*60*60, requiresConfirmation:true },
+    pointsPerSession: 10, discoveryBonus: 25 },
+
+  { id: 'feynman', name: 'Feynman Technique', categoryId: 'learning',
+    engine: 'guided',
+    shortDescription: 'Explain it simply to understand deeply',
+    description: 'Choose a concept, explain it in plain language as if teaching a child, identify your gaps, then return to the source material to fill them.',
+    whyItWorks: 'The act of explaining exposes the illusion of knowing. You can't fake understanding when forced to simplify.',
+    bestFor: ['understanding complex topics', 'exam prep', 'any new subject'],
+    engineConfig: { steps: [
+      { title: 'Choose a topic', prompt: 'What concept do you want to understand?' },
+      { title: 'Explain it simply', prompt: 'Explain it as if teaching a 12-year-old. No jargon allowed.' },
+      { title: 'Find your gaps', prompt: 'Where did you struggle? What couldn\'t you explain? List the gaps.' },
+      { title: 'Review and simplify', prompt: 'Go back to the source. Now explain the gaps you identified.' },
+    ]},
+    pointsPerSession: 15, discoveryBonus: 25 },
+
+  { id: 'eat_frog', name: 'Eat the Frog', categoryId: 'productivity',
+    engine: 'sorter',
+    shortDescription: 'Do your most important task first thing',
+    description: 'Identify your most important (and often most dreaded) task and do it first. This single habit eliminates procrastination at its root.',
+    whyItWorks: 'Willpower and focus are highest in the morning. Completing the hardest task first creates psychological momentum for the rest of the day.',
+    bestFor: ['morning routines', 'overcoming procrastination', 'high-priority projects'],
+    engineConfig: { sortMode: 'frog', prompt: 'What is your most important task today? The one you\'ve been avoiding.' },
+    pointsPerSession: 15, discoveryBonus: 25 },
+
+  { id: 'two_minute', name: '2-Minute Rule', categoryId: 'productivity',
+    engine: 'countdown',
+    shortDescription: 'If it takes 2 minutes, do it right now',
+    description: 'If a task takes less than 2 minutes to complete, do it immediately. Don\'t schedule it, don\'t write it down — just do it.',
+    whyItWorks: 'The time spent writing down, organising, and revisiting a 2-minute task often exceeds the time to just do it. Reduces backlog anxiety.',
+    bestFor: ['email replies', 'small admin tasks', 'quick decisions'],
+    engineConfig: { workDuration: 2*60, cycles: 1, label: 'Do it NOW', noBreak: true },
+    pointsPerSession: 5, discoveryBonus: 25 },
+
+  { id: 'srs', name: 'Spaced Repetition (SRS)', categoryId: 'learning',
+    engine: 'spaced',
+    shortDescription: 'Review at increasing intervals to remember forever',
+    description: 'Review material at spaced intervals: 1 day, 3 days, 1 week, 2 weeks, 1 month. Each review strengthens the memory trace.',
+    whyItWorks: 'The "forgetting curve" (Ebbinghaus, 1885) shows memory decays predictably. Reviewing just before forgetting is 2–3× more efficient than repeated same-day review.',
+    bestFor: ['vocabulary', 'dates and facts', 'formulas', 'any memorisation'],
+    engineConfig: { intervals: [1, 3, 7, 14, 30], notifyBeforeMinutes: 60 },
+    pointsPerSession: 15, discoveryBonus: 25 },
+
+  { id: 'active_recall', name: 'Active Recall', categoryId: 'study',
+    engine: 'freewrite',
+    shortDescription: 'Test your memory instead of re-reading',
+    description: 'Close your notes and write down everything you remember about a topic. Then check what you missed. This beats re-reading by 50–100%.',
+    whyItWorks: 'Retrieval practice strengthens memory pathways. Re-reading creates a "fluency illusion" — you feel you know it but can\'t retrieve it under pressure.',
+    bestFor: ['exam prep', 'reviewing lectures', 'consolidating learning'],
+    engineConfig: { mode: 'recall', topicPrompt: 'What topic are you reviewing?', timerMode: true },
+    pointsPerSession: 15, discoveryBonus: 25 },
+
+  // ... remaining 12 rules follow the same pattern
+]</code></pre>
+  <div class="pl">TypeScript</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- NOTIFICATION COPY -->
+<div class="section" id="notif-copy">
+  <div class="sl">11 — Content</div>
+  <div class="st">All Notification Copy</div>
+
+  <table class="tbl">
+    <tr><th>ID</th><th>Title</th><th>Body</th><th>Trigger</th></tr>
+    <tr><td><code>session_end_work</code></td><td>Session complete! 🎉</td><td>[Rule name] done — +[N] pts earned. Take a break.</td><td>Timer hits 0 (work phase)</td></tr>
+    <tr><td><code>session_end_break</code></td><td>Break's over ⏰</td><td>Ready for Round [N]? Your focus awaits.</td><td>Break timer hits 0</td></tr>
+    <tr><td><code>interval_20_20_20</code></td><td>20-20-20 check 👀</td><td>Look 20 feet away for 20 seconds. Your eyes will thank you.</td><td>Every 20 mins during session</td></tr>
+    <tr><td><code>srs_review</code></td><td>Time to review 📖</td><td>Day [N] review: "[Topic]". It only takes 5 minutes.</td><td>SRS scheduled date</td></tr>
+    <tr><td><code>morning_frog</code></td><td>What's your frog today? 🐸</td><td>Tackle your most important task first — before anything else.</td><td>Daily at user-set time (default 8am)</td></tr>
+    <tr><td><code>streak_reminder</code></td><td>Don't break the streak 🔥</td><td>You're on a [N]-day streak. Even one session keeps it alive.</td><td>No session by 8pm</td></tr>
+    <tr><td><code>two_min_nudge</code></td><td>Quick task waiting ⚡</td><td>"[Task name]" takes 2 minutes. Do it now before it piles up.</td><td>2-min rule task uncompleted 30min after creation</td></tr>
+    <tr><td><code>level_up</code></td><td>Level up! [Level name] 🏆</td><td>Your Positivity Meter just hit [N] points. Keep going!</td><td>Score crosses level threshold</td></tr>
+    <tr><td><code>weekly_reset</code></td><td>New week, fresh start 🌱</td><td>Your weekly meter resets today. Ready to build momentum again?</td><td>Every Monday at 7am</td></tr>
+  </table>
+</div>
+
+<div class="divider"></div>
+
+<!-- ACCESSIBILITY -->
+<div class="section" id="accessibility">
+  <div class="sl">12 — Launch</div>
+  <div class="st">Accessibility Spec</div>
+
+  <table class="tbl">
+    <tr><th>Element</th><th>accessibilityLabel</th><th>accessibilityRole</th><th>accessibilityHint</th></tr>
+    <tr><td>Category card</td><td>"[Category name], [N] rules"</td><td>button</td><td>"Double tap to view rules"</td></tr>
+    <tr><td>Rule row arrow</td><td>"[Rule name]"</td><td>button</td><td>"Double tap to open rule"</td></tr>
+    <tr><td>+ nav button</td><td>"Add new task"</td><td>button</td><td>"Opens task creation"</td></tr>
+    <tr><td>Start Session button</td><td>"Start [Rule name] session"</td><td>button</td><td>—</td></tr>
+    <tr><td>Timer ring</td><td>"[Minutes]:[Seconds] remaining"</td><td>progressbar</td><td>Live region updates every 10s</td></tr>
+    <tr><td>Positivity ring</td><td>"[Score] out of [Max] points"</td><td>progressbar</td><td>—</td></tr>
+    <tr><td>Theme toggle</td><td>"Switch to [opposite] mode"</td><td>button</td><td>—</td></tr>
+    <tr><td>Todo checkbox</td><td>"[Task name], [done/not done]"</td><td>checkbox</td><td>"Double tap to toggle"</td></tr>
+  </table>
+
+  <div class="callout c-neu"><div class="ci">🔇</div><div class="cb"><strong>Reduced Motion:</strong> Wrap all Reanimated spring animations in a check: <code>const { reduceMotion } = useAccessibilityInfo()</code>. If true, use <code>withTiming(value, {'{'} duration: 0 {'}'} )</code> instead of spring. The timer ring SVG stroke still updates, but without the smooth animation.</div></div>
+
+  <div class="callout c-pos"><div class="ci">✓</div><div class="cb"><strong>Minimum touch targets:</strong> All interactive elements must be at least 44×44 logical pixels. The rule row circle arrow button is already 44px. The + nav button is 54px. Category cards fill the full grid cell. Todo checkboxes have a 44px hit area via padding even if the visual is 20px.</div></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- STORE LISTING -->
+<div class="section" id="store-listing">
+  <div class="sl">13 — Launch</div>
+  <div class="st">App Store Listing Copy</div>
+
+  <h3>App Name</h3>
+  <p><strong>Product+ive — Rules & Focus</strong></p>
+
+  <h3>Subtitle (App Store, 30 chars max)</h3>
+  <p>Science-backed productivity rules</p>
+
+  <h3>Short Description (Play Store, 80 chars)</h3>
+  <p>20 proven rules to focus, learn & build habits. No ads. No account.</p>
+
+  <h3>Full Description</h3>
+  <blockquote>
+    You've read about Pomodoro. You've heard of Spaced Repetition. But reading about a rule and actually doing it are completely different things.<br><br>
+    Product+ive is the gap-closer. We give you 20 of the most effective productivity, focus, learning, and study rules — then actively guide you through each one with interactive sessions, timers, and habit tools.<br><br>
+    <strong>WHAT YOU GET:</strong><br>
+    🧠 Learning & Memory: 1-4-7 Rule, Feynman Technique, 80/20 Rule, Spaced Repetition<br>
+    ⏱ Focus & Sessions: Pomodoro, 20-20-20 Rule, 90-Min Ultradian Rule<br>
+    ⚡ Productivity: Eat the Frog, 2-Minute Rule, 1-3-5 Rule, Parkinson's Law, 5-Second Rule<br>
+    📖 Study Techniques: Active Recall, Blurting, Cornell Notes, Mind Mapping, SQ3R + more<br><br>
+    <strong>THE POSITIVITY METER:</strong> Your Positivity Meter fills every time you complete a session, finish a task, or try a new rule. Watch it grow. Hit milestones. Build momentum.<br><br>
+    <strong>ACTUALLY FREE:</strong> No ads. No account. No cloud. Everything runs on your device.
+  </blockquote>
+
+  <h3>Keywords (App Store, 100 chars)</h3>
+  <p>productivity, focus timer, pomodoro, study techniques, habit tracker, spaced repetition, rules</p>
+
+  <h3>Category</h3>
+  <p>Primary: <strong>Productivity</strong> · Secondary: <strong>Education</strong></p>
+</div>
+
+</div>
+</body>
+</html>
