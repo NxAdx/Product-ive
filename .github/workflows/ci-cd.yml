@@ -14,10 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
   EXPO_CACHE: true
-  GRADLE_OPTS: "-Xmx2g -Dorg.gradle.daemon=true -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true"
+  GRADLE_OPTS: "-Xmx4g -Dorg.gradle.daemon=true -Dorg.gradle.caching=true -Dorg.gradle.parallel=true -Dorg.gradle.configureondemand=true"
 
 jobs:
   lint-typecheck-test:
@@ -50,9 +49,7 @@ jobs:
     needs: lint-typecheck-test
     if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.event_name == 'push'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ndk-version: [ '27.0.11902837' ]
+    timeout-minutes: 45
     steps:
       - name: 2.1 Checkout Code
         uses: actions/checkout@v4
@@ -62,18 +59,6 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-
-      - name: 2.3 Restore Cache (Gradle & NDK)
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ github.workspace }}/.gradle/caches
-            ${{ github.workspace }}/.gradle/wrapper
-            ${{ github.workspace }}/.gradle/build-cache
-            ~/.gradle
-          key: gradle-android-${{ runner.os }}-${{ hashFiles('**/build.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-android-${{ runner.os }}-
 
       - name: 2.4 Setup Java
         uses: actions/setup-java@v4
@@ -85,14 +70,6 @@ jobs:
       - name: 2.5 Install Dependencies
         run: npm ci --omit=dev --no-audit --prefer-offline --legacy-peer-deps 2>/dev/null || npm ci --omit=dev
 
-      - name: 2.6 Setup NDK
-        run: |
-          echo "ndk.dir=$ANDROID_HOME/ndk/${{ matrix.ndk-version }}" >> $ANDROID_HOME/local.properties
-          export ANDROID_NDK=$ANDROID_HOME/ndk/${{ matrix.ndk-version }}
-          if [ ! -d "$ANDROID_NDK" ]; then
-            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;${{ matrix.ndk-version }}"
-          fi
-
       - name: 2.7 Setup Expo
         uses: expo/expo-github-action@v8
         with:
@@ -100,15 +77,11 @@ jobs:
           eas-cache: true
           token: ${{ secrets.EXPO_TOKEN || '' }}
 
-      - name: 2.8 Pre-build (Incremental)
+      - name: 2.8 Pre-build (Android)
         run: |
-          if [ ! -d "node_modules" ]; then
-            npx expo prebuild --platform android --non-interactive --clean
-          else
-            npx expo prebuild --platform android --non-interactive
-          fi
+          npx expo prebuild --platform android --non-interactive
 
-      - name: 2.8.5 Generate Debug Keystore (if missing)
+      - name: 2.8.5 Generate Debug Keystore (Fallback)
         run: |
           if [ ! -f "android/app/debug.keystore" ]; then
             keytool -genkey -v -keystore android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
@@ -121,7 +94,7 @@ jobs:
           ./gradlew assembleRelease \
             --no-daemon \
             --parallel \
-            --max-workers=4 \
+            --max-workers=2 \
             --build-cache
 
       - name: 2.10 Upload Artifact
@@ -129,4 +102,4 @@ jobs:
         with:
           name: productive-release-apk
           path: android/app/build/outputs/apk/release/
-          retention-days: 30
+          retention-days: 14
