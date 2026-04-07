@@ -16,12 +16,18 @@ async function ensureChannel() {
   });
 }
 
+let activeTimer: NodeJS.Timeout | null = null;
+
 /**
  * Starts a foreground service that displays a ticking chronometer.
  * Automatically vibrates at the expected payload end manually using headless background task if needed,
  * but primarily we schedule an exact notification or rely on state.
  */
 export async function startForegroundTimer(durationMs: number, title: string = 'Deep Focus') {
+  if (activeTimer) {
+    clearTimeout(activeTimer);
+  }
+
   await ensureChannel();
 
   // Create a foreground service notification with a Chronometer
@@ -47,12 +53,22 @@ export async function startForegroundTimer(durationMs: number, title: string = '
       ],
     },
   });
+
+  // Background JS task is kept awake via _layout.tsx notifee.registerForegroundService hook.
+  // This allows setTimeout to deterministically fire in suspended mode. 
+  activeTimer = setTimeout(() => {
+    stopForegroundTimer(true).catch(console.error);
+  }, durationMs);
 }
 
 /**
  * Terminates the foreground service chronometer and sends the completion vibration
  */
 export async function stopForegroundTimer(completed: boolean = false) {
+  if (activeTimer) {
+    clearTimeout(activeTimer);
+    activeTimer = null;
+  }
   // If the timer completed organically, vibrate!
   if (completed) {
     Vibration.vibrate([0, 500, 200, 500, 200, 1000]); // Heavy vibration pattern

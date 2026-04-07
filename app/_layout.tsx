@@ -33,6 +33,17 @@ import * as SystemUI from 'expo-system-ui';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { logRuntimeEvent } from '../src/utils/runtimeLogs';
 import { initializeNotifications, requestNotificationPermissions } from '../src/services/NotificationManager';
+import notifee from '@notifee/react-native';
+
+// Register background task for Notifee strictly outside of React lifecycle.
+// This prevents Android from crashing the app when asForegroundService is used
+// and keeps the JS thread alive so our setTimeout can trigger accurately.
+notifee.registerForegroundService((notification) => {
+  return new Promise(() => {
+    // Promise never resolves organically. 
+    // It is terminated manually when stopForegroundService() is called.
+  });
+});
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
