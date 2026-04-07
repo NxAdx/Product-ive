@@ -31,17 +31,16 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     const rule = RULES.find((r) => r.id === ruleId);
     let durationMs = 0;
     
-    if (rule?.engine === 'countdown') {
+    if (rule?.engine === 'countdown' || rule?.engine === 'interval') {
       // Find duration in numeric minutes representing this rule
-      let minutes = rule.engineConfig?.durationMinutes || 25; // Try to parse original config first
+      durationMs = 25 * 60 * 1000; // default
       
-      // Fallbacks if not set natively
-      if (ruleId === 'pomodoro') minutes = 25; 
-      if (ruleId === '90-30') minutes = 90;
-      if (ruleId === 'flowtime') minutes = 60;
-      if (ruleId === 'two-minute') minutes = 2;
+      if (rule.engineConfig?.workDuration) {
+        durationMs = rule.engineConfig.workDuration * 1000; // workDuration is in seconds
+      } else if (rule.engineConfig?.intervalMinutes) {
+        durationMs = rule.engineConfig.intervalMinutes * 60 * 1000; // intervalMinutes is in minutes
+      }
       
-      durationMs = minutes * 60 * 1000;
       startForegroundTimer(durationMs, rule.name).catch(console.error);
     } else {
       // Not a timed countdown, just a standard stopwatch

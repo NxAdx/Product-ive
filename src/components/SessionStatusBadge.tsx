@@ -83,7 +83,12 @@ export function SessionStatusBadge() {
   // v1.0.0 Fix: Count down if the engine implies duration limits
   let displaySeconds = elapsedSeconds;
   if (rule.engine === 'countdown' || rule.engine === 'interval') {
-    const totalSeconds = (rule.engineConfig?.duration || 25) * 60;
+    let totalSeconds = 25 * 60; // default 25 min
+    if (rule.engineConfig?.workDuration) {
+      totalSeconds = rule.engineConfig.workDuration;
+    } else if (rule.engineConfig?.intervalMinutes) {
+      totalSeconds = rule.engineConfig.intervalMinutes * 60;
+    }
     displaySeconds = Math.max(0, totalSeconds - elapsedSeconds);
   }
 
