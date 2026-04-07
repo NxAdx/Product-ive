@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import { RULES } from '../data/rules';
 import { usePositivityStore } from './positivityStore';
+import { startForegroundTimer, stopForegroundTimer } from '../services/ForegroundTimerService';
 
 export type SessionPhase = 'work' | 'break' | 'done' | 'idle';
 
@@ -26,14 +27,35 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   pausedAt: null,
   durationPassed: 0,
 
-  startSession: (ruleId) =>
+  startSession: (ruleId) => {
+    const rule = RULES.find((r) => r.id === ruleId);
+    let durationMs = 0;
+    
+    if (rule?.engine === 'countdown') {
+      // Find duration in numeric minutes representing this rule
+      let minutes = rule.engineConfig?.durationMinutes || 25; // Try to parse original config first
+      
+      // Fallbacks if not set natively
+      if (ruleId === 'pomodoro') minutes = 25; 
+      if (ruleId === '90-30') minutes = 90;
+      if (ruleId === 'flowtime') minutes = 60;
+      if (ruleId === 'two-minute') minutes = 2;
+      
+      durationMs = minutes * 60 * 1000;
+      startForegroundTimer(durationMs, rule.name).catch(console.error);
+    } else {
+      // Not a timed countdown, just a standard stopwatch
+      startForegroundTimer(60 * 60 * 1000, rule?.name || 'Active Session').catch(console.error); 
+    }
+
     set({
       activeRuleId: ruleId,
       phase: 'work',
       startTime: Date.now(),
       pausedAt: null,
       durationPassed: 0,
-    }),
+    });
+  },
 
   pauseSession: () =>
     set((state) => {
@@ -73,6 +95,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         }
       }
     }
+
+    stopForegroundTimer(true).catch(console.error);
 
     set({
       activeRuleId: null,
