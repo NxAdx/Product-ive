@@ -8,6 +8,7 @@ import * as Haptics from 'expo-haptics';
 import { tokens } from '../../src/theme/tokens';
 import { ThemedText } from '../../src/components/ThemedText';
 import { BentoCard } from '../../src/components/BentoCard';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function AddScreen() {
   const t = useTheme();
@@ -62,28 +63,41 @@ export default function AddScreen() {
                />
              </View>
 
-             {/* Suggestions Row (v7.0 Friction Reduction) */}
-             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }} contentContainerStyle={{ gap: 8 }}>
-                {['Study 30m', 'Drink water', 'Plan day', 'Focus cycle'].map((txt) => (
-                  <Pressable 
-                   key={txt} 
-                   onPress={() => {
-                       setNewTitle(txt);
-                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                   }}
-                   style={{ 
-                     paddingHorizontal: 12, 
-                     paddingVertical: 6, 
-                     borderRadius: 12, 
-                     backgroundColor: t.surfaceHigh,
-                     borderWidth: 1,
-                     borderColor: t.border
-                   }}
-                   >
-                    <ThemedText variant="caption" color={t.textSecondary}>{txt}</ThemedText>
-                  </Pressable>
-                ))}
-             </ScrollView>
+             <View style={{ position: 'relative' }}>
+               <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false} 
+                style={{ marginTop: 12 }} 
+                contentContainerStyle={{ gap: 8, paddingRight: 40 }}
+               >
+                  {['Study 30m', 'Drink water', 'Plan day', 'Focus cycle'].map((txt) => (
+                    <Pressable 
+                     key={txt} 
+                     onPress={() => {
+                         setNewTitle(txt);
+                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                     }}
+                     style={{ 
+                       paddingHorizontal: 12, 
+                       paddingVertical: 6, 
+                       borderRadius: 12, 
+                       backgroundColor: t.surfaceHigh,
+                       borderWidth: 1,
+                       borderColor: t.border
+                     }}
+                     >
+                      <ThemedText variant="caption" color={t.textSecondary}>{txt}</ThemedText>
+                    </Pressable>
+                  ))}
+               </ScrollView>
+               <LinearGradient
+                  colors={['transparent', t.bg]}
+                  start={{ x: 0, y: 0.5 }}
+                  end={{ x: 1, y: 0.5 }}
+                  style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 40 }}
+                  pointerEvents="none"
+                />
+             </View>
 
             {/* Priority Bento Selector */}
             <View style={styles.priorityGrid}>
@@ -129,7 +143,7 @@ export default function AddScreen() {
                 ]}
               >
                 <Menu size={20} color={priority === 'medium' ? "#FFFFFF" : t.textDisabled} />
-                <ThemedText variant="label" color={priority === 'medium' ? "#FFFFFF" : t.textSecondary} style={{ marginTop: 8, fontWeight: '800' }}>
+                <ThemedText variant="label" style={{ marginTop: 8, fontWeight: '800', color: priority === 'medium' ? "#FFFFFF" : t.textSecondary }}>
                   Medium
                 </ThemedText>
               </Pressable>
@@ -230,7 +244,7 @@ export default function AddScreen() {
               </View>
               <ThemedText variant="h3" style={{ textAlign: 'center', marginTop: 20 }}>No commitments yet</ThemedText>
               <ThemedText variant="body" align="center" color={t.textSecondary} style={{ marginTop: 8 }}>
-                Start small. One commitment is enough.
+                Win your day with one small promise.
               </ThemedText>
             </View>
           )}

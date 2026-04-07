@@ -142,10 +142,13 @@ export default function ExploreScreen() {
     </View>
   );
 
+  const popularRules = filteredRules.slice(0, 3);
+  const popularIds = new Set(popularRules.map(r => r.id));
+
   const groupedCategories = [
-    { title: '🔥 Popular', data: filteredRules.slice(0, 3) },
-    { title: '⚡ Quick Wins', data: filteredRules.filter(r => r.categoryId === 'productivity') },
-    { title: '🧠 Deep Work', data: filteredRules.filter(r => r.categoryId === 'learning' || r.categoryId === 'focus') },
+    { title: '🔥 Popular', data: popularRules },
+    { title: '⚡ Quick Wins', data: filteredRules.filter(r => !popularIds.has(r.id) && r.categoryId === 'productivity') },
+    { title: '🧠 Deep Work', data: filteredRules.filter(r => !popularIds.has(r.id) && (r.categoryId === 'learning' || r.categoryId === 'focus')) },
   ];
 
   return (

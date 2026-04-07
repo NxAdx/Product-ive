@@ -17,15 +17,15 @@ export const tokens = {
     surfaceContainerHighest: '#333333',  // Highlight surface
 
     // Text colors
-    onSurface: '#f5f5f7',       // Primary (Apple-style white)
-    onSurfaceVariant: '#a1a1aa', // Secondary (Zinc-400)
-    onSurfaceDisabled: '#71717a', // Tertiary (Zinc-500)
+    onSurface: '#FFFFFF',        // Pure White for max contrast
+    onSurfaceVariant: '#d1d1d6', // Zinc-300 (Lighter for dark mode legibility)
+    onSurfaceDisabled: '#8e8e93', // Zinc-500 (Clearly visible even if disabled)
 
-    // Semantic accents (v4.0 Spec)
-    progress: '#22c55e',        // Green
-    learning: '#3b82f6',        // Blue
-    focus: '#f97316',           // Orange
-    memory: '#a855f7',          // Purple
+    // Semantic accents (v4.5 Kinetic Neon)
+    progress: '#22c55e',        // Neon Green
+    learning: '#60a5fa',        // Neon Blue (Lighter for vibrancy)
+    focus: '#fb923c',           // Neon Orange
+    memory: '#c084fc',          // Neon Purple
     
     // Core accents
     positivity: '#22c55e',      // Success / Primary CTA
@@ -46,15 +46,15 @@ export const tokens = {
     surfaceContainerHigh: '#d4d4d8',
     surfaceContainerHighest: '#a1a1aa',
 
-    onSurface: '#09090b',
-    onSurfaceVariant: '#52525b',
-    onSurfaceDisabled: '#a1a1aa',
+    onSurface: '#000000',        // Pure Black
+    onSurfaceVariant: '#3f3f46', // Zinc-700 (High contrast for light mode)
+    onSurfaceDisabled: '#a1a1aa', // Zinc-400
 
-    // Semantic accents
-    progress: '#16a34a',
-    learning: '#2563eb',
-    focus: '#ea580c',
-    memory: '#9333ea',
+    // Semantic accents (v4.5 High Contrast)
+    progress: '#15803d',        // Forest Green
+    learning: '#1d4ed8',        // Royal Blue
+    focus: '#c2410c',           // Burnt Orange
+    memory: '#7e22ce',          // Deep Purple
 
     positivity: '#16a34a',
     info: '#2563eb',

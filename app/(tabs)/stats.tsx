@@ -86,7 +86,7 @@ export default function StatsScreen() {
           <View style={[styles.rankBadge, { backgroundColor: t.isDark ? 'rgba(34, 197, 94, 0.1)' : 'rgba(34, 197, 94, 0.05)', borderColor: t.positivity }]}>
              <Trophy size={14} color={t.positivity} />
              <ThemedText variant="label" style={{ color: t.positivity, marginLeft: 8, fontWeight: '700' }}>
-                🏆 Level: {positivity.currentLevel}
+                Level: {positivity.currentLevel}
              </ThemedText>
           </View>
           <ThemedText variant="caption" color={t.textDisabled} style={{ marginTop: 12 }}>
@@ -100,7 +100,7 @@ export default function StatsScreen() {
             </View>
             <View style={{ width: 1, height: 12, backgroundColor: t.border, marginTop: 2 }} />
             <View style={{ alignItems: 'center' }}>
-              <ThemedText variant="caption" style={{ color: t.info, fontWeight: '700' }}>+12% vs last week</ThemedText>
+              <ThemedText variant="caption" style={{ color: t.positivity, fontWeight: '700' }}>+12% vs last week</ThemedText>
             </View>
           </View>
         </View>
@@ -151,19 +151,19 @@ export default function StatsScreen() {
         <View style={styles.pathLadder}>
            <View style={[styles.pathStep, { borderColor: t.positivity, backgroundColor: t.isDark ? 'rgba(34, 197, 94, 0.05)' : 'rgba(34, 197, 94, 0.02)' }]}>
               <Check size={14} color={t.positivity} />
-              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '700', color: t.positivity }}>Getting Started</ThemedText>
-              <ThemedText variant="caption" color={t.positivity} style={{ marginLeft: 'auto', fontWeight: '800' }}>Unlocked</ThemedText>
+              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '700', color: t.text }}>Getting Started</ThemedText>
+              <ThemedText variant="caption" color={t.positivity} style={{ marginLeft: 'auto', fontWeight: '800' }}>UNLOCKED</ThemedText>
            </View>
            <View style={styles.pathLine} />
-           <View style={[styles.pathStep, { borderColor: t.warning, opacity: 0.8 }]}>
+           <View style={[styles.pathStep, { borderColor: t.warning }]}>
               <Zap size={14} color={t.warning} />
-              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '600' }}>Catalyst</ThemedText>
-              <ThemedText variant="caption" color={t.textDisabled} style={{ marginLeft: 'auto' }}>500 Pts</ThemedText>
+              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '600', color: t.text }}>Catalyst</ThemedText>
+              <ThemedText variant="caption" color={t.textSecondary} style={{ marginLeft: 'auto' }}>500 Pts</ThemedText>
            </View>
            <View style={styles.pathLine} />
-           <View style={[styles.pathStep, { borderColor: t.textDisabled, opacity: 0.4 }]}>
+           <View style={[styles.pathStep, { borderColor: t.textDisabled, opacity: 0.7 }]}>
               <Trophy size={14} color={t.textDisabled} />
-              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '600' }}>Legend</ThemedText>
+              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '600', color: t.textSecondary }}>Legend</ThemedText>
               <ThemedText variant="caption" color={t.textDisabled} style={{ marginLeft: 'auto' }}>1000 Pts</ThemedText>
            </View>
         </View>

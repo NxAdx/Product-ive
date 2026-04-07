@@ -30,14 +30,26 @@ export function SessionStatusBadge() {
     opacity: pulse.value,
   }));
 
-  // Calculate elapsed time - must be before early returns (hooks rule)
+  const [tick, setTick] = useState(0);
+  
+  // v4.5: Real-time interval ticker (fixes 00:00 bug)
+  useEffect(() => {
+    if (!activeRuleId || phase !== 'work' || pausedAt) return;
+    
+    const interval = setInterval(() => {
+      setTick(prev => prev + 1);
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [activeRuleId, phase, pausedAt]);
+
+  // Calculate elapsed time
   const elapsedSeconds = useMemo(() => {
     if (!startTime) return 0;
     const now = pausedAt || Date.now();
     const elapsed = Math.floor((now - startTime) / 1000);
-    // Clamp to 0 to prevent negative display
     return Math.max(0, elapsed);
-  }, [startTime, pausedAt]);
+  }, [startTime, pausedAt, tick]); // tick dependency forces re-calculation every second
 
   // Logic to show timer (v4.0 UX Optimization) - must be before early returns
   const showTimer = useMemo(() => {
@@ -94,7 +106,7 @@ export function SessionStatusBadge() {
               {formatTime(elapsedSeconds)}
             </ThemedText>
             <ThemedText variant="caption" color={t.textSecondary} style={{ marginLeft: 8 }}>
-               {isPaused ? 'Paused' : 'Running'}
+               {isPaused ? 'PAUSED' : (elapsedSeconds > 0 ? 'IN FOCUS' : 'READY')}
             </ThemedText>
           </View>
         )}

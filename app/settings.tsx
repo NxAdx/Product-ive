@@ -102,8 +102,8 @@ function WellnessNotificationsSection() {
                   <Switch
                     value={notification.enabled}
                     onValueChange={(enabled) => handleToggle(notification.id, enabled)}
-                    trackColor={{ false: 'rgba(255,255,255,0.05)', true: t.positivity }}
-                    thumbColor={notification.enabled ? '#FFFFFF' : '#888'}
+                    trackColor={{ false: t.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', true: t.positivity }}
+                    thumbColor={notification.enabled ? '#FFFFFF' : (t.isDark ? '#888' : '#fff')}
                   />
                 </View>
                 {notification.enabled && (
@@ -369,8 +369,8 @@ export default function SettingsScreen() {
               <ThemedText variant="body">Diagnostics</ThemedText>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              {isExporting ? <ActivityIndicator size="small" /> : <ThemedText variant="caption" color={t.inkDim}>Export Logs</ThemedText>}
-              <ChevronRight size={16} color={t.inkDim} style={{ opacity: 0.3 }} />
+              {isExporting ? <ActivityIndicator size="small" /> : <ThemedText variant="caption" color={t.textSecondary}>Export Logs</ThemedText>}
+              <ChevronRight size={16} color={t.textDisabled} />
             </View>
           </Pressable>
 
@@ -382,8 +382,8 @@ export default function SettingsScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               {!isCheckingUpdates && (
                 <>
-                  <ThemedText variant="caption" color={t.inkDim}>Latest</ThemedText>
-                  <ChevronRight size={16} color={t.inkDim} style={{ opacity: 0.3 }} />
+                  <ThemedText variant="caption" color={t.textSecondary}>Latest</ThemedText>
+                  <ChevronRight size={16} color={t.textDisabled} />
                 </>
               )}
               {isCheckingUpdates && <ActivityIndicator size="small" />}
@@ -396,8 +396,12 @@ export default function SettingsScreen() {
               <ThemedText variant="body">What&apos;s New</ThemedText>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <ThemedText variant="caption" color={t.inkDim}>History</ThemedText>
-              <ChevronRight size={16} color={t.inkDim} style={{ transform: [{ rotate: showChangelog ? '90deg' : '0deg' }], opacity: 0.3 }} />
+              <ThemedText variant="caption" color={t.textSecondary}>History</ThemedText>
+              <ChevronRight 
+                size={16} 
+                color={t.textDisabled} 
+                style={{ transform: [{ rotate: showChangelog ? '90deg' : '0deg' }] }} 
+              />
             </View>
           </Pressable>
 
@@ -415,8 +419,12 @@ export default function SettingsScreen() {
               <ThemedText variant="body">Protocol Details</ThemedText>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <ThemedText variant="caption" color={t.inkDim}>About</ThemedText>
-              <ChevronRight size={16} color={t.inkDim} style={{ transform: [{ rotate: showAbout ? '90deg' : '0deg' }], opacity: 0.3 }} />
+              <ThemedText variant="caption" color={t.textSecondary}>About</ThemedText>
+              <ChevronRight 
+                size={16} 
+                color={t.textDisabled} 
+                style={{ transform: [{ rotate: showAbout ? '90deg' : '0deg' }] }} 
+              />
             </View>
           </Pressable>
 
