@@ -12,6 +12,8 @@
 - **Dynamic Session Metrics:** Swapped the Weekly Summary from hard-coded stats to real-time `positivityStore` trackers.
 - **Intelligent Timers**: Re-engineered internal badge timers to intelligently count DOWN backwards for constraints like Pomodoro.
 - **Visual Legibility**: Improved WCAG contrast for Medium Priority buttons and tinted Explore category icons.
+- **Pristine Notification Syncs**: Leveraged `@notifee/react-native` to render permanent Chronometer notifications using Android's native `FOREGROUND_SERVICE`, allowing rules to visibly count down without JS interval suspension. Code modified to read payload timers cleanly (`workDuration`/`intervalMinutes`) without hardcoding 25-minute bugs.
+- **Pipeline Optimizations**: Fixed GitHub prebuild crashes by purging `expo-notifee` wrapper configuration from `.plugins` object in `app.json`, fully deferring to Expo SDK 50+ auto-linking logic for stable Android Continuous Native Generation.
 - **Final Polish**: Updated SemVer strings to `1.0.0` inside `package.json` and `app.json`.
 
 ---

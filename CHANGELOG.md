@@ -18,7 +18,11 @@ This is the definitive "v1.0.0" release of Product +ive, featuring the completio
 - **Onboarding Flow Integration**: Fresh installations correctly route to the immersive Welcome & Setup screens.
 - **Dynamic Weekly Stats**: Hardcoded placeholders replaced with real-time tracking for Focus Sessions completed and Total Focus Time (hrs).
 - **Themed Global Modals**: Removed iOS/Android native alerts in favor of `AppModal` (e.g., used for the Custom Time Picker in Biological Optimization and Bug Reports).
-- **Intelligent Timer Countdown**: Activity badge timers automatically detect `countdown` or `interval` engine rules to run backwards relative to the configured limit rather than chronologically forward.
+- **Intelligent Timer Countdown**: Activity badge timers automatically detect `countdown` or `interval` engine rules to run backwards relative to the configured limit rather than chronologically forward. All timer badges correctly scale to exact duration boundaries (e.g. 2 minutes vs 90 minutes).
+
+**🔥 Native OS Synchronization (NEW)**
+- **Foreground Chronometers**: Implemented `@notifee/react-native` background services to allow active execution timers to definitively run out-of-bounds. Session timers dynamically pin to the top of your lock screen and animate perfectly counting downward without relying on vulnerable JS thread logic.
+- **Haptic Callbacks**: Native device hardware vibrations are actively triggered securely the moment a background chronometer expires.
 
 **🧠 Behavioral Retention Engine**
 - **Session Reflection Modal**: After every practice, users can score their focus (1-5). This data is recorded to the posivity store for long-term insights.
