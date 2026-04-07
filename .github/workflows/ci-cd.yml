@@ -108,6 +108,12 @@ jobs:
             npx expo prebuild --platform android --non-interactive
           fi
 
+      - name: 2.8.5 Generate Debug Keystore (if missing)
+        run: |
+          if [ ! -f "android/app/debug.keystore" ]; then
+            keytool -genkey -v -keystore android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
       - name: 2.9 Build APK (Release)
         working-directory: ./android
         run: |
