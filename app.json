@@ -2,7 +2,7 @@
   "expo": {
     "name": "Product +ive",
     "slug": "product-ive",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "productive",
@@ -17,7 +17,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.aadarshlokhande.productive",
-      "versionCode": 2
+      "versionCode": 3
     },
     "web": {
       "output": "static",

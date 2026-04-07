@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Stack, SplashScreen } from 'expo-router';
+import { Stack, SplashScreen, useRouter } from 'expo-router';
 import { ThemeProvider, useTheme } from '../src/theme/ThemeContext';
 import { useFonts } from 'expo-font';
 import {
@@ -92,13 +92,20 @@ function RootContent() {
     }
   }, [isReady]);
 
+  const router = useRouter();
+
   useEffect(() => {
     if (fontsLoaded && isReady && initialRouteName) {
       SplashScreen.hideAsync();
       SystemUI.setBackgroundColorAsync('#000000'); // v4.0 Pitch Black
       logRuntimeEvent('app_ready', { initialRouteName }).catch(() => {});
+      
+      if (initialRouteName === 'onboarding') {
+        // v1.0.0 Fix: Explicitly route the user to the onboarding flow
+        router.replace('/onboarding');
+      }
     }
-  }, [fontsLoaded, isReady, initialRouteName]);
+  }, [fontsLoaded, isReady, initialRouteName, router]);
 
   if (!fontsLoaded || !isReady || !initialRouteName) {
     return null;

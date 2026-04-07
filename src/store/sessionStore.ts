@@ -52,12 +52,20 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     }),
 
   endSession: () => {
-    const activeRuleId = get().activeRuleId;
+    const state = get();
+    const activeRuleId = state.activeRuleId;
     if (activeRuleId) {
       const rule = RULES.find((r) => r.id === activeRuleId);
       if (rule) {
+        let sessionDuration = 0;
+        if (state.startTime) {
+          const now = state.pausedAt || Date.now();
+          sessionDuration = Math.max(0, Math.floor((now - state.startTime) / 1000));
+        }
+
         const positivity = usePositivityStore.getState();
         positivity.checkAndResetWeekly();
+        positivity.addSessionMetric(sessionDuration);
         positivity.addPoints(rule.pointsPerSession, 'session_complete', activeRuleId);
         const isFirstTimeRule = positivity.markRuleUsed(activeRuleId);
         if (isFirstTimeRule) {

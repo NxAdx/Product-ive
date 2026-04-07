@@ -45,7 +45,7 @@ export default function ExploreScreen() {
         onPress={() => router.push(`/rule/${item.id}`)}
       >
         <View style={styles.cardHeader}>
-          <View style={[styles.iconWrap, { backgroundColor: t.surfaceHigh }]}>
+          <View style={[styles.iconWrap, { backgroundColor: t.isDark ? `${accentColor}1A` : `${accentColor}25` }]}>
              <CategoryIcon iconKey={category?.icon || 'zap'} color={accentColor} size={16} />
           </View>
           <View style={styles.cardBody}>

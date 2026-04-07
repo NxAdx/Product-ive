@@ -135,10 +135,10 @@ export default function AddScreen() {
                   },
                   priority === 'medium' && {
                     shadowColor: t.positivity,
-                    offset: { width: 0, height: 4 },
-                    opacity: 0.2,
-                    radius: 10,
-                    elevation: 6
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 12,
+                    elevation: 8
                   }
                 ]}
               >

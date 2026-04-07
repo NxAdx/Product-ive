@@ -11,7 +11,10 @@ export interface PositivityStore {
   todayRulesUsed: string[];
   lastActiveDate: string;
   dismissedRecommendations: string[];
+  weeklySessionsCompleted: number;
+  weeklyFocusTimeSeconds: number;
   addPoints: (amount: number, source: string, ruleId?: string) => void;
+  addSessionMetric: (durationSeconds: number) => void;
   markRuleUsed: (ruleId: string) => boolean;
   checkAndResetWeekly: () => void;
   dismissRecommendation: (ruleId: string) => void;
@@ -71,6 +74,15 @@ export const usePositivityStore = create<PositivityStore>()(
       todayRulesUsed: [],
       lastActiveDate: '',
       dismissedRecommendations: [],
+      weeklySessionsCompleted: 0,
+      weeklyFocusTimeSeconds: 0,
+
+      addSessionMetric: (durationSeconds) => {
+        set((state) => ({
+          weeklySessionsCompleted: state.weeklySessionsCompleted + 1,
+          weeklyFocusTimeSeconds: state.weeklyFocusTimeSeconds + durationSeconds,
+        }));
+      },
 
       addPoints: (amount) => {
         const now = new Date();
@@ -83,6 +95,7 @@ export const usePositivityStore = create<PositivityStore>()(
             weeklyScore = 0;
             weeklyStreak = 0;
             todayRulesUsed = [];
+            // Reset metrics implicitly here on score add, but checkAndResetWeekly handles it explicitly
           } else if (!isSameDay(state.lastActiveDate, now)) {
             todayRulesUsed = [];
           }
@@ -137,7 +150,13 @@ export const usePositivityStore = create<PositivityStore>()(
         const now = new Date();
         const { lastActiveDate } = get();
         if (isDifferentWeek(lastActiveDate, now)) {
-          set({ weeklyScore: 0, weeklyStreak: 0, todayRulesUsed: [] });
+          set({
+            weeklyScore: 0,
+            weeklyStreak: 0,
+            todayRulesUsed: [],
+            weeklySessionsCompleted: 0,
+            weeklyFocusTimeSeconds: 0,
+          });
         } else if (!isSameDay(lastActiveDate, now)) {
           set({ todayRulesUsed: [] });
         }

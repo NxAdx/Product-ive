@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-04-07 - Pristine Precision & v1.0.0 Release
+
+### Stabilization & Polish
+- **Pristine Precision Unification**: Removed native mobile alerts globally in favor of a unified `<AppModal>` theme system.
+- **Onboarding Pipeline Fixed**: Connected `onboarded` async storage explicitly inside `_layout.tsx` to launch the Setup Wizard cleanly.
+- **Dynamic Session Metrics:** Swapped the Weekly Summary from hard-coded stats to real-time `positivityStore` trackers.
+- **Intelligent Timers**: Re-engineered internal badge timers to intelligently count DOWN backwards for constraints like Pomodoro.
+- **Visual Legibility**: Improved WCAG contrast for Medium Priority buttons and tinted Explore category icons.
+- **Final Polish**: Updated SemVer strings to `1.0.0` inside `package.json` and `app.json`.
+
+---
+
 ## 2026-04-04 - SDK 55 Type Compatibility Fix
 
 ### Build & CI stability

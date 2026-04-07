@@ -18,6 +18,7 @@ import { UpdateManager } from '../src/services/UpdateManager';
 import { getPermissionStatus, requestNotificationPermissions as requestPerms } from '../src/services/NotificationManager';
 import { ThemedText } from '../src/components/ThemedText';
 import { tokens } from '../src/theme/tokens';
+import { AppModal } from '../src/components/AppModal';
 
 const CURRENT_VERSION_CHANGES = [
   'Android CI build reliability and performance improved.',
@@ -40,6 +41,7 @@ function WellnessNotificationsSection() {
   ];
 
   const [permStatus, setPermStatus] = useState<{ granted: boolean; canAskAgain: boolean } | null>(null);
+  const [modalConfig, setModalConfig] = useState<{ visible: boolean; title: string; desc: string; triggerId?: string } | null>(null);
 
   useEffect(() => {
     getPermissionStatus().then(setPermStatus);
@@ -50,10 +52,11 @@ function WellnessNotificationsSection() {
       const granted = await requestPerms();
       setPermStatus({ granted, canAskAgain: true });
       if (!granted) {
-        Alert.alert('Permission Required', 'Notifications are disabled for Productive+. Please enable them in your system settings to use wellness reminders.', [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Settings', onPress: () => { /* Add Linking to settings if needed */ } }
-        ]);
+        setModalConfig({
+          visible: true,
+          title: 'Permission Required',
+          desc: 'Notifications are disabled for Productive+. Please enable them in your system settings to use wellness reminders.'
+        });
         return;
       }
     }
@@ -142,7 +145,7 @@ function WellnessNotificationsSection() {
                             </Pressable>
                           ))}
                           <Pressable
-                            onPress={() => Alert.alert('Custom Trigger', 'Native time picker integration is coming in the next build. For now, please use the available presets.')}
+                            onPress={() => setModalConfig({ visible: true, title: 'Custom Trigger', desc: '', triggerId: notification.id })}
                             style={[styles.timePill, { backgroundColor: t.surfaceHigh, borderColor: 'transparent' }]}
                           >
                             <ThemedText variant="caption" color={t.textSecondary}>Custom</ThemedText>
@@ -161,6 +164,37 @@ function WellnessNotificationsSection() {
           </View>
         );
       })}
+
+      <AppModal 
+        visible={modalConfig?.visible || false}
+        title={modalConfig?.title || ''}
+        description={modalConfig?.desc || ''}
+        onClose={() => setModalConfig(null)}
+      >
+        {modalConfig?.title === 'Custom Trigger' && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 16 }}>
+            {[14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 0].map(hour => (
+              <Pressable
+                key={hour}
+                onPress={() => {
+                  if (modalConfig.triggerId) {
+                    useWellnessStore.getState().updateNotificationTime(modalConfig.triggerId as any, hour);
+                  }
+                  setModalConfig(null);
+                }}
+                style={[
+                  styles.timePill,
+                  { backgroundColor: t.surfaceLow, paddingVertical: 12, paddingHorizontal: 20 }
+                ]}
+              >
+                <ThemedText variant="body" style={{ fontWeight: '600' }}>
+                  {hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+                </ThemedText>
+              </Pressable>
+            ))}
+          </ScrollView>
+        )}
+      </AppModal>
     </View>
   );
 }
@@ -180,6 +214,7 @@ export default function SettingsScreen() {
   const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(userName);
+  const [mainModal, setMainModal] = useState<{ visible: boolean; title: string; desc: string } | null>(null);
 
   // v4.0 Migration: Scrub emojis on load
   useEffect(() => {
@@ -243,7 +278,7 @@ export default function SettingsScreen() {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri, { mimeType: 'text/plain', dialogTitle: 'Share bug report' });
       } else {
-        Alert.alert('Bug report saved', `Saved to:\n${fileUri}`);
+        setMainModal({ visible: true, title: 'Bug report saved', desc: `Saved to:\n${fileUri}` });
       }
       await logRuntimeEvent('settings_export_bug_report_success', { fileUri });
     } catch (error) {
@@ -442,10 +477,17 @@ export default function SettingsScreen() {
             VERSION {currentVersion}
           </ThemedText>
           <ThemedText variant="caption" color={t.textDisabled} align="center" style={{ marginTop: 4, letterSpacing: 1 }}>
-             PRISTINE PRECISION • v4.4.0
+              PRISTINE PRECISION • v1.0.0
           </ThemedText>
         </View>
       </ScrollView>
+
+      <AppModal 
+        visible={mainModal?.visible || false}
+        title={mainModal?.title || ''}
+        description={mainModal?.desc || ''}
+        onClose={() => setMainModal(null)}
+      />
     </View>
   );
 }

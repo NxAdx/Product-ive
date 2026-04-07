@@ -80,6 +80,13 @@ export function SessionStatusBadge() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // v1.0.0 Fix: Count down if the engine implies duration limits
+  let displaySeconds = elapsedSeconds;
+  if (rule.engine === 'countdown' || rule.engine === 'interval') {
+    const totalSeconds = (rule.engineConfig?.duration || 25) * 60;
+    displaySeconds = Math.max(0, totalSeconds - elapsedSeconds);
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
       <SessionReflection 
@@ -104,7 +111,7 @@ export function SessionStatusBadge() {
           <View style={styles.timerRow}>
             <Animated.View style={[styles.pulseDot, { backgroundColor: isPaused ? t.textDisabled : t.positivity }, animatedDotStyle]} />
             <ThemedText variant="h1" style={{ fontSize: 32, fontFamily: 'JetBrainsMono_500Medium' }}>
-              {formatTime(elapsedSeconds)}
+              {formatTime(displaySeconds)}
             </ThemedText>
             <ThemedText variant="caption" color={t.textSecondary} style={{ marginLeft: 8 }}>
                {isPaused ? 'PAUSED' : (elapsedSeconds > 0 ? 'IN FOCUS' : 'READY')}
