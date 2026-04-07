@@ -49,6 +49,7 @@ export function SessionStatusBadge() {
     const now = pausedAt || Date.now();
     const elapsed = Math.floor((now - startTime) / 1000);
     return Math.max(0, elapsed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startTime, pausedAt, tick]); // tick dependency forces re-calculation every second
 
   // Logic to show timer (v4.0 UX Optimization) - must be before early returns
