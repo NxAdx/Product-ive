@@ -19,7 +19,8 @@
 - Transitioned JS-bound `SessionStatusBadge` timers to native-OS rendering via `@notifee/react-native`.
 - Sticky notifications orchestrate accurate Android Chronometers ticking identically to application duration lengths natively.
 - Eliminated all static `25:00` display defaults by explicitly parsing variable lengths across `engineConfig.workDuration` and `intervalMinutes`.
-- Application correctly handles 2-min, 90-min, and 25-min UI countdowns natively alongside haptic feedback upon completion.
+- Application correctly handles 2-min, 90-min, and 25-min UI countdowns natively.
+- **Critical Fix**: React Native JS Thread is purposely kept awake using Top-Level Headless Tasks (`notifee.registerForegroundService` inside `_layout.tsx`). This empowers native chronometers to be manually halted via standard `setTimeout` exactly when reaching 0, circumventing Android's tendency to count endlessly into negative numbers (`-00:22`).
 
 ### UX/UI
 - Home:

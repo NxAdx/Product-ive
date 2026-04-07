@@ -22,6 +22,7 @@ This is the definitive "v1.0.0" release of Product +ive, featuring the completio
 
 **🔥 Native OS Synchronization (NEW)**
 - **Foreground Chronometers**: Implemented `@notifee/react-native` background services to allow active execution timers to definitively run out-of-bounds. Session timers dynamically pin to the top of your lock screen and animate perfectly counting downward without relying on vulnerable JS thread logic.
+- **Headless Task Retention**: React Native JavaScript engine is purposefully kept awake via Top-Level layout injection during sessions. This natively permits exact interception at `00:00` to stop negative clock drift.
 - **Haptic Callbacks**: Native device hardware vibrations are actively triggered securely the moment a background chronometer expires.
 
 **🧠 Behavioral Retention Engine**
