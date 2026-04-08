@@ -19,6 +19,18 @@ export interface PointEventRecordInput {
   createdAt?: string;
 }
 
+export interface SessionSummaryRecord {
+  id: string;
+  ruleId: string;
+  engine: string;
+  startedAt: number;
+  completedAt: number;
+  durationSeconds: number;
+  pointsEarned: number;
+  reflectionScore: number | null;
+  createdAt: string;
+}
+
 export async function insertSessionRecord(record: SessionRecordInput): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(
@@ -53,4 +65,49 @@ export async function insertPointEvents(events: PointEventRecordInput[]): Promis
       );
     }
   });
+}
+
+export async function getRecentSessions(limit = 8): Promise<SessionSummaryRecord[]> {
+  const db = await getDatabase();
+  const safeLimit = Math.max(1, Math.min(50, Math.floor(limit)));
+
+  return db.getAllAsync<SessionSummaryRecord>(
+    `SELECT
+      id AS id,
+      rule_id AS ruleId,
+      engine AS engine,
+      started_at AS startedAt,
+      completed_at AS completedAt,
+      duration_seconds AS durationSeconds,
+      points_earned AS pointsEarned,
+      reflection_score AS reflectionScore,
+      created_at AS createdAt
+     FROM sessions
+     ORDER BY completed_at DESC
+     LIMIT ?;`,
+    safeLimit
+  );
+}
+
+export async function getTodayPointDelta(): Promise<number> {
+  const db = await getDatabase();
+  const now = new Date();
+  const startOfDay = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    0,
+    0,
+    0,
+    0
+  ).toISOString();
+
+  const row = await db.getFirstAsync<{ total: number | null }>(
+    `SELECT COALESCE(SUM(amount), 0) AS total
+     FROM point_events
+     WHERE created_at >= ?;`,
+    startOfDay
+  );
+
+  return row?.total ?? 0;
 }

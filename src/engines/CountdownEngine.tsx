@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { Play, Square, Pause } from 'lucide-react-native';
+import { resolveRuleSessionSeconds } from '../utils/sessionTiming';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -13,64 +14,43 @@ interface EngineProps {
 export function CountdownEngine({ rule, color }: EngineProps) {
   const t = useTheme();
   const session = useSessionStore();
-  const initialTime = rule.engineConfig.workDuration || 0;
+  const initialTime = resolveRuleSessionSeconds(rule) ?? 0;
   const isStopwatch = initialTime === 0;
 
-  // Sync local time with session store on mount or when session becomes active
-  const [time, setTime] = useState(initialTime);
-
-  useEffect(() => {
-    if (session.activeRuleId === rule.id && session.startTime) {
-      const elapsedTotal = Math.floor((Date.now() - session.startTime) / 1000);
-      
-      // If we are currently paused, the time should be based on when we paused
-      if (session.pausedAt) {
-        const elapsedUntilPause = Math.floor((session.pausedAt - session.startTime) / 1000);
-        if (isStopwatch) {
-          setTime(elapsedUntilPause);
-        } else {
-          setTime(Math.max(0, initialTime - elapsedUntilPause));
-        }
-      } else {
-        if (isStopwatch) {
-          setTime(elapsedTotal);
-        } else {
-          setTime(Math.max(0, initialTime - elapsedTotal));
-        }
-      }
-    } else {
-      setTime(initialTime);
-    }
-  }, [session.activeRuleId, session.startTime, session.pausedAt, rule.id, initialTime, isStopwatch]);
-
   const isRunning = session.phase === 'work' && session.activeRuleId === rule.id && !session.pausedAt;
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
+    if (!isRunning) return;
+
+    const interval = setInterval(() => {
+      setTick((v) => v + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isRunning]);
+
+  const elapsedSeconds = useMemo(() => {
+    if (session.activeRuleId !== rule.id || !session.startTime) return 0;
+    const now = session.pausedAt ?? Date.now();
+    return Math.max(0, Math.floor((now - session.startTime) / 1000));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.activeRuleId, session.startTime, session.pausedAt, rule.id, tick]);
+
+  const time = isStopwatch
+    ? elapsedSeconds
+    : Math.max(0, initialTime - elapsedSeconds);
+
+  useEffect(() => {
     if (isRunning) {
-      interval = setInterval(() => {
-        setTime((prev: number) => {
-          if (isStopwatch) {
-            return prev + 1;
-          }
-          if (prev <= 1) {
-            session.endSession();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => {
-      if (interval) {
-        clearInterval(interval);
+      if (!isStopwatch && time <= 0) {
+        session.endSession();
       }
-    };
-  }, [isRunning, isStopwatch, rule, session]);
+    }
+  }, [isRunning, isStopwatch, session, time]);
 
   const handleToggle = () => {
     if (session.activeRuleId !== rule.id) {
-      setTime(initialTime);
       session.startSession(rule.id);
     } else if (session.pausedAt) {
       session.resumeSession();
@@ -81,7 +61,6 @@ export function CountdownEngine({ rule, color }: EngineProps) {
 
   const handleStop = () => {
     session.endSession();
-    setTime(initialTime);
   };
 
   const minutes = Math.floor(Math.abs(time) / 60);

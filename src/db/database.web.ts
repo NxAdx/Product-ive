@@ -8,6 +8,7 @@ const noopDatabase: PersistedDatabase = {
   runAsync: async () => undefined,
   execAsync: async () => undefined,
   getFirstAsync: async () => null,
+  getAllAsync: async () => [],
   withExclusiveTransactionAsync: async <T>(task: (tx: PersistedTransaction) => Promise<T>) =>
     task(noopTransaction),
 };

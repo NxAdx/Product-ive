@@ -8,6 +8,7 @@ import { ThemedText } from './ThemedText';
 import { SessionReflection } from './SessionReflection';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSequence } from 'react-native-reanimated';
 import { CATEGORIES } from '../data/categories';
+import { resolveRuleSessionSeconds } from '../utils/sessionTiming';
 
 export function SessionStatusBadge() {
   const t = useTheme();
@@ -56,6 +57,7 @@ export function SessionStatusBadge() {
   const showTimer = useMemo(() => {
     const rule = activeRuleId ? getRuleById(activeRuleId) : null;
     if (!rule) return false;
+    if (resolveRuleSessionSeconds(rule) !== null) return true;
     if (rule.engine === 'countdown' || rule.engine === 'interval') return true;
     if (rule.engineConfig?.timerMode) return true;
     return false;
@@ -80,16 +82,12 @@ export function SessionStatusBadge() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // v1.0.0 Fix: Count down if the engine implies duration limits
+  const totalSessionSeconds = resolveRuleSessionSeconds(rule);
+
+  // v1.0.0 Fix: Count down when a rule has a known session duration
   let displaySeconds = elapsedSeconds;
-  if (rule.engine === 'countdown' || rule.engine === 'interval') {
-    let totalSeconds = 25 * 60; // default 25 min
-    if (rule.engineConfig?.workDuration) {
-      totalSeconds = rule.engineConfig.workDuration;
-    } else if (rule.engineConfig?.intervalMinutes) {
-      totalSeconds = rule.engineConfig.intervalMinutes * 60;
-    }
-    displaySeconds = Math.max(0, totalSeconds - elapsedSeconds);
+  if (totalSessionSeconds !== null) {
+    displaySeconds = Math.max(0, totalSessionSeconds - elapsedSeconds);
   }
 
   return (

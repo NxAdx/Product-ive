@@ -10,6 +10,7 @@ import {
 } from '../services/ForegroundTimerService';
 import { insertPointEvents, insertSessionRecord } from '../db/sessionRepository';
 import { logRuntimeEvent } from '../utils/runtimeLogs';
+import { resolveForegroundDurationMs } from '../utils/sessionTiming';
 
 export type SessionPhase = 'work' | 'break' | 'done' | 'idle';
 
@@ -39,24 +40,14 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   durationPassed: 0,
 
   startSession: (ruleId) => {
-    const rule = RULES.find((r) => r.id === ruleId);
-    let durationMs = 0;
-    
-    if (rule?.engine === 'countdown' || rule?.engine === 'interval') {
-      // Find duration in numeric minutes representing this rule
-      durationMs = 25 * 60 * 1000; // default
-      
-      if (rule.engineConfig?.workDuration) {
-        durationMs = rule.engineConfig.workDuration * 1000; // workDuration is in seconds
-      } else if (rule.engineConfig?.intervalMinutes) {
-        durationMs = rule.engineConfig.intervalMinutes * 60 * 1000; // intervalMinutes is in minutes
-      }
-      
-      startForegroundTimer(durationMs, rule.name).catch(console.error);
-    } else {
-      // Not a timed countdown, just a standard stopwatch
-      startForegroundTimer(60 * 60 * 1000, rule?.name || 'Active Session').catch(console.error); 
+    const current = get();
+    if (current.activeRuleId && current.phase !== 'idle') {
+      stopForegroundTimer(false).catch(console.error);
     }
+
+    const rule = RULES.find((r) => r.id === ruleId);
+    const durationMs = resolveForegroundDurationMs(rule ?? null);
+    startForegroundTimer(durationMs, rule?.name || 'Active Session').catch(console.error);
 
     set({
       activeRuleId: ruleId,

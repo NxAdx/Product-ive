@@ -1,4 +1,4 @@
-﻿# Product+ive - Project Overview
+# Product+ive - Project Overview
 
 > Rules that work. Habits that last.
 
@@ -8,9 +8,10 @@ Product+ive is an offline-first React Native app that turns evidence-based produ
 
 - 20 rules across 4 categories
 - 7 reusable engines mapped by rule configuration
-- Home, Todo, Explore, Meter, Category, and Rule screens
-- Positivity scoring stores and session state stores
-- On-device persistence (AsyncStorage via Zustand)
+- Home, Todo, Explore, Stats, Category, Rule, Settings, and Onboarding screens
+- Positivity scoring + session lifecycle stores
+- On-device persistence (AsyncStorage + SQLite)
+- Android in-app update flow with native PackageInstaller bridge
 
 ## Current stack (repo state)
 
@@ -18,17 +19,19 @@ Product+ive is an offline-first React Native app that turns evidence-based produ
 - React Native 0.83.4
 - React 19.2.0
 - TypeScript strict mode
-- Expo Router + Zustand + Expo SQLite (integration pending)
+- Expo Router + Zustand + Expo SQLite
+- Notifee + Expo Notifications for timer and reminder UX
 
 ## Current quality status
 
-Validated on 2026-04-02:
+Validated on 2026-04-08:
 
-- `npm ci` passes
+- `npm test -- --coverage --ci` passes
 - `npx eslint app src --max-warnings=0` passes
 - `npx tsc --noEmit` passes
-- `npx expo-doctor` passes (17/17)
+- `npx expo-doctor` passes (16/16)
 - `npx expo export --platform web --clear` passes
+- `cd android && .\\gradlew.bat assembleRelease --console=plain --no-daemon` passes
 
 ## Documentation map
 

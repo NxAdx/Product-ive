@@ -1,6 +1,6 @@
 # Product+ive - Architecture
 
-> Last Updated: 2026-04-07 (IST) | Status: Active
+> Last Updated: 2026-04-08 (IST) | Status: Active
 
 ## System Model
 
@@ -21,7 +21,7 @@ The app keeps the 20 rules as data and maps each rule to one of 7 reusable engin
 ### 2) State Layer (Zustand)
 
 - `positivityStore`: score, streaks, rule usage, reflection entries.
-- `sessionStore`: active session state and completion logic.
+- `sessionStore`: active session state, pause/resume lifecycle, completion logic.
 - `todoStore`: task lifecycle and completion scoring.
 - `settingsStore`: user preferences.
 - `wellnessStore`: reminder configuration.
@@ -36,21 +36,23 @@ The app keeps the 20 rules as data and maps each rule to one of 7 reusable engin
   - `src/db/database.native.ts`
 - Web-safe adapter:
   - `src/db/database.web.ts`
-- repositories:
+- Repositories:
   - `src/db/sessionRepository.ts`
+- Stats queries now consume SQLite session history and daily point delta.
 
 ### 4) Notification Layer
 
 - `@notifee/react-native` foreground chronometer for active timed sessions.
 - `expo-notifications` for permission checks, wellness schedules, and immediate local reminders.
 - `NotificationManager` mediates notification behavior and Expo Go safety checks.
+- Session timing now resolves from a shared duration source (`src/utils/sessionTiming.ts`) to keep in-app and notification timers in lockstep.
 
 ### 5) Updater Layer
 
 - `UpdateManager` checks GitHub latest release metadata.
 - Uses semantic version comparison.
-- Detects APK release assets and triggers download/install handoff.
-- Native PackageInstaller bridge remains pending for full direct-install flow.
+- Detects APK release assets and triggers download/install flow.
+- Native bridge uses Android PackageInstaller for direct install path with permission guidance and fallback.
 
 ## Data Flow Examples
 
@@ -62,8 +64,7 @@ The app keeps the 20 rules as data and maps each rule to one of 7 reusable engin
 
 `todoStore.toggleTodo() -> positivity +10 -> SQLite point_event write`
 
-## Constraints / Open Design Items
+## Current Design Notes
 
-1. Updater still needs native installer bridge completion.
-2. Session history UI should be added on top of current SQLite tables.
-3. Full notification parity across all engines is still incremental.
+1. Core phase-closure gaps are resolved (timer sync, native installer, release build, SQLite history surfacing).
+2. Future work is enhancement-focused (deeper analytics and broader integration tests), not blocker-focused.

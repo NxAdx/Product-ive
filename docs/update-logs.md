@@ -4,84 +4,38 @@
 
 ---
 
-## 2026-04-08 - Feedback Report Closure Sprint (Timers, Permissions, Theme, Validation)
+## 2026-04-08 - Final Phase Closure Sprint (Pending/Mismatch/Risk Closure)
 
-### Timer synchronization
-- Added pause/resume synchronization for foreground notification timers in `src/services/ForegroundTimerService.ts`.
-- Wired session pause/resume lifecycle to foreground service pause/resume in `src/store/sessionStore.ts`.
-- Added `Finish Session` notification action handling for both foreground and background app states in `app/_layout.tsx`.
-- Added regression test coverage for pause/resume timer synchronization in `src/store/__tests__/sessionStore.test.ts`.
+### Timer synchronization and performance closure
+- Added shared duration resolver in `src/utils/sessionTiming.ts`.
+- Updated `sessionStore.startSession()` to use unified session duration source (`resolveForegroundDurationMs`).
+- Reworked `CountdownEngine` and `FreeWriteRecallEngine` to compute time from absolute elapsed session time (instead of local decrement loops).
+- Updated `SessionStatusBadge` timer display to use the same shared rule-duration resolver.
+- Added regression test coverage ensuring interval rules use configured full session duration.
 
-### Background reliability and permissions UX
-- Added Settings section for background reliability controls:
-  - Open notification settings
-  - Open battery optimization exclusion settings (Android)
-  - Open power manager settings (Android)
-  - Live status refresh for notification and battery optimization state
-- This provides guided remediation for OS background-kill scenarios.
+### Persistence + UI closure
+- Extended DB interface support with `getAllAsync` in `src/db/types.ts` and `src/db/database.web.ts`.
+- Added repository query methods in `src/db/sessionRepository.ts`:
+  - `getRecentSessions(limit)`
+  - `getTodayPointDelta()`
+- Updated `app/(tabs)/stats.tsx` to render real SQLite-backed session history and daily point delta.
 
-### UI and theming
-- Added full `system` theme mode in `src/theme/ThemeContext.tsx`.
-- Settings now supports:
-  - Follow system theme toggle
-  - Manual dark/light override when system-follow is disabled
-- Removed tiny non-functional user-name chevron from Settings identity card.
+### Updater completion
+- Added native Android PackageInstaller bridge:
+  - `ApkInstallerModule.kt`
+  - `ApkInstallerPackage.kt`
+  - `PackageInstallerStatusReceiver.kt`
+- Registered native package in `MainApplication.kt`.
+- Added installer permission + receiver wiring in `AndroidManifest.xml`.
+- Updated `UpdateManager` to:
+  - verify install permission
+  - open unknown-app-install settings when needed
+  - use native install first
+  - fallback safely to share/install intent flow.
 
-### Pop-up theming consistency
-- Replaced remaining native alert dialogs with themed `AppModal` in:
-  - `app/settings.tsx`
-  - `src/engines/SmartTaskSorterEngine.tsx`
-  - `src/engines/SpacedRepetitionEngine.tsx`
-  - `src/engines/AwarenessReflectionEngine.tsx`
-
-### Activity validation safeguards
-- `GuidedPromptEngine` now prevents `Next` and `Complete` without required written input.
-- Added inline user guidance when a step response is missing.
-
-### Validation
-- `npx tsc --noEmit` -> PASS
-- `npx eslint app src --max-warnings=0` -> PASS
-- `npm test -- --coverage --ci` -> PASS (6 tests)
-- `npx expo-doctor` -> PASS (16/16)
-- `npx expo export --platform web --clear` -> PASS
-
-## 2026-04-07 - Stabilization Sprint: Pending Closure + Risk Fixes
-
-### Core correctness fixes
-- Removed duplicate session point attribution in:
-  - `src/engines/CountdownEngine.tsx`
-  - `src/engines/GuidedPromptEngine.tsx`
-- Persisted post-session reflection scores to positivity history (previously collected but not stored).
-- Cleaned onboarding step type drift (`availability` union member removed).
-
-### Persistence implementation
-- Added SQLite bootstrap + migrations (`src/db/database.native.ts`).
-- Added web-safe DB adapter (`src/db/database.web.ts`) to prevent web bundling failures.
-- Added session and point-event repositories (`src/db/sessionRepository.ts`).
-- Wired session completion persistence in `sessionStore`.
-- Wired todo completion point-event persistence in `todoStore`.
-- Added startup DB initialization in `app/_layout.tsx`.
-
-### Build closure updates
-- Fixed broken Android wrapper startup by restoring `CLASSPATH` in `android/gradlew.bat`.
-- Resolved web export blocker caused by SQLite web worker resolution path.
-- Current local Android release build is blocked by missing SDK path (`ANDROID_SDK_ROOT` points to non-existent directory on this machine).
-
-### Notifications and updater
-- Added immediate local notification helper `notifyNow()` in `NotificationManager`.
-- Interval reminders now trigger OS local notifications instead of relying only on alert prompts.
-- Hardened updater:
-  - semantic version comparison
-  - APK asset detection from GitHub release payload
-  - real download/install handoff path (removed simulated timeout install flow)
-- Settings update action now uses themed modal UX.
-
-### Automated testing
-- Replaced placeholder test script with Jest.
-- Added:
-  - `jest.config.js`
-  - `jest.setup.ts`
-  - store regression tests for positivity/todo/session logic
+### Release build stabilization
+- Added `android.packagingOptions.doNotStrip=**/*.so` in `android/gradle.properties` to avoid Windows strip-symbol release build failures.
+- Android release build now succeeds locally.
 
 ### Validation
 - `npm test -- --coverage --ci` -> PASS
@@ -89,114 +43,52 @@
 - `npx eslint app src --max-warnings=0` -> PASS
 - `npx expo-doctor` -> PASS (16/16)
 - `npx expo export --platform web --clear` -> PASS
-- `cd android && .\\gradlew.bat assembleRelease` -> FAIL (environment: Android SDK location not configured)
-
-### Documentation synchronization
-- Updated: `CHANGELOG.md`, `docs/implementation.md`, `docs/roadmap.md`, `docs/requirements.md`,
-  `docs/AGENT-CONTEXT.md`, `docs/architecture.md`, `docs/testing-strategy.md`, `docs/feature-list.md`.
-- Corrected outdated assumptions in status docs where implementation had already moved forward.
-
-## 2026-04-07 - Pristine Precision & v1.0.0 Release
-
-### Stabilization & Polish
-- **Pristine Precision Unification**: Expanded unified `<AppModal>` usage across key settings and custom picker flows.
-- **Onboarding Pipeline Fixed**: Connected `onboarded` async storage explicitly inside `_layout.tsx` to launch the Setup Wizard cleanly.
-- **Dynamic Session Metrics:** Swapped the Weekly Summary from hard-coded stats to real-time `positivityStore` trackers.
-- **Intelligent Timers**: Re-engineered internal badge timers to intelligently count DOWN backwards for constraints like Pomodoro.
-- **Visual Legibility**: Improved WCAG contrast for Medium Priority buttons and tinted Explore category icons.
-- **Pristine Notification Syncs**: Leveraged `@notifee/react-native` to render permanent Chronometer notifications using Android's native `FOREGROUND_SERVICE`.
-- **Headless JS Retention**: Registered Top-Level Headless Tasks inside `_layout.tsx` to force the React Native Javascript thread to stay awake while backgrounded. This guarantees `setTimeout` intercepts the native chronometer immediately at `00:00` rather than counting into negatives.
-- **Pipeline Optimizations**: Fixed GitHub prebuild crashes by purging `expo-notifee` wrapper configuration from `.plugins` object in `app.json`, fully deferring to Expo SDK 50+ auto-linking logic for stable Android Continuous Native Generation.
-- **Final Polish**: Updated SemVer strings to `1.0.0` inside `package.json` and `app.json`.
+- `cd android && .\\gradlew.bat assembleRelease --console=plain --no-daemon` -> PASS
 
 ---
 
-## 2026-04-04 - SDK 55 Type Compatibility Fix
+## 2026-04-08 - Feedback Report Closure Sprint (UX/Theme/Permissions)
 
-### Build & CI stability
+### Timer lifecycle sync
+- Added pause/resume synchronization for foreground notification timers in `src/services/ForegroundTimerService.ts`.
+- Wired session pause/resume lifecycle to foreground timer pause/resume in `src/store/sessionStore.ts`.
+- Added `Finish Session` notification action handling for foreground and background app states in `app/_layout.tsx`.
 
-- Resolved `npx tsc` failures in GitHub Actions caused by SDK 55 (`expo-notifications`) upgrade.
-- Added missing `shouldShowBanner` and `shouldShowList` to `handleNotification` behavior.
-- Added explicit `type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL` to notification triggers.
-- Verified local build with `npx tsc --noEmit` -> PASS.
+### Background reliability and permission UX
+- Added settings controls for notification settings, battery optimization exclusion (Android), and power manager settings (Android).
 
----
+### UI and theming
+- Added full `system` theme mode in `src/theme/ThemeContext.tsx`.
+- Settings supports follow-system mode and manual override when system-follow is disabled.
+- Removed tiny non-functional user-name chevron from settings identity card.
 
-## 2026-04-02 - CI failure fix + UX stabilization + handoff refresh
-
-### CI/build fixes
-
-- Fixed failing GitHub build caused by Gradle cache lookup before `android/` existed.
-- Updated `.github/workflows/ci-cd.yml` order:
-  - Setup Node and install deps
-  - Expo setup
-  - `expo prebuild` (if missing)
-  - Setup Java with `cache: gradle`
-  - Gradle release build
-- Added speed flags:
-  - `npm ci --no-audit --prefer-offline` (lint job)
-  - `npm ci --omit=dev --no-audit --prefer-offline` (build job)
-  - `expo prebuild --no-install --non-interactive`
-
-### UX and app behavior fixes
-
-- Home top bar now keeps single actionable control (Settings on right).
-- Added full Settings screen (`app/settings.tsx`) with:
-  - Theme toggle
-  - Bug report `.txt` export (state snapshot + runtime logs)
-  - Changelog section with alert icon and current-version changes
-  - About section
-- Bottom nav behavior fixed:
-  - Now visible only on Home
-  - Plus icon style normalized (no old white center circle)
-- Todo and Explore overlap issues fixed by route-aware nav hiding and layout polish.
-- Category/rule list UI fixed:
-  - Rule rows no longer show oversized white arrow circles
-  - Category icons converted to stable Lucide icons
-- Brand text standardized to `Product +ive` in app surfaces.
-
-### Crash and stability fixes
-
-- Fixed likely rule crash path in `GuidedPromptEngine`:
-  - Safely normalizes `engineConfig.steps/prompts/sections` before rendering.
-  - Prevents object-to-Text rendering crash for rules like Feynman.
-- Improved `IntervalReminderEngine` config mapping:
-  - Supports `interval` and `intervalMinutes`
-  - Supports `reminderMessage` and `prompt`
-- `Rule` screen now guards missing rule id and avoids hard crash.
-
-### Positivity meter improvements
-
-- Weekly and lifetime scoring logic refined in store.
-- Discovery bonus awarded once per rule.
-- Meter UI now explains how scoring works directly in the screen.
-
-### Dependency and typography cleanup
-
-- Removed unused old DM font packages from `package.json`.
-- Standardized fonts around Syne / Plus Jakarta Sans / JetBrains Mono.
-- Removed corrupted text encoding from app/source files.
-
-### Validation results
-
-- `npx eslint app src --max-warnings=0` -> PASS
-- `npx tsc --noEmit` -> PASS
-- `npx expo-doctor` -> PASS (17/17)
-- `npx expo export --platform web --clear` -> PASS
-
-### Known remaining warnings (upstream/transitive)
-
-- `npm ci` may still print deprecated warnings for:
-  - `inflight@1.0.6`
-  - `glob@7.2.3`
-  - `rimraf@3.0.2`
-- Current source chain (as of 2026-04-02):
-  - `react-native@0.83.4` toolchain and Expo CLI transitive packages.
-- These are not direct project dependencies and are pending upstream ecosystem updates.
+### Pop-up consistency and activity validation
+- Replaced remaining native alert dialogs with themed `AppModal` in settings and core engines.
+- `GuidedPromptEngine` now blocks next/complete when required input is empty.
 
 ---
 
-## 2026-04-01 - Project documentation and governance setup
+## 2026-04-07 - Stabilization Sprint
+
+- Removed duplicate session point attribution in countdown/guided engines.
+- Persisted post-session reflection scores to positivity history.
+- Added SQLite bootstrap/migrations and repository wiring.
+- Added immediate local notification helper and interval reminder local notifications.
+- Hardened updater semver/release parsing and APK handoff path.
+- Replaced placeholder tests with Jest regression suite.
+
+---
+
+## 2026-04-02 - CI failure fix + UX stabilization
+
+- Fixed CI/prebuild/Gradle workflow ordering issues.
+- Stabilized settings, navigation behavior, and category/rule UI consistency.
+- Added bug report export and changelog/about sections in settings.
+- Improved rule-engine safety guards and positivity meter logic.
+
+---
+
+## 2026-04-01 - Documentation and governance setup
 
 - Created and organized `docs/` structure.
 - Added architecture, roadmap, feature, testing, and security docs.

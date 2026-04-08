@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import Constants from 'expo-constants';
+import { NativeModules, Platform } from 'react-native';
 
 export interface UpdateInfo {
   isAvailable: boolean;
@@ -30,6 +31,12 @@ interface GitHubReleaseResponse {
   body?: string;
   published_at?: string;
   assets?: GitHubReleaseAsset[];
+}
+
+interface ApkInstallerNativeModule {
+  canRequestPackageInstalls?: () => Promise<boolean>;
+  openInstallUnknownAppsSettings?: () => Promise<void>;
+  installApk?: (apkPath: string) => Promise<{ sessionId: number; status: string }>;
 }
 
 function sanitizeVersion(version: string): [number, number, number] {
@@ -153,6 +160,10 @@ class UpdateManager {
    */
   static async downloadAndInstallAPK(apkUrl: string): Promise<void> {
     try {
+      if (Platform.OS !== 'android') {
+        throw new Error('APK installation is only supported on Android devices.');
+      }
+
       const fileName = `product-ive-update-${Date.now()}.apk`;
       const fileUri = (FileSystem.documentDirectory || FileSystem.cacheDirectory) + fileName;
 
@@ -177,12 +188,41 @@ class UpdateManager {
         throw new Error('Download failed');
       }
 
-      // For production fallback in Expo-managed flow: hand off APK to OS installer.
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: 'application/vnd.android.package-archive',
-          dialogTitle: 'Install Product +ive Update',
-        });
+      const apkInstaller = (NativeModules as { ApkInstaller?: ApkInstallerNativeModule }).ApkInstaller;
+      let nativeInstallTriggered = false;
+
+      if (apkInstaller?.installApk) {
+        const canInstall = apkInstaller.canRequestPackageInstalls
+          ? await apkInstaller.canRequestPackageInstalls()
+          : true;
+
+        if (!canInstall) {
+          if (apkInstaller.openInstallUnknownAppsSettings) {
+            await apkInstaller.openInstallUnknownAppsSettings();
+          }
+          throw new Error(
+            'Please allow "Install unknown apps" for Product +ive in Android settings, then retry the update.'
+          );
+        }
+
+        try {
+          await apkInstaller.installApk(fileUri);
+          nativeInstallTriggered = true;
+        } catch (error) {
+          console.warn('Native installer bridge failed, falling back to system share flow.', error);
+        }
+      }
+
+      // Fallback for OEM/legacy devices where native session commit cannot proceed.
+      if (!nativeInstallTriggered) {
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: 'application/vnd.android.package-archive',
+            dialogTitle: 'Install Product +ive Update',
+          });
+        } else {
+          throw new Error('No APK installer handoff is available on this device.');
+        }
       }
 
       // Clean up after installation
@@ -192,7 +232,7 @@ class UpdateManager {
         } catch (e) {
           console.warn('Failed to clean up APK file:', e);
         }
-      }, 5000);
+      }, nativeInstallTriggered ? 15000 : 120000);
     } catch (error) {
       console.error('APK download error:', error);
       throw error;

@@ -69,3 +69,47 @@
 ### Status
 
 - Fixed in `app/` and `src/` codebase.
+
+---
+
+## 2026-04-08 - Notification timer and in-app timer mismatch
+
+### Error
+
+- Notification chronometer and in-app activity timer diverged after pause/resume and on certain interval rules.
+
+### Root Cause
+
+- Session start used non-canonical duration fields for foreground notifications (e.g., `intervalMinutes`) while UI/session logic relied on other fields (e.g., `sessionDuration`).
+- Timed engines used local decrement loops susceptible to JS timer drift.
+
+### Fix
+
+- Added shared duration resolver (`src/utils/sessionTiming.ts`) and routed `sessionStore.startSession()` through it.
+- Reworked timed engines to compute display time from absolute elapsed session time.
+- Updated session badge timer to use the same duration resolver.
+- Added regression tests for session duration resolution.
+
+### Status
+
+- Fixed and validated through test/lint/typecheck/export/release-build checks.
+
+---
+
+## 2026-04-08 - Android release build failure during symbol stripping (Windows)
+
+### Error
+
+- `assembleRelease` failed while stripping native debug symbols for `.so` libraries.
+
+### Root Cause
+
+- Windows build environment/toolchain mismatch in symbol-strip step for some native artifacts.
+
+### Fix
+
+- Added `android.packagingOptions.doNotStrip=**/*.so` to `android/gradle.properties`.
+
+### Status
+
+- Fixed. Local `assembleRelease --console=plain --no-daemon` now passes.

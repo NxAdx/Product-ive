@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { usePositivityStore } from '../../src/store/positivityStore';
@@ -8,6 +8,12 @@ import Svg, { Circle } from 'react-native-svg';
 import { tokens } from '../../src/theme/tokens';
 import { ThemedText } from '../../src/components/ThemedText';
 import { BentoCard } from '../../src/components/BentoCard';
+import { getRuleById } from '../../src/data/rules';
+import {
+  getRecentSessions,
+  getTodayPointDelta,
+  type SessionSummaryRecord,
+} from '../../src/db/sessionRepository';
 
 const LEVEL_STEPS = [0, 100, 250, 500, 1000];
 
@@ -28,6 +34,39 @@ export default function StatsScreen() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const positivity = usePositivityStore();
+  const [recentSessions, setRecentSessions] = useState<SessionSummaryRecord[]>([]);
+  const [todayDelta, setTodayDelta] = useState(0);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadHistory = async () => {
+      try {
+        const [sessions, delta] = await Promise.all([
+          getRecentSessions(6),
+          getTodayPointDelta(),
+        ]);
+
+        if (!cancelled) {
+          setRecentSessions(sessions);
+          setTodayDelta(delta);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingHistory(false);
+        }
+      }
+    };
+
+    loadHistory().catch(() => {
+      if (!cancelled) setLoadingHistory(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Calculate level progress (v4.0 Spec)
   getLevelProgress(positivity.weeklyScore);
@@ -36,6 +75,20 @@ export default function StatsScreen() {
   const stroke = 12;
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - circumference * displayProgress;
+
+  const todayDeltaText = useMemo(() => {
+    if (todayDelta > 0) return `+${todayDelta} pts today`;
+    if (todayDelta < 0) return `${todayDelta} pts today`;
+    return '0 pts today';
+  }, [todayDelta]);
+
+  const formatDuration = (seconds: number) => {
+    const total = Math.max(0, seconds);
+    const mins = Math.floor(total / 60);
+    const hrs = Math.floor(mins / 60);
+    if (hrs > 0) return `${hrs}h ${mins % 60}m`;
+    return `${mins}m`;
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: t.bg }]}>
@@ -96,11 +149,13 @@ export default function StatsScreen() {
           {/* Daily Delta (v7.0 Retention Engine) */}
           <View style={{ flexDirection: 'row', gap: 24, marginTop: 16 }}>
             <View style={{ alignItems: 'center' }}>
-              <ThemedText variant="caption" style={{ color: t.positivity, fontWeight: '700' }}>+15 pts today</ThemedText>
+              <ThemedText variant="caption" style={{ color: t.positivity, fontWeight: '700' }}>{todayDeltaText}</ThemedText>
             </View>
             <View style={{ width: 1, height: 12, backgroundColor: t.border, marginTop: 2 }} />
             <View style={{ alignItems: 'center' }}>
-              <ThemedText variant="caption" style={{ color: t.positivity, fontWeight: '700' }}>+12% vs last week</ThemedText>
+              <ThemedText variant="caption" style={{ color: t.positivity, fontWeight: '700' }}>
+                {recentSessions.length} recent sessions
+              </ThemedText>
             </View>
           </View>
         </View>
@@ -141,6 +196,55 @@ export default function StatsScreen() {
             </View>
           </BentoCard>
         </View>
+
+        <View style={[styles.rowAlign, { marginTop: 24, marginBottom: 12 }]}>
+          <TrendingUp size={18} color={t.textDisabled} />
+          <ThemedText variant="h3" style={{ marginLeft: 8, fontSize: 16 }}>Recent Session History</ThemedText>
+        </View>
+
+        <BentoCard variant="default" style={{ backgroundColor: t.surfaceLowest }}>
+          {loadingHistory ? (
+            <ThemedText variant="caption" color={t.textSecondary}>
+              Loading session history...
+            </ThemedText>
+          ) : recentSessions.length === 0 ? (
+            <ThemedText variant="caption" color={t.textSecondary}>
+              No completed sessions yet. Finish your first session to start your history.
+            </ThemedText>
+          ) : (
+            <View style={{ gap: 10 }}>
+              {recentSessions.map((item) => {
+                const ruleName = getRuleById(item.ruleId)?.name ?? item.ruleId;
+                const completed = new Date(item.completedAt);
+                const completionLabel = `${completed.toLocaleDateString()} • ${completed.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}`;
+
+                return (
+                  <View key={item.id} style={[styles.historyRow, { borderColor: t.border }]}>
+                    <View style={{ flex: 1 }}>
+                      <ThemedText variant="body" style={{ fontWeight: '700' }}>{ruleName}</ThemedText>
+                      <ThemedText variant="caption" color={t.textSecondary} style={{ marginTop: 2 }}>
+                        {completionLabel} • {formatDuration(item.durationSeconds)}
+                      </ThemedText>
+                    </View>
+                    <View style={{ alignItems: 'flex-end', minWidth: 78 }}>
+                      <ThemedText variant="label" style={{ color: t.positivity, fontWeight: '800' }}>
+                        +{item.pointsEarned}
+                      </ThemedText>
+                      {typeof item.reflectionScore === 'number' && (
+                        <ThemedText variant="caption" color={t.textSecondary}>
+                          Reflect: {item.reflectionScore}/5
+                        </ThemedText>
+                      )}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </BentoCard>
 
         {/* Level Path Mentions */}
         <View style={[styles.rowAlign, { marginTop: 32, marginBottom: 16 }]}>
@@ -233,5 +337,13 @@ const styles = StyleSheet.create({
     height: 12,
     backgroundColor: 'rgba(128,128,128,0.2)',
     marginLeft: 23,
-  }
+  },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
 });

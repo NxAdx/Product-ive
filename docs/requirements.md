@@ -8,7 +8,7 @@
 2. Keep 7 reusable engines as the execution layer for rules.
 3. Keep app behavior offline-first with local persistence.
 4. Track consistency with positivity score, levels, streak logic, and reflection history.
-5. Maintain updater behavior through safe staged rollout (GitHub check -> APK handoff -> native installer completion).
+5. Maintain updater behavior through safe staged rollout (GitHub check -> APK download -> native installer -> fallback).
 
 ## 2) Active UX Requirements
 
@@ -32,6 +32,7 @@
 3. Weekly score resets by week boundary.
 4. Lifetime score never resets.
 5. Reflection score input (1-5) is recorded for post-session insight history.
+6. Session and point history is queryable from SQLite and surfaced in stats UI.
 
 ## 4) Engineering Requirements
 
@@ -52,10 +53,10 @@ Required checks:
 - `npm test -- --coverage --ci`
 - `npx expo-doctor`
 
-Recommended release checks:
+Release verification:
 
 - `npx expo export --platform web --clear`
-- Android release build via generated `android/` project
+- Android release build via generated `android/` project (`assembleRelease`)
 
 ## 6) Environment Requirements
 
@@ -79,7 +80,7 @@ Recommended release checks:
 - `docs/` handoff and product documentation
 - `.agents/skills/` installed project skills
 
-### Most relevant skills for current phase
+### Most relevant skills for this phase
 
 - `react-native-expert`
 - `react-native-testing`
@@ -91,14 +92,20 @@ Recommended release checks:
 
 1. All 20 rules configured across 4 categories.
 2. All 7 engines implemented and routed.
-3. Positivity, todo, session, settings, wellness state stores are active.
-4. SQLite bootstrap + session/point-event repository persistence added.
-5. Updater now uses live release checks with semver comparison and APK asset detection.
-6. Real Jest test suite is active (store regression coverage).
+3. Positivity, todo, session, settings, wellness stores are active.
+4. SQLite bootstrap + session/point-event persistence is active.
+5. Stats screen now consumes SQLite session history and today point delta.
+6. Updater uses live release checks with semver comparison, APK asset detection, and native Android installer bridge.
+7. Notification timer and in-app timer now use unified duration + absolute elapsed timing.
+8. Real Jest test suite is active with regression coverage.
+9. Local Android release build verification is successful.
 
 ## 9) Remaining Implementation Work
 
-1. Native Android PackageInstaller bridge for direct updater install completion.
-2. Full notifications coverage across all engine lifecycle flows.
-3. Session history and analytics UI backed by SQLite data.
-4. Broader repository test coverage and CI quality threshold hardening.
+No blocking implementation gaps remain for the current phase closure.
+
+Post-release enhancements:
+
+1. Add richer analytics charts over session history.
+2. Increase repository/integration coverage for SQLite query behavior.
+3. Expand optional notification templates for additional engagement flows.

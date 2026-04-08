@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Pressable,
@@ -14,6 +14,7 @@ import { CheckCircle, Pause, Play } from 'lucide-react-native';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { useTheme } from '../theme/ThemeContext';
+import { resolveRuleSessionSeconds } from '../utils/sessionTiming';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -28,45 +29,50 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
   const t = useTheme();
   const session = useSessionStore();
 
-  const resolvedDuration =
-    rule.engineConfig.duration ||
-    (rule.engineConfig.timerMinutes ? rule.engineConfig.timerMinutes * 60 : 10 * 60);
-
+  const resolvedDuration = resolveRuleSessionSeconds(rule) ?? 10 * 60;
   const [sessionStarted, setSessionStarted] = useState(false);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(resolvedDuration);
   const [content, setContent] = useState('');
+  const [tick, setTick] = useState(0);
 
   const wordCount = content.trim().split(/\s+/).filter((w) => w.length > 0).length;
   const charCount = content.length;
   const sessionDuration = resolvedDuration;
+  const isCurrentSession = session.activeRuleId === rule.id && session.phase === 'work';
+  const isPaused = session.pausedAt !== null;
+  const timerRunning = sessionStarted && isCurrentSession && !isPaused;
 
   useEffect(() => {
-    let intervalId: ReturnType<typeof setInterval> | undefined;
-    if (timerRunning && sessionStarted) {
-      intervalId = setInterval(() => {
-        setTimeLeft((prev: number) => {
-          if (prev <= 1) {
-            setTimerRunning(false);
-            handleSessionEnd();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    if (!sessionStarted && isCurrentSession) {
+      setSessionStarted(true);
     }
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
+    if (sessionStarted && !isCurrentSession && session.activeRuleId !== rule.id) {
+      setSessionStarted(false);
+      setContent('');
+    }
+  }, [isCurrentSession, rule.id, session.activeRuleId, sessionStarted]);
+
+  useEffect(() => {
+    if (!timerRunning) return;
+
+    const intervalId = setInterval(() => {
+      setTick((v) => v + 1);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [timerRunning]);
+
+  const elapsedSeconds = useMemo(() => {
+    if (!session.startTime || !sessionStarted) return 0;
+    const now = session.pausedAt ?? Date.now();
+    return Math.max(0, Math.floor((now - session.startTime) / 1000));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timerRunning, sessionStarted]);
+  }, [session.startTime, session.pausedAt, sessionStarted, tick]);
+
+  const timeLeft = Math.max(0, sessionDuration - elapsedSeconds);
 
   const handleStart = () => {
+    if (isCurrentSession) return;
     setSessionStarted(true);
-    setTimeLeft(sessionDuration);
-    setTimerRunning(true);
     session.startSession(rule.id);
   };
 
@@ -76,15 +82,24 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
     } else {
       session.resumeSession();
     }
-    setTimerRunning(!timerRunning);
   };
 
   const handleSessionEnd = () => {
-    setTimerRunning(false);
-    session.endSession();
+    if (isCurrentSession) {
+      session.endSession();
+    }
     setSessionStarted(false);
     setContent('');
   };
+
+  useEffect(() => {
+    if (!sessionStarted) return;
+    if (!isCurrentSession || isPaused) return;
+    if (timeLeft <= 0) {
+      handleSessionEnd();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionStarted, isCurrentSession, isPaused, timeLeft]);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;

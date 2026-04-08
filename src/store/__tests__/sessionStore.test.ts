@@ -74,4 +74,26 @@ describe('sessionStore', () => {
     expect(useSessionStore.getState().pausedAt).toBeNull();
     expect(foreground.resumeForegroundTimer).toHaveBeenCalledTimes(1);
   });
+
+  it('uses full session duration for interval rules (not reminder interval only)', () => {
+    const foreground = require('../../services/ForegroundTimerService');
+
+    useSessionStore.getState().startSession('20_20_20');
+
+    expect(foreground.startForegroundTimer).toHaveBeenCalledWith(
+      2 * 60 * 60 * 1000,
+      '20-20-20 Rule'
+    );
+  });
+
+  it('uses timerMinutes for freewrite-style timed sessions', () => {
+    const foreground = require('../../services/ForegroundTimerService');
+
+    useSessionStore.getState().startSession('blurting');
+
+    expect(foreground.startForegroundTimer).toHaveBeenCalledWith(
+      10 * 60 * 1000,
+      'Blurting'
+    );
+  });
 });

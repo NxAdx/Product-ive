@@ -9,74 +9,63 @@
 | Phase 0 - Foundation | COMPLETE | App scaffold, navigation shell, theme system, rule config, stores |
 | Phase 1 - Core Screens | COMPLETE | Home, Category, Rule, Todo, Explore, Stats screens implemented |
 | Phase 2 - Engines | COMPLETE | All 7 engines implemented and routed from rule screen |
-| Phase 3 - Persistence + Scoring | PARTIAL | AsyncStorage stores plus new SQLite session/point-event persistence |
-| Phase 4 - Notifications | PARTIAL | Permissions + wellness schedules + interval local notifications + foreground timers |
-| Phase 5 - In-app updater | PARTIAL | Live GitHub release check, semver compare, APK asset detection/download flow |
-| Phase 6 - Polish | COMPLETE | Onboarding flow, timer UX, settings UX, stability fixes |
-| Phase 7 - Release prep | IN PROGRESS | Real automated tests now added; release/build verification in progress |
+| Phase 3 - Persistence + Scoring | COMPLETE | AsyncStorage + SQLite persistence, session history queries, stats integration |
+| Phase 4 - Notifications | COMPLETE | Permissions, wellness schedules, interval notifications, synchronized foreground chronometer |
+| Phase 5 - In-app updater | COMPLETE | Live release check, semver compare, APK download, native PackageInstaller bridge + fallback |
+| Phase 6 - Polish | COMPLETE | Onboarding flow, timer UX, settings UX, stability and visual consistency fixes |
+| Phase 7 - Release prep | COMPLETE | Tests/lint/typecheck/doctor/export/release build verified |
 
-## Implemented In This Session (2026-04-07)
+## Implemented In This Closure Sprint (2026-04-08)
 
-### 1) Risk and correctness fixes
+### 1) Timer mismatch and drift resolution
 
-- Removed duplicate points awarding in:
+- Root cause fixed: session duration source is now unified across app timer and notification timer.
+- Added shared resolver:
+  - `src/utils/sessionTiming.ts`
+- Updated session lifecycle:
+  - `src/store/sessionStore.ts`
+  - `startSession()` now uses unified resolved duration for foreground timer startup.
+- Reworked engine countdown logic to use absolute elapsed time instead of local decrement loops:
   - `src/engines/CountdownEngine.tsx`
-  - `src/engines/GuidedPromptEngine.tsx`
-- Session reflection score is now actually persisted to positivity state history.
-- Onboarding type drift fixed (removed unused `availability` step).
+  - `src/engines/FreeWriteRecallEngine.tsx`
+- Updated session badge timing to use the same duration resolver:
+  - `src/components/SessionStatusBadge.tsx`
 
-### 2) SQLite persistence wiring
+### 2) Pending persistence/UI closure
 
-- Added SQLite bootstrap and migration system:
-  - `src/db/database.native.ts`
-- Added web-safe DB adapter:
-  - `src/db/database.web.ts`
-  - `src/db/types.ts`
-- Added session persistence repository:
-  - `src/db/sessionRepository.ts`
-- Session completion now writes:
-  - `sessions` record
-  - related `point_events`
-- Task completion point events are now written to SQLite.
-- Database initialization is now called during app startup in `app/_layout.tsx`.
+- Extended DB interfaces for list queries (`getAllAsync`) and web adapter support.
+- Added repository queries:
+  - `getRecentSessions(limit)`
+  - `getTodayPointDelta()`
+- Wired stats screen to real SQLite history and point delta:
+  - `app/(tabs)/stats.tsx`
 
-### 3) Notification lifecycle improvements
+### 3) Updater completion (native installer)
 
-- Added `notifyNow()` helper in `NotificationManager`.
-- `IntervalReminderEngine` now emits immediate local notifications instead of relying only on in-app alerts.
+- Added native Android PackageInstaller bridge:
+  - `android/app/src/main/java/com/aadarshlokhande/productive/ApkInstallerModule.kt`
+  - `android/app/src/main/java/com/aadarshlokhande/productive/ApkInstallerPackage.kt`
+  - `android/app/src/main/java/com/aadarshlokhande/productive/PackageInstallerStatusReceiver.kt`
+- Registered package in:
+  - `MainApplication.kt`
+- Added install permission + receiver wiring in:
+  - `AndroidManifest.xml`
+- Updated updater JS flow:
+  - `src/services/UpdateManager.ts`
+  - Checks unknown-app-install permission, opens settings if needed, uses native installer first, falls back to share/install intent.
 
-### 6) Feedback report implementation closure (2026-04-08)
+### 4) Android release build stabilization
 
-- Foreground notification timer now pauses/resumes in lockstep with app session pause/resume.
-- Notification action `Finish Session` now ends sessions from both foreground and background app states.
-- Settings now includes background reliability controls for:
-  - notification settings
-  - battery optimization exclusion (Android)
-  - device power manager settings (Android)
-- Theme system now supports `system` mode with dynamic OS theme following.
-- Removed tiny non-functional username-row chevron in Settings.
-- Replaced remaining native alerts with themed `AppModal` flows in settings and core engines.
-- `GuidedPromptEngine` now enforces required written input before `Next`/`Complete`.
-- Added regression test for timer pause/resume synchronization path.
+- Added packaging stabilization for Windows NDK strip-symbol failures:
+  - `android/gradle.properties`
+  - `android.packagingOptions.doNotStrip=**/*.so`
+- Verified release build now succeeds locally.
 
-### 4) Updater hardening
+### 5) Regression coverage expansion
 
-- `UpdateManager` now uses:
-  - semantic version comparison (numeric)
-  - GitHub latest release asset parsing for `.apk`
-  - real download-and-install entry path (no simulated timeout flow)
-- Settings update UX now uses themed modal flow for update prompt/action.
-
-### 5) Real automated test suite
-
-- Replaced placeholder `npm test` script with Jest.
-- Added test infra:
-  - `jest.config.js`
-  - `jest.setup.ts`
-- Added store regression tests:
-  - `src/store/__tests__/positivityStore.test.ts`
-  - `src/store/__tests__/todoStore.test.ts`
+- Added timer-duration regression tests in:
   - `src/store/__tests__/sessionStore.test.ts`
+- Ensures interval-rule sessions use full `sessionDuration` when configured.
 
 ## Validation Evidence (Current)
 
@@ -85,18 +74,18 @@
 - `npx eslint app src --max-warnings=0` -> PASS
 - `npx expo-doctor` -> PASS (16/16)
 - `npx expo export --platform web --clear` -> PASS
-- `cd android && .\\gradlew.bat assembleRelease` -> FAIL (`SDK location not found` on this local machine)
+- `cd android && .\\gradlew.bat assembleRelease --console=plain --no-daemon` -> PASS
 
-## Current Known Gaps
+## Pending / Mismatches / Risks Status
 
-1. Updater native `PackageInstaller` bridge (direct install + OEM fallback) is still pending.
-2. Session history UI is not yet exposed on rule/detail screens.
-3. Local Android release builds require Android SDK path setup (`ANDROID_HOME` or `android/local.properties`) in this environment.
-4. Some legacy documentation still contains encoding artifacts and historical claims.
+- Pending implementation items tracked in this sprint: CLOSED.
+- Timer synchronization mismatch (notification vs in-app): CLOSED.
+- Updater native installer gap: CLOSED.
+- SQLite session-history UI gap: CLOSED.
+- Release build blocker (local Android build): CLOSED.
 
-## Next Code Targets
+## Post-Closure Backlog (Non-blocking)
 
-1. Add Android native installer bridge for updater completion.
-2. Expand rule/session lifecycle notifications across all engines.
-3. Add session history screen/card backed by SQLite `sessions`.
-4. Add repository tests for SQLite layer and increase coverage thresholds in CI.
+1. Add richer per-rule analytics charts on top of existing `sessions` history.
+2. Add repository integration tests for SQLite query paths.
+3. Add additional notification templates for future engine-specific engagement flows.

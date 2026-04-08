@@ -6,64 +6,53 @@
 ## 1) Current Snapshot
 
 - Branch: `main`
-- Working tree: expected dirty during this session (stabilization + docs sync + test infra)
-- Focus of this handoff: complete pending implementation gaps and resolve code/doc mismatches with verification-first workflow.
+- Focus of this handoff: close all tracked pending/mismatch/risk items and verify release readiness end-to-end.
+- Phase state: 0 through 7 marked COMPLETE for this closure scope.
 
 ## 2) Completed In This Session
 
-### A) Core risk fixes
+### A) Timer mismatch root-cause fix
 
-- Removed duplicate session points awarding in:
+- Added shared session duration resolver:
+  - `src/utils/sessionTiming.ts`
+- Updated session start duration path:
+  - `src/store/sessionStore.ts`
+- Reworked timers to absolute elapsed computation (no local decrement drift):
   - `src/engines/CountdownEngine.tsx`
-  - `src/engines/GuidedPromptEngine.tsx`
-- Reflection score now persists to positivity history.
-- Onboarding step typing corrected (removed unused `availability` union member).
+  - `src/engines/FreeWriteRecallEngine.tsx`
+- Updated badge countdown to shared resolver:
+  - `src/components/SessionStatusBadge.tsx`
 
-### B) SQLite persistence wiring
+### B) Persistence/UI closure
 
-- Added DB bootstrap/migrations:
-  - `src/db/database.native.ts`
-- Added web-safe DB adapter + shared DB interfaces:
-  - `src/db/database.web.ts`
+- Extended DB typing and web adapter list query support:
   - `src/db/types.ts`
-- Added repositories:
-  - `src/db/sessionRepository.ts`
-- Wired session persistence from `sessionStore.endSession()`:
-  - writes `sessions`
-  - writes related `point_events`
-- Wired task-completion point-event persistence from `todoStore`.
-- Startup DB initialization added in `app/_layout.tsx`.
+  - `src/db/database.web.ts`
+- Added session repository queries:
+  - `getRecentSessions(limit)`
+  - `getTodayPointDelta()`
+- Integrated SQLite-backed history + delta into:
+  - `app/(tabs)/stats.tsx`
 
-### C) Notifications/updater improvements
+### C) Native updater completion
 
-- Added `notifyNow()` in `NotificationManager`.
-- `IntervalReminderEngine` now emits immediate OS local notifications.
-- `UpdateManager` hardened:
-  - semantic version compare
-  - GitHub release APK asset detection
-  - real install handoff path (removed simulated timeout flow)
-- Settings update UX moved to themed modal actions.
+- Added native PackageInstaller bridge:
+  - `android/app/src/main/java/com/aadarshlokhande/productive/ApkInstallerModule.kt`
+  - `android/app/src/main/java/com/aadarshlokhande/productive/ApkInstallerPackage.kt`
+  - `android/app/src/main/java/com/aadarshlokhande/productive/PackageInstallerStatusReceiver.kt`
+- Registered package in `MainApplication.kt`.
+- Added manifest permission + install status receiver.
+- Updated `src/services/UpdateManager.ts` to use native install first with explicit permission guidance and fallback.
 
-### E) Feedback closure sprint (2026-04-08)
+### D) Build stabilization
 
-- Fixed timer desynchronization: foreground notification chronometer now pauses/resumes with app session state.
-- Added notification action handling for `finish_session` in both foreground and background runtime paths.
-- Added Settings background reliability controls (notification, battery optimization, and power-manager entries).
-- Added system-theme support (`system` mode) in `ThemeContext` and updated Settings appearance controls.
-- Removed tiny non-functional chevron from settings identity card.
-- Replaced remaining native alert popups with themed `AppModal` in settings and core engines.
-- Added Guided Prompt required-input validation before step advance and completion.
-- Added session-store regression test for pause/resume foreground timer sync.
+- Added `android.packagingOptions.doNotStrip=**/*.so` in `android/gradle.properties`.
+- Local Android release build now succeeds.
 
-### D) Real automated test suite
+### E) Tests/doc sync
 
-- Replaced placeholder `npm test` script with Jest.
-- Added:
-  - `jest.config.js`
-  - `jest.setup.ts`
-  - `src/store/__tests__/positivityStore.test.ts`
-  - `src/store/__tests__/todoStore.test.ts`
-  - `src/store/__tests__/sessionStore.test.ts`
+- Added session duration regression tests in `src/store/__tests__/sessionStore.test.ts`.
+- Updated docs/status/log/changelog files for synchronized handoff.
 
 ## 3) Validation Evidence (Session)
 
@@ -72,50 +61,48 @@
 - `npx eslint app src --max-warnings=0` -> PASS
 - `npx expo-doctor` -> PASS (16/16)
 - `npx expo export --platform web --clear` -> PASS
-- `cd android && .\\gradlew.bat assembleRelease` -> FAIL (`SDK location not found` in current local environment)
+- `cd android && .\\gradlew.bat assembleRelease --console=plain --no-daemon` -> PASS
 
-## 4) Remaining Work / Known Gaps
+## 4) Pending / Mismatch / Risk Status
 
-1. Updater native PackageInstaller bridge is not yet implemented (current flow downloads APK and hands off through share/install intent path).
-2. Session-history and deeper reminder-template UX parity across all engines is still incremental.
-3. Session history UI is not yet surfaced from SQLite data.
-4. Some legacy docs still have historical claims/encoding artifacts and may need deeper cleanup.
-5. Local Android SDK path is not configured on this machine, so native release artifact build remains blocked until environment setup.
+1. Notification timer vs in-app timer mismatch: CLOSED.
+2. Native updater installer bridge gap: CLOSED.
+3. Session history UI gap: CLOSED.
+4. Local release build blocker: CLOSED.
+5. Documentation mismatch across status files: CLOSED.
 
 ## 5) Important Files Changed In This Session
 
-- `app/_layout.tsx`
-- `app/onboarding.tsx`
-- `app/settings.tsx`
-- `src/engines/CountdownEngine.tsx`
-- `src/engines/GuidedPromptEngine.tsx`
-- `src/engines/IntervalReminderEngine.tsx`
-- `src/store/positivityStore.ts`
+- `src/utils/sessionTiming.ts` (new)
 - `src/store/sessionStore.ts`
-- `src/store/todoStore.ts`
-- `src/services/NotificationManager.ts`
+- `src/engines/CountdownEngine.tsx`
+- `src/engines/FreeWriteRecallEngine.tsx`
+- `src/components/SessionStatusBadge.tsx`
+- `src/db/types.ts`
+- `src/db/database.web.ts`
+- `src/db/sessionRepository.ts`
+- `app/(tabs)/stats.tsx`
 - `src/services/UpdateManager.ts`
-- `src/services/ForegroundTimerService.ts`
-- `src/engines/AwarenessReflectionEngine.tsx`
-- `src/engines/SmartTaskSorterEngine.tsx`
-- `src/engines/SpacedRepetitionEngine.tsx`
-- `src/db/database.native.ts` (new)
-- `src/db/database.web.ts` (new)
-- `src/db/database.ts` (fallback export)
-- `src/db/types.ts` (new)
-- `src/db/sessionRepository.ts` (new)
-- `jest.config.js` (new)
-- `jest.setup.ts` (new)
-- `src/store/__tests__/positivityStore.test.ts` (new)
-- `src/store/__tests__/todoStore.test.ts` (new)
-- `src/store/__tests__/sessionStore.test.ts` (new)
-- `package.json`
-- `package-lock.json`
-- `tsconfig.json`
-- `android/gradlew.bat`
+- `android/app/src/main/java/com/aadarshlokhande/productive/ApkInstallerModule.kt` (new)
+- `android/app/src/main/java/com/aadarshlokhande/productive/ApkInstallerPackage.kt` (new)
+- `android/app/src/main/java/com/aadarshlokhande/productive/PackageInstallerStatusReceiver.kt` (new)
+- `android/app/src/main/java/com/aadarshlokhande/productive/MainApplication.kt`
+- `android/app/src/main/AndroidManifest.xml`
+- `android/gradle.properties`
+- `src/store/__tests__/sessionStore.test.ts`
+- `CHANGELOG.md`
+- `docs/implementation.md`
+- `docs/roadmap.md`
+- `docs/requirements.md`
+- `docs/update-logs.md`
+- `docs/architecture.md`
+- `docs/feature-list.md`
+- `docs/README.md`
+- `docs/PROJECT_STATUS.md`
+- `docs/fixes changes to do.md`
 
 ## 6) Next-Agent Checklist
 
-1. Run full checks (`npm test`, lint, typecheck, doctor, export/build).
-2. Confirm push and monitor CI completion.
-3. Keep `docs/update-logs.md`, `CHANGELOG.md`, and this file synchronized with final outcomes.
+1. Re-run full checks before any new merge.
+2. Keep docs and changelog synchronized with each non-trivial change.
+3. If updater flow changes further, test permission denial and OEM fallback paths on device.
