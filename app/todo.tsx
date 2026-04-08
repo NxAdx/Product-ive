@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, TextInput } from 'react-native';
+import { View, StyleSheet, Pressable, TextInput, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../src/theme/ThemeContext';
-import { X } from 'lucide-react-native';
+import { X, Tag } from 'lucide-react-native';
 import { ThemedText } from '../src/components/ThemedText';
 import { useTodoStore } from '../src/store/todoStore';
+import { RULES } from '../src/data/rules';
 
 export default function TodoModal() {
   const t = useTheme();
@@ -13,10 +14,11 @@ export default function TodoModal() {
   
   const [task, setTask] = useState('');
   const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
+  const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
 
   const handleSave = () => {
     if (task.trim()) {
-      addTodo(task.trim(), [], priority);
+      addTodo(task.trim(), selectedRuleId ? [selectedRuleId] : [], priority);
       router.back();
     }
   };
@@ -37,7 +39,7 @@ export default function TodoModal() {
         </Pressable>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <ThemedText variant="h1" style={styles.title}>Capture a Task</ThemedText>
         
         <TextInput
@@ -57,7 +59,43 @@ export default function TodoModal() {
           onSubmitEditing={handleSave}
         />
 
-        <View style={styles.priorityLabelRow}>
+        <View style={styles.sectionLabelRow}>
+          <Tag size={14} color={t.textSecondary} />
+          <ThemedText variant="label" color={t.textSecondary} style={{ marginLeft: 6 }}>Tag a Focus Rule (Optional)</ThemedText>
+        </View>
+
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={styles.ruleSelector}
+          contentContainerStyle={{ gap: 8 }}
+        >
+          {RULES.map((rule) => (
+            <Pressable
+              key={rule.id}
+              onPress={() => setSelectedRuleId(selectedRuleId === rule.id ? null : rule.id)}
+              style={[
+                styles.rulePill,
+                {
+                  backgroundColor: selectedRuleId === rule.id ? t.positivity : t.surfaceLow,
+                  borderColor: selectedRuleId === rule.id ? 'transparent' : t.border,
+                }
+              ]}
+            >
+              <ThemedText 
+                variant="caption" 
+                style={{ 
+                  color: selectedRuleId === rule.id ? '#000' : t.textSecondary,
+                  fontWeight: selectedRuleId === rule.id ? '800' : '600'
+                }}
+              >
+                {rule.name}
+              </ThemedText>
+            </Pressable>
+          ))}
+        </ScrollView>
+
+        <View style={styles.sectionLabelRow}>
           <ThemedText variant="label" color={t.textSecondary}>Priority</ThemedText>
         </View>
 
@@ -103,7 +141,7 @@ export default function TodoModal() {
         >
           <ThemedText variant="h3" style={[styles.saveText, { color: '#000' }]}>Save to Inbox</ThemedText>
         </Pressable>
-      </View>
+      </ScrollView>
 
     </View>
   );
@@ -152,8 +190,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 24,
   },
-  priorityLabelRow: {
+  sectionLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 12,
+  },
+  ruleSelector: {
+    marginBottom: 24,
+    height: 36,
+  },
+  rulePill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    height: 32,
+    justifyContent: 'center',
   },
   priorityContainer: {
     flexDirection: 'row',

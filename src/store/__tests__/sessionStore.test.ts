@@ -26,14 +26,19 @@ function resetStores() {
 
 function startMockSession(ruleId: string, secondsAgo: number) {
   const now = Date.now();
+  const startTime = now - secondsAgo * 1000;
+  // Mock a 25-min duration for consistency
+  const deadlineAtMs = startTime + 25 * 60 * 1000;
+  
   useSessionStore.setState(
     {
       ...useSessionStore.getInitialState(),
       activeRuleId: ruleId,
       phase: 'work',
-      startTime: now - secondsAgo * 1000,
+      startTime,
       pausedAt: null,
       durationPassed: 0,
+      deadlineAtMs,
     },
     true
   );
@@ -72,7 +77,9 @@ describe('sessionStore', () => {
 
     useSessionStore.getState().resumeSession();
     expect(useSessionStore.getState().pausedAt).toBeNull();
-    expect(foreground.resumeForegroundTimer).toHaveBeenCalledTimes(1);
+    expect(foreground.resumeForegroundTimer).toHaveBeenCalledWith(
+      expect.any(Number)
+    );
   });
 
   it('uses full session duration for interval rules (not reminder interval only)', () => {
@@ -80,10 +87,11 @@ describe('sessionStore', () => {
 
     useSessionStore.getState().startSession('20_20_20');
 
-    expect(foreground.startForegroundTimer).toHaveBeenCalledWith(
-      2 * 60 * 60 * 1000,
-      '20-20-20 Rule'
-    );
+    expect(foreground.startForegroundTimer).toHaveBeenCalledWith(expect.objectContaining({
+      durationMs: 2 * 60 * 60 * 1000,
+      title: '20-20-20 Rule',
+      deadlineAtMs: expect.any(Number)
+    }));
   });
 
   it('uses timerMinutes for freewrite-style timed sessions', () => {
@@ -91,9 +99,10 @@ describe('sessionStore', () => {
 
     useSessionStore.getState().startSession('blurting');
 
-    expect(foreground.startForegroundTimer).toHaveBeenCalledWith(
-      10 * 60 * 1000,
-      'Blurting'
-    );
+    expect(foreground.startForegroundTimer).toHaveBeenCalledWith(expect.objectContaining({
+      durationMs: 10 * 60 * 1000,
+      title: 'Blurting',
+      deadlineAtMs: expect.any(Number)
+    }));
   });
 });

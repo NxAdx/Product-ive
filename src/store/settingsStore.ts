@@ -21,7 +21,7 @@ export interface SettingsStore {
 
   // Preferences
   soundEnabled: boolean;
-  hapicsEnabled: boolean;
+  hapticsEnabled: boolean;
 
   setUserName: (name: string) => void;
   setNotificationsEnabled: (enabled: boolean) => void;
@@ -31,7 +31,7 @@ export interface SettingsStore {
   setSleepReminderEnabled: (enabled: boolean) => void;
   setAutoCheckUpdates: (enabled: boolean) => void;
   setSoundEnabled: (enabled: boolean) => void;
-  setHapicsEnabled: (enabled: boolean) => void;
+  setHapticsEnabled: (enabled: boolean) => void;
   setLastUpdateCheckDate: (date: string) => void;
 }
 
@@ -46,7 +46,7 @@ export const useSettingsStore = create<SettingsStore>()(
       sleepReminderEnabled: true,
       autoCheckUpdates: true,
       soundEnabled: true,
-      hapicsEnabled: true,
+      hapticsEnabled: true,
 
       setUserName: (name) => set({ userName: name }),
       setNotificationsEnabled: (enabled) => set({ notificationsEnabled: enabled }),
@@ -56,7 +56,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setSleepReminderEnabled: (enabled) => set({ sleepReminderEnabled: enabled }),
       setAutoCheckUpdates: (enabled) => set({ autoCheckUpdates: enabled }),
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
-      setHapicsEnabled: (enabled) => set({ hapicsEnabled: enabled }),
+      setHapticsEnabled: (enabled) => set({ hapticsEnabled: enabled }),
       setLastUpdateCheckDate: (date) => set({ lastUpdateCheckDate: date }),
     }),
     { name: 'settings', storage: createJSONStorage(() => AsyncStorage) }

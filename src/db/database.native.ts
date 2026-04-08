@@ -2,7 +2,7 @@ import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import type { PersistedDatabase } from './types';
 
 const DB_NAME = 'product_ive.db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let dbPromise: Promise<PersistedDatabase> | null = null;
 
@@ -32,6 +32,19 @@ CREATE INDEX IF NOT EXISTS idx_point_events_session_id ON point_events(session_i
 CREATE INDEX IF NOT EXISTS idx_sessions_completed_at ON sessions(completed_at);
 `;
 
+const MIGRATION_V2 = `
+CREATE TABLE IF NOT EXISTS wellbeing_assessments (
+  id TEXT PRIMARY KEY NOT NULL,
+  score INTEGER NOT NULL,
+  notes TEXT,
+  category TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_rule_id ON sessions(rule_id);
+CREATE INDEX IF NOT EXISTS idx_wellbeing_assessments_created_at ON wellbeing_assessments(created_at);
+`;
+
 async function runMigrations(db: SQLiteDatabase): Promise<void> {
   await db.execAsync('PRAGMA journal_mode = WAL;');
   const result = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
@@ -39,6 +52,13 @@ async function runMigrations(db: SQLiteDatabase): Promise<void> {
 
   if (currentVersion < 1) {
     await db.execAsync(MIGRATION_V1);
+  }
+  
+  if (currentVersion < 2) {
+    await db.execAsync(MIGRATION_V2);
+  }
+
+  if (currentVersion < DB_VERSION) {
     await db.execAsync(`PRAGMA user_version = ${DB_VERSION};`);
   }
 }

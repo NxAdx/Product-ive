@@ -1,5 +1,22 @@
 # Product +ive Update Logs
 
+---
+
+## 2026-04-08 - v1.1.0 "Resilience" Release Sprint
+
+### Completed
+- **Timer Synchronization**: Implemented unified `deadlineAtMs` anchors in `sessionStore.ts` and `ForegroundTimerService.ts`. Eliminated persistent 1-second drift between app UI and system notifications.
+- **Settings Consolidation**: Lifted permission status to parent `SettingsScreen`. De-duplicated notification restriction warnings and centralized reliability UX.
+- **Wellbeing Check-in Service**: Added `app/wellbeing.tsx` multi-step assessment (Focus, Energy, Mood, Sleep, Stress) with non-diagnostic safeguards and points rewards.
+- **Consistency Heatmap**: Created and integrated `HistoryHeatmap` into the Stats tab, reflecting real SQLite history logs.
+- **Data Hardening**: Implemented SQLite Migration v2 (`wellbeing_assessments`) and added performance indices for historization.
+- **Backlog - Task Tagging**: Added rule selector to `app/todo.tsx` allowing users to associate tasks with specific focus rules.
+- **Quality**: Expanded test suite to 36 passed tests. Cleaned naming debt (`hapicsEnabled` -> `hapticsEnabled`).
+
+### Next Steps
+- Create tagged GitHub release (v1.1.0) with signed APK to activate native updater.
+- Implement rule-task correlation analytics.
+
 > Change log for implementation, CI/CD, dependency, and documentation work.
 
 ---

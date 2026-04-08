@@ -7,6 +7,10 @@ import {
   insertPointEvents,
   getRecentSessions,
   getTodayPointDelta,
+  getActivityHistory,
+  saveWellbeingAssessment,
+  getLatestWellbeingIndex,
+  hasRecentlyCheckedIn,
 } from '../sessionRepository';
 
 // Create a controlled mock for the database module
@@ -138,5 +142,51 @@ describe('getTodayPointDelta', () => {
     const [sql] = mockGetFirstAsync.mock.calls[0];
     expect(sql).toContain('FROM point_events');
     expect(sql).toContain('WHERE created_at >=');
+  });
+});
+describe('getActivityHistory', () => {
+  it('queries sessions grouping by date for the last N weeks', async () => {
+    await getActivityHistory(12);
+    expect(mockGetAllAsync).toHaveBeenCalledTimes(1);
+    const [sql] = mockGetAllAsync.mock.calls[0];
+    expect(sql).toContain('SELECT date(created_at) as date, count(*) as count');
+    expect(sql).toContain('GROUP BY date(created_at)');
+  });
+});
+
+describe('wellbeing', () => {
+  it('saves an assessment with all fields', async () => {
+    const assessment = {
+      id: 'wb1',
+      score: 4.2,
+      notes: '{"mood":5}',
+      category: 'daily_checkin',
+      createdAt: 1000,
+    };
+    await saveWellbeingAssessment(assessment);
+    expect(mockRunAsync).toHaveBeenCalledTimes(1);
+    const [sql, ...params] = mockRunAsync.mock.calls[0];
+    expect(sql).toContain('INSERT INTO wellbeing_assessments');
+    expect(params).toContain('wb1');
+    expect(params).toContain(4.2);
+    expect(params).toContain('daily_checkin');
+  });
+
+  it('retrieves the latest wellbeing index', async () => {
+    mockGetFirstAsync.mockResolvedValueOnce({ score: 3.5 });
+    const score = await getLatestWellbeingIndex();
+    expect(score).toBe(3.5);
+    expect(mockGetFirstAsync).toHaveBeenCalledWith(
+      expect.stringContaining('ORDER BY created_at DESC LIMIT 1')
+    );
+  });
+
+  it('detects recent check-ins correctly', async () => {
+    mockGetFirstAsync.mockResolvedValueOnce({ count: 1 });
+    const recent = await hasRecentlyCheckedIn();
+    expect(recent).toBe(true);
+    const [sql, threshold] = mockGetFirstAsync.mock.calls[0];
+    expect(sql).toContain('WHERE created_at >=');
+    expect(threshold).toBeGreaterThan(Date.now() - 21 * 60 * 60 * 1000);
   });
 });

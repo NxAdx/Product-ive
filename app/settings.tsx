@@ -32,7 +32,7 @@ const CURRENT_VERSION_CHANGES = [
   'Bug report export and wellness reminder controls in Settings.',
 ];
 
-function WellnessNotificationsSection() {
+function WellnessNotificationsSection({ permGranted, onFixPermissions }: { permGranted: boolean; onFixPermissions: () => void }) {
   const t = useTheme();
   const notifications = useWellnessStore((s) => s.notifications);
   const setNotificationEnabled = useWellnessStore((s) => s.setNotificationEnabled);
@@ -44,17 +44,11 @@ function WellnessNotificationsSection() {
     { name: 'Recovery', ids: ['sleep-time'], icon: <Moon size={12} color={t.positivity} /> },
   ];
 
-  const [permStatus, setPermStatus] = useState<{ granted: boolean; canAskAgain: boolean } | null>(null);
   const [modalConfig, setModalConfig] = useState<{ visible: boolean; title: string; desc: string; triggerId?: string } | null>(null);
 
-  useEffect(() => {
-    getPermissionStatus().then(setPermStatus);
-  }, []);
-
   const handleToggle = async (id: string, enabled: boolean) => {
-    if (enabled && permStatus && !permStatus.granted) {
+    if (enabled && !permGranted) {
       const granted = await requestPerms();
-      setPermStatus({ granted, canAskAgain: true });
       if (!granted) {
         setModalConfig({
           visible: true,
@@ -70,19 +64,16 @@ function WellnessNotificationsSection() {
 
   return (
     <View style={{ gap: 12, marginTop: 8 }}>
-      {!permStatus?.granted && (
+      {!permGranted && (
         <Pressable 
-          onPress={async () => {
-            const granted = await requestPerms();
-            setPermStatus({ granted, canAskAgain: true });
-          }}
+          onPress={onFixPermissions}
           style={[styles.notificationWarning, { backgroundColor: t.isDark ? 'rgba(255,165,0,0.1)' : 'rgba(255,165,0,0.05)', borderColor: t.warning }]}
         >
           <CircleAlert size={14} color={t.warning} />
           <ThemedText variant="caption" color={t.warning} style={{ marginLeft: 8, fontWeight: '700' }}>
             Notifications are Restricted
           </ThemedText>
-          <ThemedText variant="caption" color={t.warning} style={{ marginLeft: 'auto', textDecorationLine: 'underline' }}>Fix</ThemedText>
+          <ThemedText variant="caption" color={t.warning} style={{ marginLeft: 'auto', textDecorationLine: 'underline' }}>Configure</ThemedText>
         </Pressable>
       )}
       {groups.map((group) => {
@@ -203,7 +194,7 @@ function WellnessNotificationsSection() {
   );
 }
 
-function BackgroundReliabilitySection() {
+function BackgroundReliabilitySection({ onStatusUpdate }: { onStatusUpdate?: (granted: boolean) => void }) {
   const t = useTheme();
   const [isChecking, setIsChecking] = useState(false);
   const [batteryOptimizationEnabled, setBatteryOptimizationEnabled] = useState<boolean | null>(null);
@@ -215,6 +206,7 @@ function BackgroundReliabilitySection() {
     try {
       const permission = await getPermissionStatus();
       setNotificationGranted(permission.granted);
+      if (onStatusUpdate) onStatusUpdate(permission.granted);
       if (Platform.OS === 'android') {
         const batteryOptimized = await notifee.isBatteryOptimizationEnabled();
         setBatteryOptimizationEnabled(batteryOptimized);
@@ -387,6 +379,9 @@ export default function SettingsScreen() {
     info: null,
   });
 
+  const [permGranted, setPermGranted] = useState(true);
+  const scrollRef = React.useRef<ScrollView>(null);
+
   // v4.0 Migration: Scrub emojis on load
   useEffect(() => {
     if (migrateWellness) migrateWellness();
@@ -477,6 +472,11 @@ export default function SettingsScreen() {
     }
   };
 
+  const scrollToReliability = () => {
+    // Basic estimate of position or just scroll to end
+    scrollRef.current?.scrollToEnd();
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: t.isDark ? '#000' : t.bg, paddingTop: insets.top }]}>
       <View style={styles.topBar}>
@@ -490,7 +490,11 @@ export default function SettingsScreen() {
         <View style={styles.iconBtnPlaceholder} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        ref={scrollRef}
+        contentContainerStyle={styles.content} 
+        showsVerticalScrollIndicator={false}
+      >
         <View style={[styles.identityCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
           <View style={[styles.avatarBox, { backgroundColor: t.surfaceHigh }]}>
             <UserIcon size={24} color={t.positivity} />
@@ -561,7 +565,7 @@ export default function SettingsScreen() {
         {/* Section: Wellness */}
         <View style={[styles.sectionCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
           <ThemedText variant="label" color={t.inkDim}>Biological Optimization</ThemedText>
-          <WellnessNotificationsSection />
+          <WellnessNotificationsSection permGranted={permGranted} onFixPermissions={scrollToReliability} />
         </View>
 
         {/* Section: Background Reliability */}
@@ -570,10 +574,9 @@ export default function SettingsScreen() {
           <ThemedText variant="caption" color={t.textSecondary} style={{ marginTop: 6, marginBottom: 8 }}>
             Keep sessions running reliably by granting notification and battery-related permissions.
           </ThemedText>
-          <BackgroundReliabilitySection />
+          <BackgroundReliabilitySection onStatusUpdate={setPermGranted} />
         </View>
 
-        {/* Section: Hardware & Interaction */}
         <View style={[styles.sectionCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
           <ThemedText variant="label" color={t.inkDim}>Hardware & Interaction</ThemedText>
           <View style={styles.row}>
@@ -582,10 +585,10 @@ export default function SettingsScreen() {
               <ThemedText variant="caption" color={t.inkDim}>Tactile physical cues</ThemedText>
             </View>
             <Switch
-              value={useWellnessStore((s) => s.vibrationEnabled)}
-              onValueChange={(v) => useWellnessStore.getState().setVibrationEnabled(v)}
+              value={useSettingsStore((s) => s.hapticsEnabled)}
+              onValueChange={(v) => useSettingsStore.getState().setHapticsEnabled(v)}
               trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
-              thumbColor={useWellnessStore((s) => s.vibrationEnabled) ? '#FFFFFF' : '#F2F1EE'}
+              thumbColor={useSettingsStore((s) => s.hapticsEnabled) ? '#FFFFFF' : '#F2F1EE'}
             />
           </View>
         </View>

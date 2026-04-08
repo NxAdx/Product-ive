@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { usePositivityStore } from '../../src/store/positivityStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,8 +12,15 @@ import { getRuleById } from '../../src/data/rules';
 import {
   getRecentSessions,
   getTodayPointDelta,
+  getActivityHistory,
+  getLatestWellbeingIndex,
+  hasRecentlyCheckedIn,
   type SessionSummaryRecord,
+  type ActivityHistoryPoint,
 } from '../../src/db/sessionRepository';
+import { HistoryHeatmap } from '../../src/components/HistoryHeatmap';
+import { useRouter } from 'expo-router';
+import { Heart, Calendar } from 'lucide-react-native';
 
 const LEVEL_STEPS = [0, 100, 250, 500, 1000];
 
@@ -32,9 +39,14 @@ function getLevelProgress(score: number) {
 
 export default function StatsScreen() {
   const t = useTheme();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const positivity = usePositivityStore();
+  
   const [recentSessions, setRecentSessions] = useState<SessionSummaryRecord[]>([]);
+  const [heatmapData, setHeatmapData] = useState<ActivityHistoryPoint[]>([]);
+  const [wellnessIndex, setWellnessIndex] = useState<number | null>(null);
+  const [canCheckIn, setCanCheckIn] = useState(true);
   const [todayDelta, setTodayDelta] = useState(0);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
@@ -43,14 +55,20 @@ export default function StatsScreen() {
 
     const loadHistory = async () => {
       try {
-        const [sessions, delta] = await Promise.all([
+        const [sessions, delta, history, latestWellness, checkedIn] = await Promise.all([
           getRecentSessions(6),
           getTodayPointDelta(),
+          getActivityHistory(12),
+          getLatestWellbeingIndex(),
+          hasRecentlyCheckedIn(),
         ]);
 
         if (!cancelled) {
           setRecentSessions(sessions);
           setTodayDelta(delta);
+          setHeatmapData(history);
+          setWellnessIndex(latestWellness);
+          setCanCheckIn(!checkedIn);
         }
       } finally {
         if (!cancelled) {
@@ -160,8 +178,53 @@ export default function StatsScreen() {
           </View>
         </View>
 
+        {/* Consistency & Wellness */}
+        <View style={[styles.rowAlign, { marginTop: 8, marginBottom: 12 }]}>
+          <Calendar size={18} color={t.textDisabled} />
+          <ThemedText variant="h3" style={{ marginLeft: 8, fontSize: 16 }}>Consistency & Wellness</ThemedText>
+        </View>
+
+        <BentoCard variant="default" style={{ backgroundColor: t.surfaceLowest, padding: 16 }}>
+           <HistoryHeatmap data={heatmapData} />
+           
+           <View style={[styles.dividerH, { backgroundColor: t.border }]} />
+           
+           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+              <View style={{ flex: 1 }}>
+                <ThemedText variant="label" color={t.textSecondary}>Latest Reliability Index</ThemedText>
+                <ThemedText variant="h3" style={{ color: t.positivity }}>
+                  {wellnessIndex ? `${wellnessIndex.toFixed(1)} / 5.0` : '-- / 5.0'}
+                </ThemedText>
+                {wellnessIndex && (
+                  <ThemedText variant="caption" color={t.textSecondary} style={{ marginTop: 2 }}>
+                    {wellnessIndex >= 4.5 ? 'Peak state—perfect for deep work.' :
+                     wellnessIndex >= 3.5 ? 'Balanced focus. Stay consistent.' :
+                     wellnessIndex >= 2.5 ? 'Low energy detected. Prioritize recovery.' :
+                     'Recovery mode: stick to light tasks.'}
+                  </ThemedText>
+                )}
+              </View>
+              <Pressable
+                onPress={() => router.push('/wellbeing')}
+                disabled={!canCheckIn}
+                style={[
+                  styles.checkInBtn, 
+                  { 
+                    backgroundColor: canCheckIn ? t.positivity : t.surfaceHigh,
+                    opacity: canCheckIn ? 1 : 0.6
+                  }
+                ]}
+              >
+                <Heart size={14} color={canCheckIn ? '#000' : t.textDisabled} />
+                <ThemedText variant="label" style={{ color: canCheckIn ? '#000' : t.textDisabled, marginLeft: 8, fontWeight: '800' }}>
+                  {canCheckIn ? 'Check-in' : 'Done Today'}
+                </ThemedText>
+              </Pressable>
+           </View>
+        </BentoCard>
+
         {/* Bento Stats Grid */}
-        <View style={styles.bentoGrid}>
+        <View style={[styles.bentoGrid, { marginTop: 20 }]}>
           <View style={styles.bentoRow}>
             <BentoCard flex={1} variant="data" accent={t.focus} padding={20}>
               <Flame size={24} color={t.focus} fill={t.focus} />
@@ -345,5 +408,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
+  },
+  dividerH: {
+    height: 1,
+    width: '100%',
+    marginVertical: 12,
+  },
+  checkInBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
   },
 });

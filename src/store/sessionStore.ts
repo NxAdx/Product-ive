@@ -24,6 +24,7 @@ interface SessionState {
   startTime: number | null;
   pausedAt: number | null;
   durationPassed: number;
+  deadlineAtMs: number | null;
 
   startSession: (ruleId: string) => void;
   pauseSession: () => void;
@@ -38,6 +39,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   startTime: null,
   pausedAt: null,
   durationPassed: 0,
+  deadlineAtMs: null,
 
   startSession: (ruleId) => {
     const current = get();
@@ -47,14 +49,24 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
     const rule = RULES.find((r) => r.id === ruleId);
     const durationMs = resolveForegroundDurationMs(rule ?? null);
-    startForegroundTimer(durationMs, rule?.name || 'Active Session').catch(console.error);
+    
+    // Phase 2 Sync: Calculate absolute deadline once
+    const now = Date.now();
+    const deadlineAtMs = now + durationMs;
+
+    startForegroundTimer({
+      durationMs,
+      title: rule?.name || 'Active Session',
+      deadlineAtMs,
+    }).catch(console.error);
 
     set({
       activeRuleId: ruleId,
       phase: 'work',
-      startTime: Date.now(),
+      startTime: now,
       pausedAt: null,
       durationPassed: 0,
+      deadlineAtMs,
     });
   },
 
@@ -62,20 +74,29 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     const state = get();
     if (state.phase === 'idle' || state.pausedAt || !state.activeRuleId) return;
 
-    set({ pausedAt: Date.now() });
+    const now = Date.now();
+    set({ pausedAt: now });
     pauseForegroundTimer().catch(console.error);
   },
 
   resumeSession: () => {
     const state = get();
-    if (!state.pausedAt || !state.startTime || !state.activeRuleId) return;
+    if (!state.pausedAt || !state.startTime || !state.activeRuleId || !state.deadlineAtMs) return;
 
-    const pauseDuration = Date.now() - state.pausedAt;
+    const now = Date.now();
+    const pauseDuration = now - state.pausedAt;
+    
+    // Update both virtual start and absolute deadline
+    const newStartTime = state.startTime + pauseDuration;
+    const newDeadlineAtMs = state.deadlineAtMs + pauseDuration;
+
     set({
-      startTime: state.startTime + pauseDuration,
+      startTime: newStartTime,
+      deadlineAtMs: newDeadlineAtMs,
       pausedAt: null,
     });
-    resumeForegroundTimer().catch(console.error);
+
+    resumeForegroundTimer(newDeadlineAtMs).catch(console.error);
   },
 
   endSession: (options) => {
@@ -151,6 +172,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       startTime: null,
       pausedAt: null,
       durationPassed: 0,
+      deadlineAtMs: null,
     });
   },
 

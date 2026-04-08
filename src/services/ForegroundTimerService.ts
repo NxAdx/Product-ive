@@ -1,5 +1,6 @@
 import notifee, { AndroidImportance, AndroidColor } from '@notifee/react-native';
 import { Vibration } from 'react-native';
+import { useSettingsStore } from '../store/settingsStore';
 
 const NOTIFICATION_ID = 'pomodoro_timer_foreground';
 const CHANNEL_ID = 'active_session_timers';
@@ -100,18 +101,24 @@ async function showPausedNotification(title: string, remainingMs: number) {
   });
 }
 
+interface StartTimerOptions {
+  durationMs: number;
+  title?: string;
+  deadlineAtMs: number;
+}
+
 /**
  * Starts a foreground service that displays a ticking chronometer.
  * Automatically vibrates at the expected payload end manually using headless background task if needed,
  * but primarily we schedule an exact notification or rely on state.
  */
-export async function startForegroundTimer(durationMs: number, title: string = 'Deep Focus') {
+export async function startForegroundTimer(options: StartTimerOptions) {
+  const { durationMs, title = 'Deep Focus', deadlineAtMs } = options;
   clearCompletionTimer();
 
   await ensureChannel();
 
   const safeDurationMs = Math.max(1000, Math.floor(durationMs));
-  const deadlineAtMs = Date.now() + safeDurationMs;
 
   timerState = {
     title,
@@ -128,7 +135,8 @@ export async function startForegroundTimer(durationMs: number, title: string = '
 export async function pauseForegroundTimer(): Promise<void> {
   if (!timerState || timerState.isPaused || timerState.deadlineAtMs === null) return;
 
-  const remainingMs = Math.max(0, timerState.deadlineAtMs - Date.now());
+  const now = Date.now();
+  const remainingMs = Math.max(0, timerState.deadlineAtMs - now);
   clearCompletionTimer();
 
   timerState = {
@@ -142,7 +150,7 @@ export async function pauseForegroundTimer(): Promise<void> {
   await showPausedNotification(timerState.title, remainingMs);
 }
 
-export async function resumeForegroundTimer(): Promise<void> {
+export async function resumeForegroundTimer(deadlineAtMs: number): Promise<void> {
   if (!timerState || !timerState.isPaused) return;
 
   const remainingMs = Math.max(0, timerState.remainingMs);
@@ -151,7 +159,6 @@ export async function resumeForegroundTimer(): Promise<void> {
     return;
   }
 
-  const deadlineAtMs = Date.now() + remainingMs;
   timerState = {
     ...timerState,
     isPaused: false,
@@ -172,7 +179,10 @@ export async function stopForegroundTimer(completed: boolean = false) {
   timerState = null;
   // If the timer completed organically, vibrate!
   if (completed) {
-    Vibration.vibrate([0, 500, 200, 500, 200, 1000]); // Heavy vibration pattern
+    const { hapticsEnabled } = useSettingsStore.getState();
+    if (hapticsEnabled) {
+      Vibration.vibrate([0, 500, 200, 500, 200, 1000]); // Heavy vibration pattern
+    }
     
     await ensureChannel();
     await notifee.displayNotification({
