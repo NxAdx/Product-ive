@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, ScrollView, Animated } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../src/theme/ThemeContext';
 import { tokens } from '../src/theme/tokens';
 import { ThemedText } from '../src/components/ThemedText';
-import { BentoCard } from '../src/components/BentoCard';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, Brain, Zap, Heart, Moon, Wind, CheckCircle2 } from 'lucide-react-native';
 import { usePositivityStore } from '../src/store/positivityStore';

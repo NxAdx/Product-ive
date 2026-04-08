@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { useTheme } from '../theme/ThemeContext';
-import { tokens } from '../theme/tokens';
 
 interface HeatmapDataPoint {
   date: string; // ISO YYYY-MM-DD

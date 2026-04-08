@@ -226,7 +226,7 @@ function BackgroundReliabilitySection({ onStatusUpdate }: { onStatusUpdate?: (gr
 
   useEffect(() => {
     refreshStatus();
-  }, []);
+  }, [refreshStatus]);
 
   const openNotificationSettings = async () => {
     try {
