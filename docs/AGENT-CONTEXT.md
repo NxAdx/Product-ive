@@ -1,6 +1,6 @@
 # Product +ive - Agent Handoff Context
 
-> Last Updated: 2026-04-07 (IST)
+> Last Updated: 2026-04-08 (IST)
 > Updated By: Codex
 
 ## 1) Current Snapshot
@@ -44,6 +44,17 @@
   - real install handoff path (removed simulated timeout flow)
 - Settings update UX moved to themed modal actions.
 
+### E) Feedback closure sprint (2026-04-08)
+
+- Fixed timer desynchronization: foreground notification chronometer now pauses/resumes with app session state.
+- Added notification action handling for `finish_session` in both foreground and background runtime paths.
+- Added Settings background reliability controls (notification, battery optimization, and power-manager entries).
+- Added system-theme support (`system` mode) in `ThemeContext` and updated Settings appearance controls.
+- Removed tiny non-functional chevron from settings identity card.
+- Replaced remaining native alert popups with themed `AppModal` in settings and core engines.
+- Added Guided Prompt required-input validation before step advance and completion.
+- Added session-store regression test for pause/resume foreground timer sync.
+
 ### D) Real automated test suite
 
 - Replaced placeholder `npm test` script with Jest.
@@ -66,7 +77,7 @@
 ## 4) Remaining Work / Known Gaps
 
 1. Updater native PackageInstaller bridge is not yet implemented (current flow downloads APK and hands off through share/install intent path).
-2. Some engine reminder paths still rely on alert-style UX and are not fully unified.
+2. Session-history and deeper reminder-template UX parity across all engines is still incremental.
 3. Session history UI is not yet surfaced from SQLite data.
 4. Some legacy docs still have historical claims/encoding artifacts and may need deeper cleanup.
 5. Local Android SDK path is not configured on this machine, so native release artifact build remains blocked until environment setup.
@@ -85,6 +96,9 @@
 - `src/services/NotificationManager.ts`
 - `src/services/UpdateManager.ts`
 - `src/services/ForegroundTimerService.ts`
+- `src/engines/AwarenessReflectionEngine.tsx`
+- `src/engines/SmartTaskSorterEngine.tsx`
+- `src/engines/SpacedRepetitionEngine.tsx`
 - `src/db/database.native.ts` (new)
 - `src/db/database.web.ts` (new)
 - `src/db/database.ts` (fallback export)

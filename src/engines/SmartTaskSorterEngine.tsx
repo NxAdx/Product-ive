@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, FlatList, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, FlatList, TextInput } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { useTodoStore } from '../store/todoStore';
 import { Plus, Trash2, CheckCircle, Zap } from 'lucide-react-native';
+import { AppModal } from '../components/AppModal';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -23,6 +24,7 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
   const [sessionTasks, setSessionTasks] = useState<typeof todoStore.todos>([]);
   const [newTask, setNewTask] = useState('');
   const [sessionStarted, setSessionStarted] = useState(false);
+  const [modal, setModal] = useState<{ visible: boolean; title: string; description: string } | null>(null);
 
   // Get rule-specific task limits
   const getTaskLimit = () => {
@@ -45,7 +47,11 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
   const handleAddTask = () => {
     if (!newTask.trim()) return;
     if (sessionTasks.length >= taskLimit) {
-      Alert.alert(`Limit reached`, `You can focus on max ${taskLimit} tasks`);
+      setModal({
+        visible: true,
+        title: 'Limit Reached',
+        description: `You can focus on max ${taskLimit} tasks for this rule.`,
+      });
       return;
     }
     
@@ -81,7 +87,11 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
 
   const handleStartSession = () => {
     if (sessionTasks.length === 0) {
-      Alert.alert('No tasks', 'Please add at least one task to focus on');
+      setModal({
+        visible: true,
+        title: 'No Tasks Yet',
+        description: 'Please add at least one task to focus on.',
+      });
       return;
     }
     setSessionStarted(true);
@@ -98,159 +108,175 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
 
   if (!sessionStarted) {
     return (
-      <View style={styles.planningMode}>
-        {/* Instructions */}
-        <View style={styles.instructionBox}>
-          <Text style={[styles.instrTitle, { color: t.ink }]}>
-            {rule.name}
-          </Text>
-          <Text style={[styles.instrDesc, { color: t.inkMid }]}>
-            {rule.description}
-          </Text>
-          {rule.engineConfig.instructions && (
-            <Text style={[styles.instrNote, { color: t.inkDim }]}>
-              {rule.engineConfig.instructions}
+      <>
+        <View style={styles.planningMode}>
+          {/* Instructions */}
+          <View style={styles.instructionBox}>
+            <Text style={[styles.instrTitle, { color: t.ink }]}>
+              {rule.name}
             </Text>
-          )}
-          <Text style={[styles.taskLimit, { color }]}>
-            Focus on {taskLimit} task{taskLimit > 1 ? 's' : ''}
-          </Text>
-        </View>
-
-        {/* Task Input */}
-        <View style={styles.inputGroup}>
-          <View style={[styles.inputContainer, { 
-            backgroundColor: t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-            borderColor: t.border
-          }]}>
-            <TextInput
-              style={[styles.input, { color: t.ink }]}
-              placeholder="Add a task..."
-              placeholderTextColor={t.inkDim}
-              value={newTask}
-              onChangeText={setNewTask}
-              editable={sessionTasks.length < taskLimit}
-            />
-            <Pressable 
-              onPress={handleAddTask}
-              disabled={sessionTasks.length >= taskLimit}
-              style={({ pressed }) => [
-                styles.addBtn,
-                { 
-                  backgroundColor: color,
-                  opacity: sessionTasks.length >= taskLimit ? 0.5 : (pressed ? 0.8 : 1)
-                }
-              ]}
-            >
-              <Plus size={18} color="#FFF" />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Task List */}
-        {sessionTasks.length > 0 && (
-          <FlatList
-            data={sessionTasks}
-            keyExtractor={item => item.id}
-            scrollEnabled={false}
-            renderItem={({ item, index }) => (
-              <View style={[styles.taskItem, { 
-                backgroundColor: t.isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
-                borderColor: t.border
-              }]}>
-                <Text style={[styles.taskNumber, { color }]}>
-                  {index + 1}
-                </Text>
-                <Text style={[styles.taskTitle, { color: t.ink, flex: 1 }]}>
-                  {item.title}
-                </Text>
-                <Pressable onPress={() => handleRemoveTask(item.id)}>
-                  <Trash2 size={16} color={t.inkMid} />
-                </Pressable>
-              </View>
+            <Text style={[styles.instrDesc, { color: t.inkMid }]}>
+              {rule.description}
+            </Text>
+            {rule.engineConfig.instructions && (
+              <Text style={[styles.instrNote, { color: t.inkDim }]}>
+                {rule.engineConfig.instructions}
+              </Text>
             )}
-            style={styles.taskList}
-          />
-        )}
+            <Text style={[styles.taskLimit, { color }]}>
+              Focus on {taskLimit} task{taskLimit > 1 ? 's' : ''}
+            </Text>
+          </View>
 
-        {/* Start Button */}
-        {sessionTasks.length > 0 && (
-          <Pressable 
-            onPress={handleStartSession}
-            style={[styles.startBtn, { backgroundColor: color }]}
-          >
-            <Zap size={20} color="#FFF" />
-            <Text style={styles.startBtnText}>Start Focus Session</Text>
-          </Pressable>
-        )}
-      </View>
+          {/* Task Input */}
+          <View style={styles.inputGroup}>
+            <View style={[styles.inputContainer, {
+              backgroundColor: t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+              borderColor: t.border
+            }]}>
+              <TextInput
+                style={[styles.input, { color: t.ink }]}
+                placeholder="Add a task..."
+                placeholderTextColor={t.inkDim}
+                value={newTask}
+                onChangeText={setNewTask}
+                editable={sessionTasks.length < taskLimit}
+              />
+              <Pressable
+                onPress={handleAddTask}
+                disabled={sessionTasks.length >= taskLimit}
+                style={({ pressed }) => [
+                  styles.addBtn,
+                  {
+                    backgroundColor: color,
+                    opacity: sessionTasks.length >= taskLimit ? 0.5 : (pressed ? 0.8 : 1)
+                  }
+                ]}
+              >
+                <Plus size={18} color="#FFF" />
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Task List */}
+          {sessionTasks.length > 0 && (
+            <FlatList
+              data={sessionTasks}
+              keyExtractor={item => item.id}
+              scrollEnabled={false}
+              renderItem={({ item, index }) => (
+                <View style={[styles.taskItem, {
+                  backgroundColor: t.isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
+                  borderColor: t.border
+                }]}>
+                  <Text style={[styles.taskNumber, { color }]}>
+                    {index + 1}
+                  </Text>
+                  <Text style={[styles.taskTitle, { color: t.ink, flex: 1 }]}>
+                    {item.title}
+                  </Text>
+                  <Pressable onPress={() => handleRemoveTask(item.id)}>
+                    <Trash2 size={16} color={t.inkMid} />
+                  </Pressable>
+                </View>
+              )}
+              style={styles.taskList}
+            />
+          )}
+
+          {/* Start Button */}
+          {sessionTasks.length > 0 && (
+            <Pressable
+              onPress={handleStartSession}
+              style={[styles.startBtn, { backgroundColor: color }]}
+            >
+              <Zap size={20} color="#FFF" />
+              <Text style={styles.startBtnText}>Start Focus Session</Text>
+            </Pressable>
+          )}
+        </View>
+        <AppModal
+          visible={modal?.visible || false}
+          title={modal?.title || ''}
+          description={modal?.description || ''}
+          onClose={() => setModal(null)}
+        />
+      </>
     );
   }
 
   // During session
   return (
-    <View style={styles.sessionMode}>
-      {/* Progress */}
-      <View style={[styles.progressDisplay, { 
-        backgroundColor: color + '15',
-        borderColor: color + '40'
-      }]}>
-        <Text style={[styles.progressTitle, { color: t.ink }]}>
-          Let&apos;s focus on {taskLimit} task{taskLimit > 1 ? 's' : ''}
-        </Text>
-        <Text style={[styles.progressSub, { color: t.inkMid }]}>
-          {completedCount} / {sessionTasks.length} completed
-        </Text>
-      </View>
+    <>
+      <View style={styles.sessionMode}>
+        {/* Progress */}
+        <View style={[styles.progressDisplay, {
+          backgroundColor: color + '15',
+          borderColor: color + '40'
+        }]}>
+          <Text style={[styles.progressTitle, { color: t.ink }]}>
+            Let&apos;s focus on {taskLimit} task{taskLimit > 1 ? 's' : ''}
+          </Text>
+          <Text style={[styles.progressSub, { color: t.inkMid }]}>
+            {completedCount} / {sessionTasks.length} completed
+          </Text>
+        </View>
 
-      {/* Task Checklist */}
-      <FlatList
-        data={sessionTasks}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => handleCompleteTask(item.id)}
-            style={[styles.checklistItem, { 
-              backgroundColor: item.completed ? (color + '20') : 'transparent',
-              borderColor: item.completed ? color : t.border
-            }]}
-          >
-            <View style={[
-              styles.checkbox,
-              { 
-                backgroundColor: item.completed ? color : 'transparent',
+        {/* Task Checklist */}
+        <FlatList
+          data={sessionTasks}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => handleCompleteTask(item.id)}
+              style={[styles.checklistItem, {
+                backgroundColor: item.completed ? (color + '20') : 'transparent',
                 borderColor: item.completed ? color : t.border
-              }
-            ]}>
-              {item.completed && <CheckCircle size={20} color="#FFF" />}
-            </View>
-            <Text style={[
-              styles.checklistText,
-              { 
-                color: item.completed ? t.inkMid : t.ink,
-                textDecorationLine: item.completed ? 'line-through' : 'none'
-              }
-            ]}>
-              {item.title}
-            </Text>
-          </Pressable>
-        )}
-        scrollEnabled={false}
-        style={styles.checklist}
-      />
+              }]}
+            >
+              <View style={[
+                styles.checkbox,
+                {
+                  backgroundColor: item.completed ? color : 'transparent',
+                  borderColor: item.completed ? color : t.border
+                }
+              ]}>
+                {item.completed && <CheckCircle size={20} color="#FFF" />}
+              </View>
+              <Text style={[
+                styles.checklistText,
+                {
+                  color: item.completed ? t.inkMid : t.ink,
+                  textDecorationLine: item.completed ? 'line-through' : 'none'
+                }
+              ]}>
+                {item.title}
+              </Text>
+            </Pressable>
+          )}
+          scrollEnabled={false}
+          style={styles.checklist}
+        />
 
-      {/* Action */}
-      <Pressable
-        onPress={handleEndSession}
-        style={[styles.endBtn, { 
-          backgroundColor: isAllComplete ? color : t.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
-        }]}
-      >
-        <Text style={[styles.endBtnText, { color: isAllComplete ? '#FFF' : t.ink }]}>
-          {isAllComplete ? 'Complete Session' : 'End Session'}
-        </Text>
-      </Pressable>
-    </View>
+        {/* Action */}
+        <Pressable
+          onPress={handleEndSession}
+          style={[styles.endBtn, {
+            backgroundColor: isAllComplete ? color : t.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
+          }]}
+        >
+          <Text style={[styles.endBtnText, { color: isAllComplete ? '#FFF' : t.ink }]}>
+            {isAllComplete ? 'Complete Session' : 'End Session'}
+          </Text>
+        </Pressable>
+      </View>
+      <AppModal
+        visible={modal?.visible || false}
+        title={modal?.title || ''}
+        description={modal?.description || ''}
+        onClose={() => setModal(null)}
+      />
+    </>
   );
 }
 

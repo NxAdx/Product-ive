@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 /* global describe, beforeEach, it, expect, jest */
 import { usePositivityStore } from '../positivityStore';
 import { useSessionStore } from '../sessionStore';
 
 jest.mock('../../services/ForegroundTimerService', () => ({
   startForegroundTimer: jest.fn().mockResolvedValue(undefined),
+  pauseForegroundTimer: jest.fn().mockResolvedValue(undefined),
+  resumeForegroundTimer: jest.fn().mockResolvedValue(undefined),
   stopForegroundTimer: jest.fn().mockResolvedValue(undefined),
 }));
 
@@ -39,6 +42,7 @@ function startMockSession(ruleId: string, secondsAgo: number) {
 describe('sessionStore', () => {
   beforeEach(() => {
     resetStores();
+    jest.clearAllMocks();
   });
 
   it('awards base + discovery points only once and stores reflection score', () => {
@@ -56,5 +60,18 @@ describe('sessionStore', () => {
     positivity = usePositivityStore.getState();
     expect(positivity.weeklyScore).toBe(65); // +20 only, discovery not repeated
     expect(positivity.rulesUsed.filter((id) => id === 'pomodoro')).toHaveLength(1);
+  });
+
+  it('keeps foreground notification timer in sync on pause and resume', () => {
+    const foreground = require('../../services/ForegroundTimerService');
+    startMockSession('pomodoro', 60);
+
+    useSessionStore.getState().pauseSession();
+    expect(useSessionStore.getState().pausedAt).not.toBeNull();
+    expect(foreground.pauseForegroundTimer).toHaveBeenCalledTimes(1);
+
+    useSessionStore.getState().resumeSession();
+    expect(useSessionStore.getState().pausedAt).toBeNull();
+    expect(foreground.resumeForegroundTimer).toHaveBeenCalledTimes(1);
   });
 });

@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Platform-safe SQLite web adapter via `src/db/database.web.ts` and `src/db/types.ts`.
 - SQLite session/point-event repositories via `src/db/sessionRepository.ts`.
 - `notifyNow()` utility for immediate local notification events.
+- Background reliability controls in Settings:
+  - notification settings entry
+  - battery optimization exclusion entry (Android)
+  - power manager settings entry (Android)
+- System theme follow mode in `ThemeContext` (`system` | `light` | `dark`).
 
 ### Changed
 
@@ -25,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `UpdateManager` now performs semantic version comparison and release APK asset detection.
 - Settings updater UX now uses themed modal actions for update prompt/install trigger.
 - Interval reminders now issue local notifications through `NotificationManager`.
+- Foreground timer service now supports paused notification state and resume synchronization.
+- Notification action `Finish Session` is now handled in foreground and background app states.
 
 ### Fixed
 
@@ -34,6 +41,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Onboarding step type drift corrected (`availability` removed from union type).
 - Restored web export compatibility by avoiding `expo-sqlite` bundling on web paths.
 - Fixed `android/gradlew.bat` empty `CLASSPATH` bug preventing Gradle startup.
+- Fixed timer desync where notification chronometer continued while app timer was paused.
+- Removed tiny non-functional chevron from the Settings user name row.
+- Replaced remaining native `Alert.alert` popups in core engines/settings with themed `AppModal`.
+- Guided prompt engine now blocks `Next`/`Complete` until required written input is provided.
 
 ## [1.0.0] - 2026-04-06
 

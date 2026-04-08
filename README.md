@@ -113,7 +113,7 @@ src/
 │   ├── sessionStore
 │   ├── todoStore
 │   └── settingsStore
-├── theme/               # Theme system (light/dark)
+├── theme/               # Theme system (system/light/dark)
 ├── data/                # Static data (rules, categories)
 └── utils/               # Helpers and utilities
 
@@ -206,7 +206,7 @@ See `docs/PHASE3_RELEASE_CHECKLIST.md` for manual testing procedures.
 ### Phase 4 ⚙️ Partial
 - Notification permissions and wellness schedules wired
 - Immediate interval reminder notifications wired
-- Additional lifecycle notification coverage still pending
+- Additional lifecycle notification templates/coverage still pending
 
 ### Phase 5 ⚙️ Partial
 - GitHub release version checks
@@ -257,7 +257,7 @@ cce3486 - Phase 3 Tier 1: Home screen features
 
 - Native direct-installer bridge for updater is still pending
 - Full session history UI on top of SQLite persistence is still pending
-- Some engine reminder paths still use alert-style UX and need full notification parity
+- Full reminder-template parity across all engines is still incremental
 - Local Android release build needs Android SDK configured (`ANDROID_HOME`/`local.properties`) on each machine
 - No user accounts (cloud sync in v2.0+)
 

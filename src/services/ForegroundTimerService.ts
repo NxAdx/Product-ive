@@ -18,22 +18,46 @@ async function ensureChannel() {
 
 let activeTimer: ReturnType<typeof setTimeout> | null = null;
 
-/**
- * Starts a foreground service that displays a ticking chronometer.
- * Automatically vibrates at the expected payload end manually using headless background task if needed,
- * but primarily we schedule an exact notification or rely on state.
- */
-export async function startForegroundTimer(durationMs: number, title: string = 'Deep Focus') {
+interface ForegroundTimerState {
+  title: string;
+  isPaused: boolean;
+  remainingMs: number;
+  deadlineAtMs: number | null;
+}
+
+let timerState: ForegroundTimerState | null = null;
+
+function clearCompletionTimer() {
   if (activeTimer) {
     clearTimeout(activeTimer);
+    activeTimer = null;
+  }
+}
+
+function formatRemaining(remainingMs: number): string {
+  const seconds = Math.max(0, Math.floor(remainingMs / 1000));
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function scheduleCompletionTimer(remainingMs: number) {
+  clearCompletionTimer();
+
+  if (remainingMs <= 0) {
+    stopForegroundTimer(true).catch(console.error);
+    return;
   }
 
-  await ensureChannel();
+  activeTimer = setTimeout(() => {
+    stopForegroundTimer(true).catch(console.error);
+  }, remainingMs);
+}
 
-  // Create a foreground service notification with a Chronometer
+async function showRunningNotification(title: string, deadlineAtMs: number) {
   await notifee.displayNotification({
     id: NOTIFICATION_ID,
-    title: title,
+    title,
     body: 'Time remaining...',
     android: {
       channelId: CHANNEL_ID,
@@ -41,10 +65,9 @@ export async function startForegroundTimer(durationMs: number, title: string = '
       color: AndroidColor.GREEN,
       chronometerDirection: 'down',
       showChronometer: true,
-      timestamp: Date.now() + durationMs, // OS counts down to this exact millisecond
+      timestamp: deadlineAtMs,
       showTimestamp: true,
-      ongoing: true, // Cannot be dismissed manually while running
-      // Add a cancel action if they want to stop it from the notification shade
+      ongoing: true,
       actions: [
         {
           title: 'Finish Session',
@@ -53,22 +76,100 @@ export async function startForegroundTimer(durationMs: number, title: string = '
       ],
     },
   });
+}
 
+async function showPausedNotification(title: string, remainingMs: number) {
+  await notifee.displayNotification({
+    id: NOTIFICATION_ID,
+    title,
+    body: `Paused - ${formatRemaining(remainingMs)} remaining`,
+    android: {
+      channelId: CHANNEL_ID,
+      asForegroundService: true,
+      color: AndroidColor.GREEN,
+      showChronometer: false,
+      showTimestamp: false,
+      ongoing: true,
+      actions: [
+        {
+          title: 'Finish Session',
+          pressAction: { id: 'finish_session' },
+        },
+      ],
+    },
+  });
+}
+
+/**
+ * Starts a foreground service that displays a ticking chronometer.
+ * Automatically vibrates at the expected payload end manually using headless background task if needed,
+ * but primarily we schedule an exact notification or rely on state.
+ */
+export async function startForegroundTimer(durationMs: number, title: string = 'Deep Focus') {
+  clearCompletionTimer();
+
+  await ensureChannel();
+
+  const safeDurationMs = Math.max(1000, Math.floor(durationMs));
+  const deadlineAtMs = Date.now() + safeDurationMs;
+
+  timerState = {
+    title,
+    isPaused: false,
+    remainingMs: safeDurationMs,
+    deadlineAtMs,
+  };
+
+  await showRunningNotification(title, deadlineAtMs);
   // Background JS task is kept awake via _layout.tsx notifee.registerForegroundService hook.
-  // This allows setTimeout to deterministically fire in suspended mode. 
-  activeTimer = setTimeout(() => {
-    stopForegroundTimer(true).catch(console.error);
-  }, durationMs);
+  scheduleCompletionTimer(safeDurationMs);
+}
+
+export async function pauseForegroundTimer(): Promise<void> {
+  if (!timerState || timerState.isPaused || timerState.deadlineAtMs === null) return;
+
+  const remainingMs = Math.max(0, timerState.deadlineAtMs - Date.now());
+  clearCompletionTimer();
+
+  timerState = {
+    ...timerState,
+    isPaused: true,
+    remainingMs,
+    deadlineAtMs: null,
+  };
+
+  await ensureChannel();
+  await showPausedNotification(timerState.title, remainingMs);
+}
+
+export async function resumeForegroundTimer(): Promise<void> {
+  if (!timerState || !timerState.isPaused) return;
+
+  const remainingMs = Math.max(0, timerState.remainingMs);
+  if (remainingMs <= 0) {
+    await stopForegroundTimer(true);
+    return;
+  }
+
+  const deadlineAtMs = Date.now() + remainingMs;
+  timerState = {
+    ...timerState,
+    isPaused: false,
+    remainingMs,
+    deadlineAtMs,
+  };
+
+  await ensureChannel();
+  await showRunningNotification(timerState.title, deadlineAtMs);
+  scheduleCompletionTimer(remainingMs);
 }
 
 /**
  * Terminates the foreground service chronometer and sends the completion vibration
  */
 export async function stopForegroundTimer(completed: boolean = false) {
-  if (activeTimer) {
-    clearTimeout(activeTimer);
-    activeTimer = null;
-  }
+  clearCompletionTimer();
+  timerState = null;
   // If the timer completed organically, vibrate!
   if (completed) {
     Vibration.vibrate([0, 500, 200, 500, 200, 1000]); // Heavy vibration pattern

@@ -34,7 +34,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { logRuntimeEvent } from '../src/utils/runtimeLogs';
 import { initializeNotifications, requestNotificationPermissions } from '../src/services/NotificationManager';
 import { initializeDatabase } from '../src/db/database';
-import notifee from '@notifee/react-native';
+import notifee, { EventType } from '@notifee/react-native';
+import { useSessionStore } from '../src/store/sessionStore';
 
 // Register background task for Notifee strictly outside of React lifecycle.
 // This prevents Android from crashing the app when asForegroundService is used
@@ -44,6 +45,13 @@ notifee.registerForegroundService((notification) => {
     // Promise never resolves organically. 
     // It is terminated manually when stopForegroundService() is called.
   });
+});
+
+notifee.onBackgroundEvent(async ({ type, detail }) => {
+  if (type === EventType.ACTION_PRESS && detail.pressAction?.id === 'finish_session') {
+    useSessionStore.getState().endSession();
+    await logRuntimeEvent('notification_finish_session_action', { source: 'background' }).catch(() => {});
+  }
 });
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -104,6 +112,17 @@ function RootContent() {
       })();
     }
   }, [isReady]);
+
+  useEffect(() => {
+    const unsubscribe = notifee.onForegroundEvent(async ({ type, detail }) => {
+      if (type === EventType.ACTION_PRESS && detail.pressAction?.id === 'finish_session') {
+        useSessionStore.getState().endSession();
+        await logRuntimeEvent('notification_finish_session_action', { source: 'foreground' }).catch(() => {});
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const router = useRouter();
 

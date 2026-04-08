@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { CheckCircle, Lightbulb, RotateCcw } from 'lucide-react-native';
 
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { useTheme } from '../theme/ThemeContext';
+import { AppModal } from '../components/AppModal';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -50,6 +51,7 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
   const [sessionStarted, setSessionStarted] = useState(false);
   const [promptIndex, setPromptIndex] = useState(0);
   const [reflectionCount, setReflectionCount] = useState(0);
+  const [modal, setModal] = useState<{ visible: boolean; title: string; description: string } | null>(null);
 
   const currentPrompts = rule.engineConfig.prompts || DEFAULT_PROMPTS;
   const activePrompts = RULE_SPECIFIC_PROMPTS[rule.id] || currentPrompts;
@@ -57,12 +59,8 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
 
   const showPrompt = useCallback(() => {
     setReflectionCount((count) => count + 1);
-    setPromptIndex((prev) => {
-      const prompt = activePrompts[prev % activePrompts.length];
-      Alert.alert('Reflection Prompt', prompt, [{ text: 'Noted', onPress: () => {} }]);
-      return prev + 1;
-    });
-  }, [activePrompts]);
+    setPromptIndex((prev) => prev + 1);
+  }, []);
 
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | undefined;
@@ -79,7 +77,6 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
   const handleStart = () => {
     setSessionStarted(true);
     session.startSession(rule.id);
-    setTimeout(showPrompt, 500);
   };
 
   const handleManualPrompt = () => {
@@ -89,124 +86,140 @@ export function AwarenessReflectionEngine({ rule, color }: EngineProps) {
   const handleEnd = () => {
     session.endSession();
     setSessionStarted(false);
-    Alert.alert(
-      'Session Complete',
-      `You had ${reflectionCount} moments of reflection. Great awareness!`,
-      [{ text: 'OK', onPress: () => {} }]
-    );
+    setModal({
+      visible: true,
+      title: 'Session Complete',
+      description: `You had ${reflectionCount} moments of reflection. Great awareness!`,
+    });
     setReflectionCount(0);
     setPromptIndex(0);
   };
 
   if (!sessionStarted) {
     return (
-      <View style={styles.intentScreen}>
-        <View style={styles.intentContent}>
-          <Text style={[styles.intentTitle, { color: t.ink }]}>{rule.name}</Text>
-          <Text style={[styles.intentDesc, { color: t.inkMid }]}>{rule.description}</Text>
+      <>
+        <View style={styles.intentScreen}>
+          <View style={styles.intentContent}>
+            <Text style={[styles.intentTitle, { color: t.ink }]}>{rule.name}</Text>
+            <Text style={[styles.intentDesc, { color: t.inkMid }]}>{rule.description}</Text>
 
-          {rule.engineConfig.keyPoints && (
-            <View style={styles.keyPoints}>
-              {rule.engineConfig.keyPoints.map((point: string, idx: number) => (
-                <View key={idx} style={styles.keyPoint}>
-                  <Text style={[styles.keyPointDot, { color }]}>*</Text>
-                  <Text style={[styles.keyPointText, { color: t.ink }]}>{point}</Text>
-                </View>
-              ))}
-            </View>
-          )}
+            {rule.engineConfig.keyPoints && (
+              <View style={styles.keyPoints}>
+                {rule.engineConfig.keyPoints.map((point: string, idx: number) => (
+                  <View key={idx} style={styles.keyPoint}>
+                    <Text style={[styles.keyPointDot, { color }]}>*</Text>
+                    <Text style={[styles.keyPointText, { color: t.ink }]}>{point}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
 
-          <View
-            style={[
-              styles.howWorks,
-              {
-                backgroundColor: t.isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                borderColor: t.border,
-              },
-            ]}
-          >
-            <Lightbulb size={20} color={color} />
-            <View>
-              <Text style={[styles.howTitle, { color: t.ink }]}>How it works</Text>
-              <Text style={[styles.howDesc, { color: t.inkMid }]}>
-                You will receive reflection prompts every{' '}
-                {rule.engineConfig.interval ? `${Math.round(rule.engineConfig.interval / 60)} minutes` : '2 minutes'}
-              </Text>
+            <View
+              style={[
+                styles.howWorks,
+                {
+                  backgroundColor: t.isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                  borderColor: t.border,
+                },
+              ]}
+            >
+              <Lightbulb size={20} color={color} />
+              <View>
+                <Text style={[styles.howTitle, { color: t.ink }]}>How it works</Text>
+                <Text style={[styles.howDesc, { color: t.inkMid }]}>
+                  You will receive reflection prompts every{' '}
+                  {rule.engineConfig.interval ? `${Math.round(rule.engineConfig.interval / 60)} minutes` : '2 minutes'}
+                </Text>
+              </View>
             </View>
+
+            <Pressable onPress={handleStart} style={[styles.startBtn, { backgroundColor: color }]}>
+              <Text style={styles.startBtnText}>Begin {rule.name}</Text>
+            </Pressable>
           </View>
-
-          <Pressable onPress={handleStart} style={[styles.startBtn, { backgroundColor: color }]}>
-            <Text style={styles.startBtnText}>Begin {rule.name}</Text>
-          </Pressable>
         </View>
-      </View>
+        <AppModal
+          visible={modal?.visible || false}
+          title={modal?.title || ''}
+          description={modal?.description || ''}
+          onClose={() => setModal(null)}
+        />
+      </>
     );
   }
 
   return (
-    <View style={styles.sessionScreen}>
-      <Animated.View
-        entering={FadeInDown}
-        style={[
-          styles.promptDisplay,
-          {
-            backgroundColor: `${color}15`,
-            borderColor: `${color}40`,
-          },
-        ]}
-      >
-        <Lightbulb size={32} color={color} />
-        <Text style={[styles.promptText, { color: t.ink }]}>{currentPrompt}</Text>
-        <Text style={[styles.promptSub, { color: t.inkMid }]}>Take a moment to reflect...</Text>
-      </Animated.View>
-
-      <View
-        style={[
-          styles.statsBox,
-          {
-            backgroundColor: t.isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
-            borderColor: t.border,
-          },
-        ]}
-      >
-        <View style={styles.statRow}>
-          <View style={styles.stat}>
-            <Text style={[styles.statValue, { color }]}>{reflectionCount}</Text>
-            <Text style={[styles.statLabel, { color: t.inkMid }]}>Reflections</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.stat}>
-            <Text style={[styles.statValue, { color }]}>{session.phase === 'work' ? 'ON' : 'PAUSED'}</Text>
-            <Text style={[styles.statLabel, { color: t.inkMid }]}>Status</Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.controls}>
-        <Pressable
-          onPress={handleManualPrompt}
+    <>
+      <View style={styles.sessionScreen}>
+        <Animated.View
+          entering={FadeInDown}
           style={[
-            styles.secondaryBtn,
+            styles.promptDisplay,
             {
-              backgroundColor: t.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+              backgroundColor: `${color}15`,
+              borderColor: `${color}40`,
+            },
+          ]}
+        >
+          <Lightbulb size={32} color={color} />
+          <Text style={[styles.promptText, { color: t.ink }]}>{currentPrompt}</Text>
+          <Text style={[styles.promptSub, { color: t.inkMid }]}>Take a moment to reflect...</Text>
+        </Animated.View>
+
+        <View
+          style={[
+            styles.statsBox,
+            {
+              backgroundColor: t.isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)',
               borderColor: t.border,
             },
           ]}
         >
-          <RotateCcw size={18} color={t.ink} />
-          <Text style={[styles.secondaryBtnText, { color: t.ink }]}>New Prompt</Text>
-        </Pressable>
+          <View style={styles.statRow}>
+            <View style={styles.stat}>
+              <Text style={[styles.statValue, { color }]}>{reflectionCount}</Text>
+              <Text style={[styles.statLabel, { color: t.inkMid }]}>Reflections</Text>
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.stat}>
+              <Text style={[styles.statValue, { color }]}>{session.phase === 'work' ? 'ON' : 'PAUSED'}</Text>
+              <Text style={[styles.statLabel, { color: t.inkMid }]}>Status</Text>
+            </View>
+          </View>
+        </View>
 
-        <Pressable onPress={handleEnd} style={[styles.endBtn, { backgroundColor: color }]}>
-          <CheckCircle size={18} color="#FFF" />
-          <Text style={styles.endBtnText}>End Session</Text>
-        </Pressable>
+        <View style={styles.controls}>
+          <Pressable
+            onPress={handleManualPrompt}
+            style={[
+              styles.secondaryBtn,
+              {
+                backgroundColor: t.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                borderColor: t.border,
+              },
+            ]}
+          >
+            <RotateCcw size={18} color={t.ink} />
+            <Text style={[styles.secondaryBtnText, { color: t.ink }]}>New Prompt</Text>
+          </Pressable>
+
+          <Pressable onPress={handleEnd} style={[styles.endBtn, { backgroundColor: color }]}>
+            <CheckCircle size={18} color="#FFF" />
+            <Text style={styles.endBtnText}>End Session</Text>
+          </Pressable>
+        </View>
+
+        <Text style={[styles.motivational, { color: t.inkDim }]}>
+          Each reflection builds your self-awareness muscle.
+        </Text>
       </View>
-
-      <Text style={[styles.motivational, { color: t.inkDim }]}>
-        Each reflection builds your self-awareness muscle.
-      </Text>
-    </View>
+      <AppModal
+        visible={modal?.visible || false}
+        title={modal?.title || ''}
+        description={modal?.description || ''}
+        onClose={() => setModal(null)}
+      />
+    </>
   );
 }
 
@@ -371,4 +384,3 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
 });
-

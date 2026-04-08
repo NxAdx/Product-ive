@@ -1,6 +1,6 @@
 # Product+ive - Implementation Status
 
-> Last Updated: 2026-04-07 (IST)
+> Last Updated: 2026-04-08 (IST)
 
 ## Phase Status
 
@@ -45,6 +45,20 @@
 - Added `notifyNow()` helper in `NotificationManager`.
 - `IntervalReminderEngine` now emits immediate local notifications instead of relying only on in-app alerts.
 
+### 6) Feedback report implementation closure (2026-04-08)
+
+- Foreground notification timer now pauses/resumes in lockstep with app session pause/resume.
+- Notification action `Finish Session` now ends sessions from both foreground and background app states.
+- Settings now includes background reliability controls for:
+  - notification settings
+  - battery optimization exclusion (Android)
+  - device power manager settings (Android)
+- Theme system now supports `system` mode with dynamic OS theme following.
+- Removed tiny non-functional username-row chevron in Settings.
+- Replaced remaining native alerts with themed `AppModal` flows in settings and core engines.
+- `GuidedPromptEngine` now enforces required written input before `Next`/`Complete`.
+- Added regression test for timer pause/resume synchronization path.
+
 ### 4) Updater hardening
 
 - `UpdateManager` now uses:
@@ -76,10 +90,9 @@
 ## Current Known Gaps
 
 1. Updater native `PackageInstaller` bridge (direct install + OEM fallback) is still pending.
-2. Some engine flows still use in-app alerts and are not fully unified to themed modal/notification UX.
-3. Session history UI is not yet exposed on rule/detail screens.
-4. Local Android release builds require Android SDK path setup (`ANDROID_HOME` or `android/local.properties`) in this environment.
-5. Some legacy documentation still contains encoding artifacts and historical claims.
+2. Session history UI is not yet exposed on rule/detail screens.
+3. Local Android release builds require Android SDK path setup (`ANDROID_HOME` or `android/local.properties`) in this environment.
+4. Some legacy documentation still contains encoding artifacts and historical claims.
 
 ## Next Code Targets
 

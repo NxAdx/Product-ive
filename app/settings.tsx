@@ -1,11 +1,12 @@
 import React, { useMemo, useState , useEffect } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Switch, View, TextInput } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, View, TextInput, Platform, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, Bug, CircleAlert, Info, Download, User as UserIcon, ChevronRight, Eye, Droplets, Accessibility, Moon } from 'lucide-react-native';
+import notifee from '@notifee/react-native';
 
 import { useTheme } from '../src/theme/ThemeContext';
 import { useSettingsStore } from '../src/store/settingsStore';
@@ -200,6 +201,168 @@ function WellnessNotificationsSection() {
   );
 }
 
+function BackgroundReliabilitySection() {
+  const t = useTheme();
+  const [isChecking, setIsChecking] = useState(false);
+  const [batteryOptimizationEnabled, setBatteryOptimizationEnabled] = useState<boolean | null>(null);
+  const [notificationGranted, setNotificationGranted] = useState<boolean | null>(null);
+  const [modal, setModal] = useState<{ visible: boolean; title: string; desc: string } | null>(null);
+
+  const refreshStatus = async () => {
+    setIsChecking(true);
+    try {
+      const permission = await getPermissionStatus();
+      setNotificationGranted(permission.granted);
+      if (Platform.OS === 'android') {
+        const batteryOptimized = await notifee.isBatteryOptimizationEnabled();
+        setBatteryOptimizationEnabled(batteryOptimized);
+      } else {
+        setBatteryOptimizationEnabled(null);
+      }
+    } catch (error) {
+      setModal({
+        visible: true,
+        title: 'Status Check Failed',
+        desc: error instanceof Error ? error.message : 'Could not read background permission status.',
+      });
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshStatus();
+  }, []);
+
+  const openNotificationSettings = async () => {
+    try {
+      if (Platform.OS === 'android') {
+        await notifee.openNotificationSettings();
+      } else {
+        await Linking.openSettings();
+      }
+    } catch (error) {
+      setModal({
+        visible: true,
+        title: 'Open Settings Failed',
+        desc: error instanceof Error ? error.message : 'Could not open notification settings.',
+      });
+    }
+  };
+
+  const openBatterySettings = async () => {
+    try {
+      await notifee.openBatteryOptimizationSettings();
+    } catch (error) {
+      setModal({
+        visible: true,
+        title: 'Battery Settings Failed',
+        desc: error instanceof Error ? error.message : 'Could not open battery optimization settings.',
+      });
+    }
+  };
+
+  const openPowerManagerSettings = async () => {
+    try {
+      await notifee.openPowerManagerSettings();
+    } catch (error) {
+      setModal({
+        visible: true,
+        title: 'Power Manager Failed',
+        desc: error instanceof Error ? error.message : 'Could not open power manager settings.',
+      });
+    }
+  };
+
+  return (
+    <View style={{ gap: 10 }}>
+      <View style={[styles.statusRow, { backgroundColor: t.surfaceLow, borderColor: t.border }]}>
+        <ThemedText variant="caption" color={t.textSecondary} style={{ flex: 1 }}>
+          Notifications
+        </ThemedText>
+        <ThemedText
+          variant="caption"
+          style={{
+            fontWeight: '700',
+            color: notificationGranted === true ? t.positivity : notificationGranted === false ? t.warning : t.textSecondary,
+          }}
+        >
+          {notificationGranted === true ? 'Allowed' : notificationGranted === false ? 'Restricted' : 'Unknown'}
+        </ThemedText>
+      </View>
+
+      {Platform.OS === 'android' && (
+        <View style={[styles.statusRow, { backgroundColor: t.surfaceLow, borderColor: t.border }]}>
+          <ThemedText variant="caption" color={t.textSecondary} style={{ flex: 1 }}>
+            Battery Optimization
+          </ThemedText>
+          <ThemedText
+            variant="caption"
+            style={{
+              fontWeight: '700',
+              color:
+                batteryOptimizationEnabled === false
+                  ? t.positivity
+                  : batteryOptimizationEnabled === true
+                    ? t.warning
+                    : t.textSecondary,
+            }}
+          >
+            {batteryOptimizationEnabled === false
+              ? 'Excluded'
+              : batteryOptimizationEnabled === true
+                ? 'Enabled'
+                : 'Unknown'}
+          </ThemedText>
+        </View>
+      )}
+
+      <Pressable style={styles.actionRow} onPress={openNotificationSettings}>
+        <View style={styles.actionLeft}>
+          <CircleAlert size={18} color={t.inkMid} />
+          <ThemedText variant="body">Notification Settings</ThemedText>
+        </View>
+        <ChevronRight size={16} color={t.textDisabled} />
+      </Pressable>
+
+      {Platform.OS === 'android' && (
+        <>
+          <Pressable style={styles.actionRow} onPress={openBatterySettings}>
+            <View style={styles.actionLeft}>
+              <CircleAlert size={18} color={t.inkMid} />
+              <ThemedText variant="body">Exclude Battery Optimization</ThemedText>
+            </View>
+            <ChevronRight size={16} color={t.textDisabled} />
+          </Pressable>
+
+          <Pressable style={styles.actionRow} onPress={openPowerManagerSettings}>
+            <View style={styles.actionLeft}>
+              <CircleAlert size={18} color={t.inkMid} />
+              <ThemedText variant="body">Open Power Manager</ThemedText>
+            </View>
+            <ChevronRight size={16} color={t.textDisabled} />
+          </Pressable>
+        </>
+      )}
+
+      <Pressable style={styles.actionRow} onPress={refreshStatus} disabled={isChecking}>
+        <View style={styles.actionLeft}>
+          <CircleAlert size={18} color={t.inkMid} />
+          <ThemedText variant="body">Refresh Status</ThemedText>
+        </View>
+        {isChecking ? <ActivityIndicator size="small" /> : <ChevronRight size={16} color={t.textDisabled} />}
+      </Pressable>
+
+      <AppModal
+        visible={modal?.visible || false}
+        title={modal?.title || ''}
+        description={modal?.desc || ''}
+        onClose={() => setModal(null)}
+      />
+    </View>
+  );
+}
+
 export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -289,7 +452,7 @@ export default function SettingsScreen() {
       await logRuntimeEvent('settings_export_bug_report_success', { fileUri });
     } catch (error) {
       logRuntimeEvent('settings_export_bug_report_error', { message: error instanceof Error ? error.message : 'unknown' });
-      Alert.alert('Export failed', 'Could not export bug report.');
+      setMainModal({ visible: true, title: 'Export Failed', desc: 'Could not export bug report.' });
     } finally {
       setIsExporting(false);
     }
@@ -355,7 +518,7 @@ export default function SettingsScreen() {
                 <ThemedText variant="label" style={{ color: '#000', fontWeight: '800' }}>Done</ThemedText>
               </Pressable>
             ) : (
-              <ChevronRight size={16} color={t.textDisabled} style={{ opacity: 0.5 }} />
+              <View style={{ width: 60 }} />
             )}
           </View>
         </View>
@@ -364,20 +527,48 @@ export default function SettingsScreen() {
         <View style={[styles.sectionCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
           <ThemedText variant="label" color={t.inkDim} style={{ marginBottom: 4 }}>Appearance</ThemedText>
           <View style={styles.row}>
-            <ThemedText variant="body" color={t.ink}>Dark Mode</ThemedText>
+            <ThemedText variant="body" color={t.ink}>Follow System Theme</ThemedText>
             <Switch
-              value={t.mode === 'dark'}
-              onValueChange={t.toggle}
+              value={t.isSystem}
+              onValueChange={(enabled) => {
+                t.setMode(enabled ? 'system' : t.isDark ? 'dark' : 'light').catch(() => {});
+              }}
               trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
-              thumbColor={t.mode === 'dark' ? '#FFFFFF' : '#F2F1EE'}
+              thumbColor={t.isSystem ? '#FFFFFF' : '#F2F1EE'}
             />
           </View>
+          <View style={[styles.row, { opacity: t.isSystem ? 0.5 : 1 }]}>
+            <ThemedText variant="body" color={t.ink}>Dark Mode</ThemedText>
+            <Switch
+              value={t.resolvedMode === 'dark'}
+              onValueChange={(enabled) => {
+                t.setMode(enabled ? 'dark' : 'light').catch(() => {});
+              }}
+              disabled={t.isSystem}
+              trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
+              thumbColor={t.resolvedMode === 'dark' ? '#FFFFFF' : '#F2F1EE'}
+            />
+          </View>
+          <ThemedText variant="caption" color={t.textSecondary} style={{ marginTop: 8 }}>
+            {t.isSystem
+              ? `Currently following system theme (${t.resolvedMode}).`
+              : 'Manual theme mode selected.'}
+          </ThemedText>
         </View>
 
         {/* Section: Wellness */}
         <View style={[styles.sectionCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
           <ThemedText variant="label" color={t.inkDim}>Biological Optimization</ThemedText>
           <WellnessNotificationsSection />
+        </View>
+
+        {/* Section: Background Reliability */}
+        <View style={[styles.sectionCard, { backgroundColor: t.isDark ? '#0d0d0d' : t.card, borderColor: t.border }]}>
+          <ThemedText variant="label" color={t.inkDim}>Background Reliability</ThemedText>
+          <ThemedText variant="caption" color={t.textSecondary} style={{ marginTop: 6, marginBottom: 8 }}>
+            Keep sessions running reliably by granting notification and battery-related permissions.
+          </ThemedText>
+          <BackgroundReliabilitySection />
         </View>
 
         {/* Section: Hardware & Interaction */}
@@ -658,5 +849,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 38,
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 10,
   }
 });

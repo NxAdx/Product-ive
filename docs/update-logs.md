@@ -4,6 +4,47 @@
 
 ---
 
+## 2026-04-08 - Feedback Report Closure Sprint (Timers, Permissions, Theme, Validation)
+
+### Timer synchronization
+- Added pause/resume synchronization for foreground notification timers in `src/services/ForegroundTimerService.ts`.
+- Wired session pause/resume lifecycle to foreground service pause/resume in `src/store/sessionStore.ts`.
+- Added `Finish Session` notification action handling for both foreground and background app states in `app/_layout.tsx`.
+- Added regression test coverage for pause/resume timer synchronization in `src/store/__tests__/sessionStore.test.ts`.
+
+### Background reliability and permissions UX
+- Added Settings section for background reliability controls:
+  - Open notification settings
+  - Open battery optimization exclusion settings (Android)
+  - Open power manager settings (Android)
+  - Live status refresh for notification and battery optimization state
+- This provides guided remediation for OS background-kill scenarios.
+
+### UI and theming
+- Added full `system` theme mode in `src/theme/ThemeContext.tsx`.
+- Settings now supports:
+  - Follow system theme toggle
+  - Manual dark/light override when system-follow is disabled
+- Removed tiny non-functional user-name chevron from Settings identity card.
+
+### Pop-up theming consistency
+- Replaced remaining native alert dialogs with themed `AppModal` in:
+  - `app/settings.tsx`
+  - `src/engines/SmartTaskSorterEngine.tsx`
+  - `src/engines/SpacedRepetitionEngine.tsx`
+  - `src/engines/AwarenessReflectionEngine.tsx`
+
+### Activity validation safeguards
+- `GuidedPromptEngine` now prevents `Next` and `Complete` without required written input.
+- Added inline user guidance when a step response is missing.
+
+### Validation
+- `npx tsc --noEmit` -> PASS
+- `npx eslint app src --max-warnings=0` -> PASS
+- `npm test -- --coverage --ci` -> PASS (6 tests)
+- `npx expo-doctor` -> PASS (16/16)
+- `npx expo export --platform web --clear` -> PASS
+
 ## 2026-04-07 - Stabilization Sprint: Pending Closure + Risk Fixes
 
 ### Core correctness fixes

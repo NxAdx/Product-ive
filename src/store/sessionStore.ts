@@ -2,7 +2,12 @@ import { create } from 'zustand';
 
 import { RULES } from '../data/rules';
 import { usePositivityStore } from './positivityStore';
-import { startForegroundTimer, stopForegroundTimer } from '../services/ForegroundTimerService';
+import {
+  pauseForegroundTimer,
+  resumeForegroundTimer,
+  startForegroundTimer,
+  stopForegroundTimer,
+} from '../services/ForegroundTimerService';
 import { insertPointEvents, insertSessionRecord } from '../db/sessionRepository';
 import { logRuntimeEvent } from '../utils/runtimeLogs';
 
@@ -62,21 +67,25 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     });
   },
 
-  pauseSession: () =>
-    set((state) => {
-      if (state.phase === 'idle' || state.pausedAt) return state;
-      return { pausedAt: Date.now() };
-    }),
+  pauseSession: () => {
+    const state = get();
+    if (state.phase === 'idle' || state.pausedAt || !state.activeRuleId) return;
 
-  resumeSession: () =>
-    set((state) => {
-      if (!state.pausedAt || !state.startTime) return state;
-      const pauseDuration = Date.now() - state.pausedAt;
-      return {
-        startTime: state.startTime + pauseDuration,
-        pausedAt: null,
-      };
-    }),
+    set({ pausedAt: Date.now() });
+    pauseForegroundTimer().catch(console.error);
+  },
+
+  resumeSession: () => {
+    const state = get();
+    if (!state.pausedAt || !state.startTime || !state.activeRuleId) return;
+
+    const pauseDuration = Date.now() - state.pausedAt;
+    set({
+      startTime: state.startTime + pauseDuration,
+      pausedAt: null,
+    });
+    resumeForegroundTimer().catch(console.error);
+  },
 
   endSession: (options) => {
     const state = get();

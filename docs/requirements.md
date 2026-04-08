@@ -1,6 +1,6 @@
 # Product +ive Requirements
 
-> Last Updated: 2026-04-07 (IST)
+> Last Updated: 2026-04-08 (IST)
 
 ## 1) Core Product Requirements
 
@@ -14,14 +14,16 @@
 
 1. Home top bar keeps one actionable icon on the right (Settings).
 2. Settings includes:
-   - Theme toggle
+   - Theme controls (system-follow + manual dark/light)
    - Bug report export as `.txt` with runtime logs
    - Changelog section
    - About/Protocol details
    - Software update check and action flow
+   - Background reliability controls (notification settings, battery optimization, power manager)
 3. App brand text renders as `Product +ive`.
 4. Rule screens fail safely for invalid/missing config.
 5. Timed sessions show reliable countdown behavior in-app and through foreground notifications.
+6. Activities that require written input must not allow completion/advance when input is empty.
 
 ## 3) Positivity and Scoring Requirements
 

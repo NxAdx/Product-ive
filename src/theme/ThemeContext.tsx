@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useColorScheme } from 'react-native';
 import { tokens } from './tokens';
 
-export type Mode = 'light' | 'dark';
+export type Mode = 'light' | 'dark' | 'system';
 
 interface ThemeColors {
   // Base layer
@@ -40,8 +41,11 @@ interface ThemeColors {
 
 interface Theme extends ThemeColors {
   mode: Mode;
+  resolvedMode: 'light' | 'dark';
   isDark: boolean;
+  isSystem: boolean;
   toggle: () => Promise<void>;
+  setMode: (mode: Mode) => Promise<void>;
   
   // Legacy / Quick access mappings
   card: string;
@@ -55,26 +59,43 @@ interface Theme extends ThemeColors {
 const ThemeContext = createContext<Theme | null>(null);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [mode, setMode] = useState<Mode>('dark');
+  const [mode, setStoredMode] = useState<Mode>('system');
+  const systemColorScheme = useColorScheme();
 
   useEffect(() => {
     AsyncStorage.getItem('theme').then((v) => { 
-      if (v) setMode(v as Mode); 
+      if (v === 'light' || v === 'dark' || v === 'system') {
+        setStoredMode(v);
+      }
     });
   }, []);
 
-  const toggle = async () => {
-    const next = mode === 'dark' ? 'light' : 'dark';
-    setMode(next);
-    await AsyncStorage.setItem('theme', next);
+  const setMode = async (nextMode: Mode) => {
+    setStoredMode(nextMode);
+    await AsyncStorage.setItem('theme', nextMode);
   };
 
-  const colorScheme = mode === 'dark' ? tokens.dark : tokens.light;
+  const resolvedMode: 'light' | 'dark' =
+    mode === 'system'
+      ? systemColorScheme === 'light'
+        ? 'light'
+        : 'dark'
+      : mode;
+
+  const toggle = async () => {
+    const next: Mode = resolvedMode === 'dark' ? 'light' : 'dark';
+    await setMode(next);
+  };
+
+  const colorScheme = resolvedMode === 'dark' ? tokens.dark : tokens.light;
   
   const theme: Theme = {
     mode,
-    isDark: mode === 'dark',
+    resolvedMode,
+    isDark: resolvedMode === 'dark',
+    isSystem: mode === 'system',
     toggle,
+    setMode,
     
     // Base
     bg: colorScheme.bg,

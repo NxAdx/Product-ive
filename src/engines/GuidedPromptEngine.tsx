@@ -114,6 +114,9 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
   const prompts = useMemo(() => getPromptsFromRule(rule), [rule]);
   const currentPrompt = prompts[currentStep] ?? prompts[0];
   const isLastStep = currentStep === prompts.length - 1;
+  const currentResponse = (responses[currentStep] || '').trim();
+  const isCurrentStepComplete = currentResponse.length > 0;
+  const areAllStepsComplete = prompts.every((_, index) => (responses[index] || '').trim().length > 0);
 
   const handleStart = () => {
     setSessionStarted(true);
@@ -125,6 +128,7 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
   };
 
   const handleNext = () => {
+    if (!isCurrentStepComplete) return;
     if (currentStep < prompts.length - 1) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -137,6 +141,7 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
   };
 
   const handleComplete = () => {
+    if (!isCurrentStepComplete || !areAllStepsComplete) return;
     session.endSession();
     setSessionStarted(false);
     setCurrentStep(0);
@@ -219,6 +224,11 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
           value={responses[currentStep] || ''}
           onChangeText={handleResponseChange}
         />
+        {!isCurrentStepComplete && (
+          <ThemedText variant="caption" color={t.warning}>
+            Please write a response before continuing.
+          </ThemedText>
+        )}
       </ScrollView>
 
       <View style={styles.controls}>
@@ -239,12 +249,23 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
         </Pressable>
 
         {isLastStep ? (
-          <Pressable onPress={handleComplete} style={[styles.mainBtn, { backgroundColor: color }]}>
+          <Pressable
+            onPress={handleComplete}
+            disabled={!isCurrentStepComplete || !areAllStepsComplete}
+            style={[
+              styles.mainBtn,
+              { backgroundColor: color, opacity: !isCurrentStepComplete || !areAllStepsComplete ? 0.55 : 1 },
+            ]}
+          >
             <CheckCircle size={20} color="#000" strokeWidth={2.5} />
             <ThemedText variant="h3" style={{ color: '#000', fontWeight: '800', fontSize: 16 }}>Complete</ThemedText>
           </Pressable>
         ) : (
-          <Pressable onPress={handleNext} style={[styles.mainBtn, { backgroundColor: color }]}>
+          <Pressable
+            onPress={handleNext}
+            disabled={!isCurrentStepComplete}
+            style={[styles.mainBtn, { backgroundColor: color, opacity: !isCurrentStepComplete ? 0.55 : 1 }]}
+          >
             <ThemedText variant="h3" style={{ color: '#000', fontWeight: '800', fontSize: 16 }}>Next</ThemedText>
             <ChevronRight size={20} color="#000" strokeWidth={2.5} />
           </Pressable>

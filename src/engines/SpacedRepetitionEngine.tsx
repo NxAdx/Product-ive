@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, FlatList, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, FlatList, TextInput } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { Plus, Trash2, ChevronRight } from 'lucide-react-native';
+import { AppModal } from '../components/AppModal';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -34,10 +35,15 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
   const [frontText, setFrontText] = useState('');
   const [backText, setBackText] = useState('');
   const [mode, setMode] = useState<'create' | 'review'>('create');
+  const [modal, setModal] = useState<{ visible: boolean; title: string; description: string } | null>(null);
 
   const handleAddCard = () => {
     if (!frontText.trim() || !backText.trim()) {
-      Alert.alert('Incomplete card', 'Please fill in both front and back');
+      setModal({
+        visible: true,
+        title: 'Incomplete Card',
+        description: 'Please fill in both front and back.',
+      });
       return;
     }
 
@@ -62,7 +68,11 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
 
   const handleStartReview = () => {
     if (cards.length === 0) {
-      Alert.alert('No cards', 'Please create flashcards first');
+      setModal({
+        visible: true,
+        title: 'No Cards',
+        description: 'Please create flashcards first.',
+      });
       return;
     }
     setMode('review');
@@ -104,106 +114,118 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
       // Review complete
       session.endSession();
       setMode('create');
-      Alert.alert('Review complete!', `${cards.length} cards reviewed`);
+      setModal({
+        visible: true,
+        title: 'Review Complete',
+        description: `${cards.length} cards reviewed.`,
+      });
     }
   };
 
   // CREATE MODE
   if (mode === 'create') {
     return (
-      <View style={styles.createMode}>
-        {/* Instruction */}
-        <View style={styles.instrBox}>
-          <Text style={[styles.instrTitle, { color: t.ink }]}>
-            {rule.name}
-          </Text>
-          <Text style={[styles.instrDesc, { color: t.inkMid }]}>
-            Create flashcards and review them at optimal intervals
-          </Text>
-        </View>
-
-        {/* Card Creator */}
-        <View style={styles.creatorBox}>
-          <View style={[styles.inputBox, { 
-            backgroundColor: t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-            borderColor: t.border
-          }]}>
-            <TextInput
-              style={[styles.textInput, { color: t.ink }]}
-              placeholder="Term or question..."
-              placeholderTextColor={t.inkDim}
-              value={frontText}
-              onChangeText={setFrontText}
-            />
-          </View>
-
-          <View style={[styles.inputBox, { 
-            backgroundColor: t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-            borderColor: t.border
-          }]}>
-            <TextInput
-              style={[styles.textInput, { color: t.ink, height: 60 }]}
-              placeholder="Definition or answer..."
-              placeholderTextColor={t.inkDim}
-              value={backText}
-              onChangeText={setBackText}
-              multiline
-            />
-          </View>
-
-          <Pressable 
-            onPress={handleAddCard}
-            style={[styles.addCardBtn, { backgroundColor: color }]}
-          >
-            <Plus size={18} color="#FFF" />
-            <Text style={styles.addCardText}>Add Card</Text>
-          </Pressable>
-        </View>
-
-        {/* Card List */}
-        {cards.length > 0 && (
-          <View style={styles.cardsList}>
-            <Text style={[styles.cardsTitle, { color: t.ink }]}>
-              {cards.length} card{cards.length !== 1 ? 's' : ''}
+      <>
+        <View style={styles.createMode}>
+          {/* Instruction */}
+          <View style={styles.instrBox}>
+            <Text style={[styles.instrTitle, { color: t.ink }]}>
+              {rule.name}
             </Text>
-            <FlatList
-              data={cards}
-              keyExtractor={item => item.id}
-              scrollEnabled={false}
-              renderItem={({ item }) => (
-                <View style={[styles.cardPreview, { 
-                  backgroundColor: color + '10',
-                  borderColor: color
-                }]}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.cardPreviewFront, { color: t.ink }]}>
-                      Q: {item.front}
-                    </Text>
-                    <Text style={[styles.cardPreviewBack, { color: t.inkMid }]}>
-                      A: {item.back}
-                    </Text>
-                  </View>
-                  <Pressable onPress={() => handleRemoveCard(item.id)}>
-                    <Trash2 size={16} color={t.inkMid} />
-                  </Pressable>
-                </View>
-              )}
-              style={styles.flatList}
-            />
+            <Text style={[styles.instrDesc, { color: t.inkMid }]}>
+              Create flashcards and review them at optimal intervals
+            </Text>
           </View>
-        )}
 
-        {/* Start Review */}
-        {cards.length > 0 && (
-          <Pressable 
-            onPress={handleStartReview}
-            style={[styles.reviewBtn, { backgroundColor: color }]}
-          >
-            <Text style={styles.reviewBtnText}>Start Review</Text>
-            <ChevronRight size={18} color="#FFF" />
-          </Pressable>
-        )}
-      </View>
+          {/* Card Creator */}
+          <View style={styles.creatorBox}>
+            <View style={[styles.inputBox, {
+              backgroundColor: t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+              borderColor: t.border
+            }]}>
+              <TextInput
+                style={[styles.textInput, { color: t.ink }]}
+                placeholder="Term or question..."
+                placeholderTextColor={t.inkDim}
+                value={frontText}
+                onChangeText={setFrontText}
+              />
+            </View>
+
+            <View style={[styles.inputBox, {
+              backgroundColor: t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+              borderColor: t.border
+            }]}>
+              <TextInput
+                style={[styles.textInput, { color: t.ink, height: 60 }]}
+                placeholder="Definition or answer..."
+                placeholderTextColor={t.inkDim}
+                value={backText}
+                onChangeText={setBackText}
+                multiline
+              />
+            </View>
+
+            <Pressable
+              onPress={handleAddCard}
+              style={[styles.addCardBtn, { backgroundColor: color }]}
+            >
+              <Plus size={18} color="#FFF" />
+              <Text style={styles.addCardText}>Add Card</Text>
+            </Pressable>
+          </View>
+
+          {/* Card List */}
+          {cards.length > 0 && (
+            <View style={styles.cardsList}>
+              <Text style={[styles.cardsTitle, { color: t.ink }]}>
+                {cards.length} card{cards.length !== 1 ? 's' : ''}
+              </Text>
+              <FlatList
+                data={cards}
+                keyExtractor={item => item.id}
+                scrollEnabled={false}
+                renderItem={({ item }) => (
+                  <View style={[styles.cardPreview, {
+                    backgroundColor: color + '10',
+                    borderColor: color
+                  }]}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.cardPreviewFront, { color: t.ink }]}>
+                        Q: {item.front}
+                      </Text>
+                      <Text style={[styles.cardPreviewBack, { color: t.inkMid }]}>
+                        A: {item.back}
+                      </Text>
+                    </View>
+                    <Pressable onPress={() => handleRemoveCard(item.id)}>
+                      <Trash2 size={16} color={t.inkMid} />
+                    </Pressable>
+                  </View>
+                )}
+                style={styles.flatList}
+              />
+            </View>
+          )}
+
+          {/* Start Review */}
+          {cards.length > 0 && (
+            <Pressable
+              onPress={handleStartReview}
+              style={[styles.reviewBtn, { backgroundColor: color }]}
+            >
+              <Text style={styles.reviewBtnText}>Start Review</Text>
+              <ChevronRight size={18} color="#FFF" />
+            </Pressable>
+          )}
+        </View>
+        <AppModal
+          visible={modal?.visible || false}
+          title={modal?.title || ''}
+          description={modal?.description || ''}
+          onClose={() => setModal(null)}
+        />
+      </>
     );
   }
 
@@ -212,73 +234,81 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
   if (!currentCard) return null;
 
   return (
-    <View style={styles.reviewMode}>
-      {/* Progress */}
-      <Text style={[styles.reviewProgress, { color: t.inkMid }]}>
-        Card {currentCardIdx + 1} / {cards.length}
-      </Text>
-
-      {/* Flashcard */}
-      <Pressable
-        onPress={() => setCardFlipped(!cardFlipped)}
-        style={[styles.flashcard, { 
-          backgroundColor: cardFlipped ? color : t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-          borderColor: color
-        }]}
-      >
-        <View style={styles.cardContent}>
-          <Text style={[styles.cardLabel, { 
-            color: cardFlipped ? '#FFF' : t.inkMid 
-          }]}>
-            {cardFlipped ? 'Answer' : 'Question'}
-          </Text>
-          <Text style={[styles.cardText, { 
-            color: cardFlipped ? '#FFF' : t.ink 
-          }]}>
-            {cardFlipped ? currentCard.back : currentCard.front}
-          </Text>
-        </View>
-        <Text style={[styles.tapText, { color: cardFlipped ? '#FFF' : t.inkDim }]}>
-          Tap to {cardFlipped ? 'show question' : 'reveal'}
+    <>
+      <View style={styles.reviewMode}>
+        {/* Progress */}
+        <Text style={[styles.reviewProgress, { color: t.inkMid }]}>
+          Card {currentCardIdx + 1} / {cards.length}
         </Text>
-      </Pressable>
 
-      {/* Quality Rating */}
-      {cardFlipped && (
-        <View style={styles.qualityRating}>
-          <Text style={[styles.rateLabel, { color: t.ink }]}>How well did you know it?</Text>
-          <View style={styles.ratingButtons}>
-            <Pressable 
-              onPress={() => handleCardResponse(1)}
-              style={[styles.ratingBtn, { 
-                backgroundColor: 'rgba(239, 68, 68, 0.15)',
-                borderColor: '#EF4444'
-              }]}
-            >
-              <Text style={[styles.ratingText, { color: '#EF4444' }]}>Hard</Text>
-            </Pressable>
-            <Pressable 
-              onPress={() => handleCardResponse(3)}
-              style={[styles.ratingBtn, { 
-                backgroundColor: 'rgba(251, 146, 60, 0.15)',
-                borderColor: '#FB923C'
-              }]}
-            >
-              <Text style={[styles.ratingText, { color: '#FB923C' }]}>OK</Text>
-            </Pressable>
-            <Pressable 
-              onPress={() => handleCardResponse(5)}
-              style={[styles.ratingBtn, { 
-                backgroundColor: `${color}15`,
-                borderColor: color
-              }]}
-            >
-              <Text style={[styles.ratingText, { color }]}>Easy</Text>
-            </Pressable>
+        {/* Flashcard */}
+        <Pressable
+          onPress={() => setCardFlipped(!cardFlipped)}
+          style={[styles.flashcard, {
+            backgroundColor: cardFlipped ? color : t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+            borderColor: color
+          }]}
+        >
+          <View style={styles.cardContent}>
+            <Text style={[styles.cardLabel, {
+              color: cardFlipped ? '#FFF' : t.inkMid
+            }]}>
+              {cardFlipped ? 'Answer' : 'Question'}
+            </Text>
+            <Text style={[styles.cardText, {
+              color: cardFlipped ? '#FFF' : t.ink
+            }]}>
+              {cardFlipped ? currentCard.back : currentCard.front}
+            </Text>
           </View>
-        </View>
-      )}
-    </View>
+          <Text style={[styles.tapText, { color: cardFlipped ? '#FFF' : t.inkDim }]}>
+            Tap to {cardFlipped ? 'show question' : 'reveal'}
+          </Text>
+        </Pressable>
+
+        {/* Quality Rating */}
+        {cardFlipped && (
+          <View style={styles.qualityRating}>
+            <Text style={[styles.rateLabel, { color: t.ink }]}>How well did you know it?</Text>
+            <View style={styles.ratingButtons}>
+              <Pressable
+                onPress={() => handleCardResponse(1)}
+                style={[styles.ratingBtn, {
+                  backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                  borderColor: '#EF4444'
+                }]}
+              >
+                <Text style={[styles.ratingText, { color: '#EF4444' }]}>Hard</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => handleCardResponse(3)}
+                style={[styles.ratingBtn, {
+                  backgroundColor: 'rgba(251, 146, 60, 0.15)',
+                  borderColor: '#FB923C'
+                }]}
+              >
+                <Text style={[styles.ratingText, { color: '#FB923C' }]}>OK</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => handleCardResponse(5)}
+                style={[styles.ratingBtn, {
+                  backgroundColor: `${color}15`,
+                  borderColor: color
+                }]}
+              >
+                <Text style={[styles.ratingText, { color }]}>Easy</Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+      </View>
+      <AppModal
+        visible={modal?.visible || false}
+        title={modal?.title || ''}
+        description={modal?.description || ''}
+        onClose={() => setModal(null)}
+      />
+    </>
   );
 }
 
