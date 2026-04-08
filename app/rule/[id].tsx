@@ -34,7 +34,7 @@ export default function RuleScreen() {
         .then((all) => setRuleHistory(all.filter((s) => s.ruleId === rule.id).slice(0, 5)))
         .catch(() => setRuleHistory([]));
     }
-  }, [rule?.id, isActive]); // re-fetch when returning from active session
+  }, [rule, isActive]); // re-fetch when returning from active session
 
   if (!rule) {
     return (
