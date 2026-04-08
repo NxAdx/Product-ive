@@ -1,4 +1,4 @@
-import React, { useMemo, useState , useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, View, TextInput, Platform, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
@@ -201,7 +201,7 @@ function BackgroundReliabilitySection({ onStatusUpdate }: { onStatusUpdate?: (gr
   const [notificationGranted, setNotificationGranted] = useState<boolean | null>(null);
   const [modal, setModal] = useState<{ visible: boolean; title: string; desc: string } | null>(null);
 
-  const refreshStatus = async () => {
+  const refreshStatus = useCallback(async () => {
     setIsChecking(true);
     try {
       const permission = await getPermissionStatus();
@@ -222,7 +222,7 @@ function BackgroundReliabilitySection({ onStatusUpdate }: { onStatusUpdate?: (gr
     } finally {
       setIsChecking(false);
     }
-  };
+  }, [onStatusUpdate]);
 
   useEffect(() => {
     refreshStatus();

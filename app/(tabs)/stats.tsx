@@ -3,7 +3,9 @@ import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { usePositivityStore } from '../../src/store/positivityStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Flame, Trophy, Target, Zap, TrendingUp, Check } from 'lucide-react-native';
+import { 
+  Flame, Trophy, Target, Zap, TrendingUp, Check, Heart, Calendar 
+} from 'lucide-react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { tokens } from '../../src/theme/tokens';
 import { ThemedText } from '../../src/components/ThemedText';
@@ -20,7 +22,6 @@ import {
 } from '../../src/db/sessionRepository';
 import { HistoryHeatmap } from '../../src/components/HistoryHeatmap';
 import { useRouter } from 'expo-router';
-import { Heart, Calendar } from 'lucide-react-native';
 
 const LEVEL_STEPS = [0, 100, 250, 500, 1000];
 
