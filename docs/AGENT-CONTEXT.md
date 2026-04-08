@@ -7,7 +7,7 @@
 
 - Branch: `main`
 - Version: `1.0.0`
-- Phase state: All 8 phases (0–7) COMPLETE. No blocking gaps remain.
+- Phase state: All 8 phases (0–8) COMPLETE. No blocking gaps remain.
 - Working tree: clean
 - **docs/ is gitignored** — use `git add -f docs/` to commit doc changes.
 
@@ -25,23 +25,26 @@
 - Foreground timer supports full pause/resume/stop lifecycle with state tracking
 - "Finish Session" notification action handled in both foreground and background app states
 
-### B) Persistence + Stats (Codex)
+### B) Persistence + Stats (Codex + Antigravity)
 
 - SQLite bootstrap + migration: `src/db/database.native.ts`
 - Web-safe adapter: `src/db/database.web.ts`
 - Repository: `src/db/sessionRepository.ts`
   - `insertSessionRecord()`, `insertPointEvents()`
   - `getRecentSessions(limit)`, `getTodayPointDelta()`
-- `app/(tabs)/stats.tsx` consumes real SQLite session history and daily point delta
+- `app/(tabs)/stats.tsx` consumes real SQLite session history and daily point delta.
+- **Per-Rule History**: `app/rule/[id].tsx` now shows a "Recent Sessions" card specific to the rule.
 
-### C) Native updater (Codex)
+### C) Native updater (Codex + Antigravity)
 
 - Kotlin PackageInstaller bridge:
   - `android/.../ApkInstallerModule.kt` — `installApk()`, `canRequestPackageInstalls()`, `openInstallUnknownAppsSettings()`
   - `android/.../ApkInstallerPackage.kt` — ReactPackage registration
   - `android/.../PackageInstallerStatusReceiver.kt` — install status BroadcastReceiver
 - Registered in `MainApplication.kt`, permissions in `AndroidManifest.xml`
-- `UpdateManager.ts` checks GitHub releases, downloads APK, uses native install first, falls back to share intent
+- `UpdateManager.ts` checks GitHub releases, downloads APK, uses native install first, falls back to share intent.
+- **Auto-check toggle**: Added toggle in Settings to control automatic update checks.
+- **Deferred Install**: Warning modal added if user tries to install while a session is active.
 - **Note**: No tagged GitHub release exists yet — updater will report "no update" until `v1.0.0` release is created with APK asset.
 
 ### D) UX polish (Codex + Antigravity)
@@ -50,24 +53,27 @@
 - Background reliability controls in settings (notification, battery, power)
 - All native `Alert.alert` replaced with themed `AppModal`
 - `GuidedPromptEngine` blocks empty input advancement
-- Non-functional username chevron removed from settings
+- Updated settings changelog to reflect actual v1.0.0 features.
 
-### E) Build stabilization (Codex)
+### E) Build & CI/CD stabilization (Codex + Antigravity)
 
 - ABI-split release packaging: ~45 MB per APK (was ~740 MB universal)
 - Removed global `doNotStrip` from `gradle.properties`
-- Local `assembleRelease` verified
+- Local `assembleRelease` verified.
+- **CI/CD Optimization**: Added caching for `android/` prebuild and Gradle outputs, significantly reducing build times (~21m -> ~12m).
 
-### F) Tests (Codex)
+### F) Tests (Codex + Antigravity)
 
 - `src/store/__tests__/positivityStore.test.ts`
 - `src/store/__tests__/todoStore.test.ts`
 - `src/store/__tests__/sessionStore.test.ts`
-- CI gate: `npm test -- --coverage --ci`
+- `src/services/__tests__/UpdateManager.test.ts` (Semver, selection logic)
+- `src/db/__tests__/sessionRepository.test.ts` (SQLite transaction mocking)
+- CI gate: `npm test -- --coverage --ci` (32 tests total)
 
 ## 3) Validation Evidence
 
-- `npm test -- --coverage --ci` → PASS
+- `npm test -- --coverage --ci` → PASS (32 tests)
 - `npx tsc --noEmit` → PASS
 - `npx eslint app src --max-warnings=0` → PASS
 - `npx expo-doctor` → PASS (16/16)
@@ -79,15 +85,15 @@
 | Item | Status | Notes |
 |---|---|---|
 | Timer sync | CLOSED | Unified resolver + headless JS |
-| Native updater | CLOSED | Kotlin bridge working |
-| Stats history | CLOSED | SQLite wired to UI |
+| Native updater | CLOSED | Kotlin bridge + deferred flow |
+| Stats history | CLOSED | SQLite wired to UI (Global + Per-Rule) |
 | Release build | CLOSED | ABI splits, ~45 MB |
 | Negative timer drift | CLOSED | Headless task termination |
+| CI Optimization | CLOSED | Prebuild + Gradle caching |
 | GitHub tagged release | **OPEN** | No `v1.0.0` release exists yet — updater non-functional until created |
 | Rule-aware task tagging UI | **OPEN** | Store support exists, no UI picker |
-| Per-rule session history card | **OPEN** | Only global stats view |
 | Analytics charts | **OPEN** | Enhancement — no charts built |
-| SQLite integration tests | **OPEN** | Only store-level tests exist |
+| SQLite integration tests | CLOSED | Repository tests added |
 
 ## 5) Key Files Changed Across Sessions
 

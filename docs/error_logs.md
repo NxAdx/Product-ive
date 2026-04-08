@@ -113,3 +113,30 @@
 ### Status
 
 - Fixed. Local `assembleRelease --console=plain --no-daemon` now passes.
+
+---
+
+## 2026-04-08 - Release APK exploded to ~740 MB
+
+### Error
+
+- Release APK size grew to approximately 740 MB (installed footprint close to 1 GB).
+
+### Root Cause
+
+- Universal APK included four ABIs (`arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`).
+- Global `android.packagingOptions.doNotStrip=**/*.so` preserved large native symbols in release output.
+
+### Fix
+
+- Removed global `doNotStrip` from repository `android/gradle.properties`.
+- Enabled ABI split release output in `android/app/build.gradle` with:
+  - `include "arm64-v8a", "armeabi-v7a"`
+  - `universalApk false`
+
+### Status
+
+- Fixed.
+- Current release outputs:
+  - `app-arm64-v8a-release.apk` ~45.11 MB
+  - `app-armeabi-v7a-release.apk` ~38.68 MB

@@ -4,6 +4,45 @@
 
 ---
 
+## 2026-04-08 - Phase 8 Completion Sprint
+
+### Completed
+- **CI Pipeline Optimization**: Cached `android/` prebuild and Gradle outputs, dropping rebuild time to ~12m.
+- **Rule Session History**: Added a "Recent Sessions" card to `app/rule/[id].tsx` pulling from SQLite.
+- **Auto-check Toggle**: Added `autoCheckUpdates` toggle to settings screen + store.
+- **Deferred Install**: Prevented update installation if `sessionStore.activeRuleId` is active.
+- **Testing**: Added `UpdateManager.test.ts` (semver, selection) and `sessionRepository.test.ts` (SQLite transaction mocking). Tests expanded to 5 suites (32 tests total).
+- **Settings Changelog**: Updated `CURRENT_VERSION_CHANGES` to reflect v1.0.0 features.
+
+### Next Steps
+- Implement analytics visualization (charts/graphs) on Stats screen.
+- Tag a `v1.0.0` release on GitHub with APK asset to enable the updater flow.
+
+## 2026-04-08 - Android APK Size Emergency Fix
+
+### Problem observed
+- Release APK output had grown to ~740 MB and installed footprint could approach ~1 GB.
+
+### Root cause
+- The release artifact included all four ABIs (`arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`).
+- Native symbol stripping had been globally disabled via `android.packagingOptions.doNotStrip=**/*.so`.
+
+### Fix applied
+- Removed global `android.packagingOptions.doNotStrip` from `android/gradle.properties`.
+- Enabled ABI splits in `android/app/build.gradle` and disabled universal APK:
+  - include: `arm64-v8a`, `armeabi-v7a`
+  - `universalApk false`
+
+### Verified output
+- `app-arm64-v8a-release.apk` -> 45.11 MB
+- `app-armeabi-v7a-release.apk` -> 38.68 MB
+
+### Build verification
+- `cd android && .\\gradlew.bat assembleRelease --console=plain --no-daemon` -> PASS
+- Note: `clean assembleRelease` still has an existing Windows RN New Architecture clean/codegen issue; normal `assembleRelease` succeeds.
+
+---
+
 ## 2026-04-08 - Final Phase Closure Sprint (Pending/Mismatch/Risk Closure)
 
 ### Timer synchronization and performance closure

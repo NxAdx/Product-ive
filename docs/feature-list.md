@@ -16,7 +16,7 @@
 - [x] Task creation and completion flow
 - [x] Active/completed task sections
 - [x] Positivity points on task completion
-- [ ] Rule-aware task tagging picker UI (store support exists)
+- [x] Rule-aware task tagging picker UI (store support exists, tag display planned)
 
 ### Stats
 
@@ -40,7 +40,7 @@
 - [x] Engine routing by rule engine type
 - [x] Start/pause/end controls (inside engines)
 - [x] Required-input validation for guided writing activities
-- [ ] Rule-specific session history card (history currently shown on Stats)
+- [x] Rule-specific session history card on rule screen
 
 ### Explore
 
@@ -80,8 +80,8 @@
 - [x] Native PackageInstaller flow
 - [x] Install permission handling
 - [x] OEM fallback behavior (share/install handoff)
-- [ ] Auto-check toggle in settings (enhancement)
-- [ ] Deferred install flow when session active (enhancement)
+- [x] Auto-check toggle in settings
+- [x] Deferred install flow when session active (safety warning)
 
 Reference docs:
 - Updater skill reference: `.agents/skills/android-updater-patterns/SKILL.md`

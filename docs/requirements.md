@@ -102,10 +102,11 @@ Release verification:
 
 ## 9) Remaining Implementation Work
 
-No blocking implementation gaps remain for the current phase closure.
+No blocking implementation gaps remain. Phase 8 (Completion Sprint) is finished.
 
 Post-release enhancements:
 
-1. Add richer analytics charts over session history.
-2. Increase repository/integration coverage for SQLite query behavior.
-3. Expand optional notification templates for additional engagement flows.
+1. Add richer analytics charts (graphs/heatmaps) over session history on Stats screen.
+2. Tag a `v1.0.0` release on GitHub with APK asset to enable the continuous update flow.
+3. Add optional notification template variants for additional engagement flows.
+4. Add tag-UI for tasks (the DB store supports this but UI lacks a tag picker).

@@ -56,10 +56,14 @@
 
 ### 4) Android release build stabilization
 
-- Added packaging stabilization for Windows NDK strip-symbol failures:
-  - `android/gradle.properties`
-  - `android.packagingOptions.doNotStrip=**/*.so`
-- Verified release build now succeeds locally.
+- Release build now succeeds locally.
+- Applied production-safe APK size optimization:
+  - Removed global `android.packagingOptions.doNotStrip` from repository config.
+  - Enabled ABI split release packaging in `android/app/build.gradle`.
+  - Disabled universal APK generation to avoid multi-ABI fat artifacts.
+- Verified release artifact sizes:
+  - `app-arm64-v8a-release.apk`: ~45 MB
+  - `app-armeabi-v7a-release.apk`: ~39 MB
 
 ### 5) Regression coverage expansion
 

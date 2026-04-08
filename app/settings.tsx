@@ -23,11 +23,13 @@ import { tokens } from '../src/theme/tokens';
 import { AppModal } from '../src/components/AppModal';
 
 const CURRENT_VERSION_CHANGES = [
-  'Android CI build reliability and performance improved.',
-  'App icons and splash branding updated.',
-  'Navigation and tab bar behavior polished for better UX.',
-  'Typography aligned to design system fonts.',
-  'Bug report export added in Settings.',
+  'Native background timer — sessions keep ticking in your notification bar even when minimized.',
+  '20 scientifically-backed rules across Focus, Learning, Productivity & Wellness.',
+  'Gamified positivity system with scores, streaks, levels & post-session reflection.',
+  'In-app updater — download and install new versions directly from within the app.',
+  'SQLite-backed session history visible on the Stats screen.',
+  'System theme follow mode + manual dark/light override.',
+  'Bug report export and wellness reminder controls in Settings.',
 ];
 
 function WellnessNotificationsSection() {
@@ -619,6 +621,19 @@ export default function SettingsScreen() {
             </View>
           </Pressable>
 
+          <View style={styles.row}>
+            <View style={{ flex: 1 }}>
+              <ThemedText variant="body" color={t.ink}>Auto-Check Updates</ThemedText>
+              <ThemedText variant="caption" color={t.inkDim}>Check for new versions on app launch</ThemedText>
+            </View>
+            <Switch
+              value={useSettingsStore((s) => s.autoCheckUpdates)}
+              onValueChange={(v) => useSettingsStore.getState().setAutoCheckUpdates(v)}
+              trackColor={{ false: 'rgba(0,0,0,0.2)', true: t.positivity }}
+              thumbColor={useSettingsStore((s) => s.autoCheckUpdates) ? '#FFFFFF' : '#F2F1EE'}
+            />
+          </View>
+
           <Pressable style={styles.actionRow} onPress={() => setShowChangelog(!showChangelog)}>
             <View style={styles.actionLeft}>
               <CircleAlert size={18} color={t.inkMid} />
@@ -705,6 +720,17 @@ export default function SettingsScreen() {
             disabled={isInstallingUpdate}
             onPress={async () => {
               if (!updateModal.info) return;
+              // Phase C4: Warn if a session is actively running
+              const activeSession = useSessionStore.getState().activeRuleId;
+              if (activeSession) {
+                setUpdateModal({ visible: false, info: null });
+                setMainModal({
+                  visible: true,
+                  title: 'Session In Progress',
+                  desc: 'A focus session is currently active. Please finish or end your session before installing an update.',
+                });
+                return;
+              }
               try {
                 setIsInstallingUpdate(true);
                 await UpdateManager.downloadAndInstall(updateModal.info);

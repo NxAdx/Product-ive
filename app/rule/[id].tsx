@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '../../src/theme/ThemeContext';
@@ -14,8 +14,9 @@ import { SpacedRepetitionEngine } from '../../src/engines/SpacedRepetitionEngine
 import { AwarenessReflectionEngine } from '../../src/engines/AwarenessReflectionEngine';
 import { FreeWriteRecallEngine } from '../../src/engines/FreeWriteRecallEngine';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, ChevronRight, Share2, Bookmark, Lightbulb, GraduationCap } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, Share2, Bookmark, Lightbulb, GraduationCap, Clock } from 'lucide-react-native';
 import { tokens } from '../../src/theme/tokens';
+import { getRecentSessions, type SessionSummaryRecord } from '../../src/db/sessionRepository';
 
 export default function RuleScreen() {
   const { id } = useLocalSearchParams();
@@ -23,8 +24,18 @@ export default function RuleScreen() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const [isActive, setIsActive] = useState(false);
-  
+  const [ruleHistory, setRuleHistory] = useState<SessionSummaryRecord[]>([]);
+
   const rule = getRuleById(String(id || ''));
+
+  useEffect(() => {
+    if (rule) {
+      getRecentSessions(20)
+        .then((all) => setRuleHistory(all.filter((s) => s.ruleId === rule.id).slice(0, 5)))
+        .catch(() => setRuleHistory([]));
+    }
+  }, [rule?.id, isActive]); // re-fetch when returning from active session
+
   if (!rule) {
     return (
       <View style={[styles.container, { backgroundColor: t.bg, paddingTop: insets.top, alignItems: 'center', justifyContent: 'center' }]}>
@@ -116,6 +127,45 @@ export default function RuleScreen() {
             {rule.description}
           </ThemedText>
         </View>
+
+        {/* Recent Sessions for this Rule */}
+        {ruleHistory.length > 0 && (
+          <View style={[styles.paddingX, { marginTop: 32 }]}>
+            <View style={styles.rowAlign}>
+              <Clock size={20} color={t.textSecondary} />
+              <ThemedText variant="label" color={t.textSecondary} style={{ marginLeft: 8 }}>Recent Sessions</ThemedText>
+            </View>
+            <View style={{ marginTop: 12, gap: 8 }}>
+              {ruleHistory.map((session) => {
+                const mins = Math.floor(session.durationSeconds / 60);
+                const secs = session.durationSeconds % 60;
+                const dateStr = new Date(session.completedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                return (
+                  <View
+                    key={session.id}
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      paddingVertical: 10,
+                      paddingHorizontal: 14,
+                      borderRadius: 10,
+                      backgroundColor: t.surfaceLowest,
+                    }}
+                  >
+                    <View>
+                      <ThemedText variant="body" style={{ fontFamily: 'JetBrainsMono_500Medium', fontSize: 14 }}>
+                        {mins}m {secs.toString().padStart(2, '0')}s
+                      </ThemedText>
+                      <ThemedText variant="caption" color={t.textSecondary}>{dateStr}</ThemedText>
+                    </View>
+                    <ThemedText variant="label" color={accentColor}>+{session.pointsEarned} pts</ThemedText>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
 
         {/* Action Gap */}
         <View style={{ height: tokens.spacing.xxl }} />

@@ -70,8 +70,19 @@
 - Web export verification completed (`expo export --platform web --clear`)
 - Android release build verified (`assembleRelease`)
 
+## Phase 8 - Completion Sprint (COMPLETE)
+
+- CI/CD pipeline optimized with prebuild + Gradle caching
+- Per-rule session history card on rule screen (SQLite-backed)
+- Auto-check updates toggle in settings
+- Deferred install safety flow when session is active
+- Settings changelog updated to v1.0.0 features
+- UpdateManager unit tests (semver, version compare, asset selection)
+- SQLite repository integration tests (insert, query, transactions)
+- Test suite expanded to 5 suites / 32 tests
+
 ## Current Priority (Post-Completion Enhancements)
 
-1. Add deeper analytics visualization on top of SQLite history.
-2. Expand repository-level integration tests.
-3. Add optional notification template variants for engagement experiments.
+1. Add deeper analytics visualization (charts/graphs) on top of SQLite history.
+2. Add optional notification template variants for engagement experiments.
+3. Create tagged GitHub release (v1.0.0) with APK asset to activate in-app updater.
