@@ -1,10 +1,19 @@
 import { Platform } from 'react-native';
-import { PersistedDatabase } from './types';
+import type { PersistedDatabase } from './types';
 
-const db = Platform.select({
-  native: () => require('./database.native'),
-  default: () => require('./database.web'),
-})();
+async function loadDbModule(): Promise<{ getDatabase: () => Promise<PersistedDatabase>; initializeDatabase: () => Promise<void> }> {
+  if (Platform.OS === 'web') {
+    return await import('./database.web');
+  }
+  return await import('./database.native');
+}
 
-export const getDatabase: () => Promise<PersistedDatabase> = db.getDatabase;
-export const initializeDatabase: () => Promise<void> = db.initializeDatabase;
+export const getDatabase: () => Promise<PersistedDatabase> = async () => {
+  const mod = await loadDbModule();
+  return mod.getDatabase();
+};
+
+export const initializeDatabase: () => Promise<void> = async () => {
+  const mod = await loadDbModule();
+  return mod.initializeDatabase();
+};

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
@@ -34,7 +34,6 @@ export function CountdownEngine({ rule, color }: EngineProps) {
   const [timeLeft, setTimeLeft] = useState(workS);
   
   const isRunning = session.activeRuleId === rule.id && !session.pausedAt;
-  const lastTick = useRef<number>(Date.now());
 
   // Timer loop
   useEffect(() => {
@@ -55,9 +54,10 @@ export function CountdownEngine({ rule, color }: EngineProps) {
     return () => {
       if (interval) clearInterval(interval);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning, phase]);
 
-  const handlePhaseTransition = () => {
+  const handlePhaseTransition = useCallback(() => {
     if (phase === 'work') {
       const nextCycles = cyclesCompleted + 1;
       const isLongBreak = nextCycles % longBreakAfter === 0;
@@ -82,7 +82,7 @@ export function CountdownEngine({ rule, color }: EngineProps) {
       const nextDeadlineAtMs = Date.now() + workS * 1000;
       resumeForegroundTimer(nextDeadlineAtMs).catch(console.error);
     }
-  };
+  }, [phase, cyclesCompleted, longBreakAfter, longBreakS, breakS, workS]);
 
   const handleToggle = () => {
     if (session.activeRuleId !== rule.id) {

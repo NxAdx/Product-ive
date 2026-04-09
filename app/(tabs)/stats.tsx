@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useTheme } from '../../src/theme/ThemeContext';
 import { usePositivityStore } from '../../src/store/positivityStore';
@@ -22,7 +22,6 @@ import {
 } from '../../src/db/sessionRepository';
 import { HistoryHeatmap } from '../../src/components/HistoryHeatmap';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { useCallback } from 'react';
 
 import { XP_THRESHOLDS } from '../../src/data/constants';
 

@@ -37,17 +37,17 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
   const [mode, setMode] = useState<'create' | 'review'>('create');
   const [modal, setModal] = useState<{ visible: boolean; title: string; description: string } | null>(null);
 
-  const loadCards = async () => {
+  const loadCards = useCallback(async () => {
     setIsLoading(true);
     const stored = await getFlashcardsByRule(rule.id);
     setCards(stored);
     setIsLoading(false);
-  };
+  }, [rule.id]);
 
   useFocusEffect(
     useCallback(() => {
       loadCards();
-    }, [rule.id])
+    }, [loadCards])
   );
 
   const handleAddCard = async () => {
