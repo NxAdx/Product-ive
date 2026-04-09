@@ -19,11 +19,17 @@ interface EngineProps {
   color: string;
 }
 
+interface ModalState {
+  visible: boolean;
+  title: string;
+  description: string;
+}
+
 /**
  * SpacedRepetitionEngine
  * Powers rules: Spaced Repetition System (SRS), 1-4-7 Day Rule
  * Uses flashcard-style review with spacing algorithm
- * v1.3.0: Persistent Storage & SRS Notifications
+ * v1.3.1: Fixed syntax errors and type collisions
  */
 export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
   const t = useTheme();
@@ -35,7 +41,7 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
   const [frontText, setFrontText] = useState('');
   const [backText, setBackText] = useState('');
   const [mode, setMode] = useState<'create' | 'review'>('create');
-  const [modal, setModal] = useState<{ visible: boolean; title: string; description: string } | null>(null);
+  const [modal, setModal] = useState<ModalState | null>(null);
 
   const loadCards = useCallback(async () => {
     setIsLoading(true);
@@ -99,7 +105,6 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
   };
 
   const handleCardResponse = async (quality: number) => {
-    // SM-2 Algorithm
     const card = cards[currentCardIdx];
     let newEaseFactor = card.ease_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
     newEaseFactor = Math.max(1.3, newEaseFactor);
@@ -123,7 +128,6 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
 
     await upsertFlashcard(updatedCard);
     
-    // Auto-schedule SRS reminder for this rule
     notifyNow(
       'Review Due!',
       `You have a scheduled review for ${rule.name}.`,
@@ -134,28 +138,24 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
     updatedCards[currentCardIdx] = updatedCard;
     setCards(updatedCards);
 
-    // Next card
     if (currentCardIdx < cards.length - 1) {
       setCurrentCardIdx(currentCardIdx + 1);
       setCardFlipped(false);
     } else {
-      // Review complete
       session.endSession();
       setMode('create');
       setModal({
         visible: true,
         title: 'Review Complete',
-        description: `${cards.length} cards reviewed.`,
+        description: `${cards.length} cards reviewed at this session.`,
       });
     }
   };
 
-  // CREATE MODE
   if (mode === 'create') {
     return (
       <>
         <View style={styles.createMode}>
-          {/* Instruction */}
           <View style={styles.instrBox}>
             <Text style={[styles.instrTitle, { color: t.ink }]}>
               {rule.name}
@@ -165,7 +165,6 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
             </Text>
           </View>
 
-          {/* Card Creator */}
           <View style={styles.creatorBox}>
             <View style={[styles.inputBox, {
               backgroundColor: t.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
@@ -203,7 +202,6 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
             </Pressable>
           </View>
 
-          {/* Card List */}
           <View style={styles.cardsList}>
               <Text style={[styles.cardsTitle, { color: t.ink }]}>
                 {isLoading ? 'Loading...' : `${cards.length} card${cards.length !== 1 ? 's' : ''}`}
@@ -239,7 +237,6 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
               )}
           </View>
 
-          {/* Start Review */}
           {!isLoading && cards.length > 0 && (
             <Pressable
               onPress={handleStartReview}
@@ -260,19 +257,16 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
     );
   }
 
-  // REVIEW MODE
   const currentCard = cards[currentCardIdx];
   if (!currentCard) return null;
 
   return (
     <>
       <View style={styles.reviewMode}>
-        {/* Progress */}
         <Text style={[styles.reviewProgress, { color: t.inkMid }]}>
           Card {currentCardIdx + 1} / {cards.length}
         </Text>
 
-        {/* Flashcard */}
         <Pressable
           onPress={() => setCardFlipped(!cardFlipped)}
           style={[styles.flashcard, {
@@ -297,7 +291,6 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
           </Text>
         </Pressable>
 
-        {/* Quality Rating */}
         {cardFlipped && (
           <View style={styles.qualityRating}>
             <Text style={[styles.rateLabel, { color: t.ink }]}>How well did you know it?</Text>

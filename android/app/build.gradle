@@ -112,15 +112,36 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('RELEASE_STORE_FILE')) {
+                storeFile file(RELEASE_STORE_FILE)
+                storePassword RELEASE_STORE_PASSWORD
+                keyAlias RELEASE_KEY_ALIAS
+                keyPassword RELEASE_KEY_PASSWORD
+            } else if (System.getenv("RELEASE_STORE_FILE") != null) {
+                storeFile file(System.getenv("RELEASE_STORE_FILE"))
+                storePassword System.getenv("RELEASE_STORE_PASSWORD")
+                keyAlias System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword System.getenv("RELEASE_KEY_PASSWORD")
+            }
+        }
     }
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+            if (file('debug.keystore').exists()) {
+                signingConfig signingConfigs.debug
+            }
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // Use release config if properties are present
+            if (project.hasProperty('RELEASE_STORE_FILE') || System.getenv("RELEASE_STORE_FILE") != null) {
+                signingConfig signingConfigs.release
+            } else if (file('debug.keystore').exists()) {
+                // Local dev fallback
+                signingConfig signingConfigs.debug
+            }
+            // else: build remains unsigned (valid for CI/CD that signs later)
+            
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds

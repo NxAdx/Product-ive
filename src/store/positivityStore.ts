@@ -103,18 +103,15 @@ export const usePositivityStore = create<PositivityStore>()(
 
           if (isDifferentWeek(state.lastActiveDate, now)) {
             weeklyScore = 0;
-            // Persistence Hardening: Don't reset streak to 0 on Mon if user was active on Sun
             todayRulesUsed = [];
           }
 
           if (!isSameDay(state.lastActiveDate, now)) {
-            // New Day! 
             if (isYesterday(state.lastActiveDate, now)) {
               weeklyStreak = state.weeklyStreak + 1;
             } else if (state.lastActiveDate === '') {
               weeklyStreak = 1;
             } else {
-              // Streak broken!
               weeklyStreak = 1;
             }
             todayRulesUsed = [];
@@ -149,21 +146,15 @@ export const usePositivityStore = create<PositivityStore>()(
         
         set((state) => {
           let todayRulesUsed = state.todayRulesUsed;
-          
-          // Reset today's rules if it's a new day
           if (!isSameDay(state.lastActiveDate, now)) {
             todayRulesUsed = [];
           }
-          
-          // Track in today's rules
           if (!todayRulesUsed.includes(ruleId)) {
             todayRulesUsed = [...todayRulesUsed, ruleId];
           }
-          
           return { todayRulesUsed };
         });
         
-        // Track in lifetime rulesUsed
         if (!rulesUsed.includes(ruleId)) {
           set((state) => ({ rulesUsed: [...state.rulesUsed, ruleId] }));
           return true;
