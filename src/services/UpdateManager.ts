@@ -18,7 +18,7 @@ export interface UpdateInfo {
 const UPDATES_CHECK_KEY = 'last_updates_check';
 const UPDATE_INFO_KEY = 'cached_update_info';
 const CHECK_INTERVAL_HOURS = 24;
-const RELEASES_API_URL = 'https://api.github.com/repos/Aadarsh-Lokhande/Productive-Plus/releases/latest';
+const RELEASES_API_URL = 'https://api.github.com/repos/NxAdx/Product-ive/releases/latest';
 
 interface GitHubReleaseAsset {
   name: string;
