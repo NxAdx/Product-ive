@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProductiveGlance } from '../widgets/ProductiveGlance';
-import { XP_LEVELS, getLevelName } from '../data/constants';
+import { getLevelName } from '../data/constants';
 
 export interface ReflectionEntry {
   ruleId: string;

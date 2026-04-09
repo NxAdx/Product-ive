@@ -10,7 +10,8 @@ import {
 } from '../services/ForegroundTimerService';
 import { insertPointEvents, insertSessionRecord } from '../db/sessionRepository';
 import { logRuntimeEvent } from '../utils/runtimeLogs';
-import { resolveForegroundDurationMs } from '../utils/sessionTiming';
+import { resolveForegroundDurationMs, resolveRuleSessionSeconds } from '../utils/sessionTiming';
+import { SESSION_THRESHOLDS } from '../data/constants';
 
 export type SessionPhase = 'work' | 'break' | 'done' | 'idle';
 
@@ -33,8 +34,6 @@ interface SessionState {
   setPhase: (phase: SessionPhase) => void;
 }
 
-import { SESSION_THRESHOLDS } from '../data/constants';
-import { resolveRuleSessionSeconds } from '../utils/sessionTiming';
 
 export const useSessionStore = create<SessionState>((set, get) => ({
   activeRuleId: null,

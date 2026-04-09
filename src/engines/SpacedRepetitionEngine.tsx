@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, FlatList, TextInput, ActivityIndicator } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
-import { Plus, Trash2, ChevronRight, RefreshCw } from 'lucide-react-native';
-import { AppModal } from '../components/AppModal';
+import { Plus, Trash2, ChevronRight } from 'lucide-react-native';
 import { useFocusEffect } from 'expo-router';
+import { AppModal } from '../components/AppModal';
 import { 
   getFlashcardsByRule, 
   upsertFlashcard, 
