@@ -87,10 +87,11 @@ jobs:
         if: steps.prebuild-cache.outputs.cache-hit != 'true'
         run: npx expo prebuild --platform android --non-interactive
 
-      - name: 2.7.5 Generate Debug Keystore (Fallback)
+      - name: 2.7.5 Decode Signing Keystore
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         run: |
-          if [ ! -f "android/app/debug.keystore" ]; then
-            keytool -genkey -v -keystore android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          if [ -n "${{ secrets.RELEASE_KEYSTORE }}" ]; then
+            echo "${{ secrets.RELEASE_KEYSTORE }}" | base64 --decode > android/app/release.jks
           fi
 
       - name: 2.8 Cache Gradle
@@ -105,13 +106,24 @@ jobs:
 
       - name: 2.9 Build APK (Release)
         working-directory: ./android
+        env:
+          MYAPP_RELEASE_STORE_FILE: release.jks
+          MYAPP_RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          MYAPP_RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          MYAPP_RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleRelease \
-            --no-daemon \
-            --parallel \
-            --max-workers=2 \
-            --build-cache
+          # If keystore and secrets exist, sign properly. Otherwise, fall back to unsigned/debug for dev runs.
+          if [ -f "app/release.jks" ] && [ -n "$MYAPP_RELEASE_STORE_PASSWORD" ]; then
+            ./gradlew assembleRelease \
+              -Pandroid.injected.signing.store.file=release.jks \
+              -Pandroid.injected.signing.store.password=$MYAPP_RELEASE_STORE_PASSWORD \
+              -Pandroid.injected.signing.key.alias=$MYAPP_RELEASE_KEY_ALIAS \
+              -Pandroid.injected.signing.key.password=$MYAPP_RELEASE_KEY_PASSWORD \
+              --no-daemon --parallel --max-workers=2 --build-cache
+          else
+            ./gradlew assembleRelease --no-daemon --parallel --max-workers=2 --build-cache
+          fi
 
       - name: 2.10 Upload Artifact
         uses: actions/upload-artifact@v4
