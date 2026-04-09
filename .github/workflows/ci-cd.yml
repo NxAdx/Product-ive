@@ -107,19 +107,14 @@ jobs:
       - name: 2.9 Build APK (Release)
         working-directory: ./android
         env:
-          MYAPP_RELEASE_STORE_FILE: release.jks
+          MYAPP_RELEASE_STORE_FILE: ${{ github.workspace }}/android/app/release.jks
           MYAPP_RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           MYAPP_RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           MYAPP_RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
           chmod +x ./gradlew
-          # Always pass signing properties; Gradle will handle fallback if properties are missing
-          ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=$MYAPP_RELEASE_STORE_FILE \
-            -Pandroid.injected.signing.store.password=$MYAPP_RELEASE_STORE_PASSWORD \
-            -Pandroid.injected.signing.key.alias=$MYAPP_RELEASE_KEY_ALIAS \
-            -Pandroid.injected.signing.key.password=$MYAPP_RELEASE_KEY_PASSWORD \
-            --no-daemon --parallel --max-workers=2 --build-cache
+          # Standard build; signing is handled via environment variables in build.gradle
+          ./gradlew assembleRelease --no-daemon --parallel --max-workers=2 --build-cache
 
       - name: 2.10 Upload Artifact
         uses: actions/upload-artifact@v4
