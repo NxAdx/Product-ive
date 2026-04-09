@@ -1,35 +1,35 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, FlatList, TextInput } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Pressable, FlatList, TextInput, ActivityIndicator } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
-import { Plus, Trash2, ChevronRight } from 'lucide-react-native';
+import { Plus, Trash2, ChevronRight, RefreshCw } from 'lucide-react-native';
 import { AppModal } from '../components/AppModal';
+import { useFocusEffect } from 'expo-router';
+import { 
+  getFlashcardsByRule, 
+  upsertFlashcard, 
+  deleteFlashcard, 
+  FlashCardRecord 
+} from '../db/flashcardRepository';
+import { notifyNow } from '../services/NotificationManager';
 
 interface EngineProps {
   rule: RuleConfig;
   color: string;
 }
 
-interface FlashCard {
-  id: string;
-  front: string;
-  back: string;
-  nextReview: Date;
-  easeFactor: number;
-  interval: number;
-  repetitions: number;
-}
-
 /**
  * SpacedRepetitionEngine
  * Powers rules: Spaced Repetition System (SRS), 1-4-7 Day Rule
  * Uses flashcard-style review with spacing algorithm
+ * v1.3.0: Persistent Storage & SRS Notifications
  */
 export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
   const t = useTheme();
   const session = useSessionStore();
-  const [cards, setCards] = useState<FlashCard[]>([]);
+  const [cards, setCards] = useState<FlashCardRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentCardIdx, setCurrentCardIdx] = useState(0);
   const [cardFlipped, setCardFlipped] = useState(false);
   const [frontText, setFrontText] = useState('');
@@ -37,7 +37,20 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
   const [mode, setMode] = useState<'create' | 'review'>('create');
   const [modal, setModal] = useState<{ visible: boolean; title: string; description: string } | null>(null);
 
-  const handleAddCard = () => {
+  const loadCards = async () => {
+    setIsLoading(true);
+    const stored = await getFlashcardsByRule(rule.id);
+    setCards(stored);
+    setIsLoading(false);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadCards();
+    }, [rule.id])
+  );
+
+  const handleAddCard = async () => {
     if (!frontText.trim() || !backText.trim()) {
       setModal({
         visible: true,
@@ -47,22 +60,26 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
       return;
     }
 
-    const newCard: FlashCard = {
+    const newCard: FlashCardRecord = {
       id: Date.now().toString(),
+      rule_id: rule.id,
       front: frontText,
       back: backText,
-      nextReview: new Date(),
-      easeFactor: 2.5,
+      next_review: Date.now(),
+      ease_factor: 2.5,
       interval: 1,
       repetitions: 0,
+      created_at: new Date().toISOString(),
     };
 
+    await upsertFlashcard(newCard);
     setCards([...cards, newCard]);
     setFrontText('');
     setBackText('');
   };
 
-  const handleRemoveCard = (cardId: string) => {
+  const handleRemoveCard = async (cardId: string) => {
+    await deleteFlashcard(cardId);
     setCards(cards.filter(c => c.id !== cardId));
   };
 
@@ -81,10 +98,10 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
     setCardFlipped(false);
   };
 
-  const handleCardResponse = (quality: number) => {
+  const handleCardResponse = async (quality: number) => {
     // SM-2 Algorithm
     const card = cards[currentCardIdx];
-    let newEaseFactor = card.easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+    let newEaseFactor = card.ease_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
     newEaseFactor = Math.max(1.3, newEaseFactor);
 
     let newInterval = card.interval;
@@ -94,13 +111,24 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
       newInterval = card.repetitions === 0 ? 1 : card.repetitions === 1 ? 3 : Math.round(card.interval * newEaseFactor);
     }
 
-    const updatedCard = {
+    const nextReviewTimestamp = Date.now() + newInterval * 24 * 60 * 60 * 1000;
+
+    const updatedCard: FlashCardRecord = {
       ...card,
-      easeFactor: newEaseFactor,
+      ease_factor: newEaseFactor,
       interval: newInterval,
       repetitions: card.repetitions + 1,
-      nextReview: new Date(Date.now() + newInterval * 24 * 60 * 60 * 1000),
+      next_review: nextReviewTimestamp,
     };
+
+    await upsertFlashcard(updatedCard);
+    
+    // Auto-schedule SRS reminder for this rule
+    notifyNow(
+      'Review Due!',
+      `You have a scheduled review for ${rule.name}.`,
+      { type: 'srs_reminder', ruleId: rule.id }
+    );
 
     const updatedCards = [...cards];
     updatedCards[currentCardIdx] = updatedCard;
@@ -117,7 +145,7 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
       setModal({
         visible: true,
         title: 'Review Complete',
-        description: `${cards.length} cards reviewed.`,
+        description: \`\${cards.length} cards reviewed.\`,
       });
     }
   };
@@ -176,40 +204,43 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
           </View>
 
           {/* Card List */}
-          {cards.length > 0 && (
-            <View style={styles.cardsList}>
+          <View style={styles.cardsList}>
               <Text style={[styles.cardsTitle, { color: t.ink }]}>
-                {cards.length} card{cards.length !== 1 ? 's' : ''}
+                {isLoading ? 'Loading...' : \`\${cards.length} card\${cards.length !== 1 ? 's' : ''}\`}
               </Text>
-              <FlatList
-                data={cards}
-                keyExtractor={item => item.id}
-                scrollEnabled={false}
-                renderItem={({ item }) => (
-                  <View style={[styles.cardPreview, {
-                    backgroundColor: color + '10',
-                    borderColor: color
-                  }]}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.cardPreviewFront, { color: t.ink }]}>
-                        Q: {item.front}
-                      </Text>
-                      <Text style={[styles.cardPreviewBack, { color: t.inkMid }]}>
-                        A: {item.back}
-                      </Text>
+              {isLoading ? (
+                <ActivityIndicator color={color} style={{ marginTop: 20 }} />
+              ) : (
+                <FlatList
+                  data={cards}
+                  keyExtractor={item => item.id}
+                  scrollEnabled={true}
+                  nestedScrollEnabled={true}
+                  renderItem={({ item }) => (
+                    <View style={[styles.cardPreview, {
+                      backgroundColor: color + '10',
+                      borderColor: color
+                    }]}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.cardPreviewFront, { color: t.ink }]}>
+                          Q: {item.front}
+                        </Text>
+                        <Text style={[styles.cardPreviewBack, { color: t.inkMid }]}>
+                          A: {item.back}
+                        </Text>
+                      </View>
+                      <Pressable onPress={() => handleRemoveCard(item.id)}>
+                        <Trash2 size={16} color={t.inkMid} />
+                      </Pressable>
                     </View>
-                    <Pressable onPress={() => handleRemoveCard(item.id)}>
-                      <Trash2 size={16} color={t.inkMid} />
-                    </Pressable>
-                  </View>
-                )}
-                style={styles.flatList}
-              />
-            </View>
-          )}
+                  )}
+                  style={styles.flatList}
+                />
+              )}
+          </View>
 
           {/* Start Review */}
-          {cards.length > 0 && (
+          {!isLoading && cards.length > 0 && (
             <Pressable
               onPress={handleStartReview}
               style={[styles.reviewBtn, { backgroundColor: color }]}
@@ -292,7 +323,7 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
               <Pressable
                 onPress={() => handleCardResponse(5)}
                 style={[styles.ratingBtn, {
-                  backgroundColor: `${color}15`,
+                  backgroundColor: \`\${color}15\`,
                   borderColor: color
                 }]}
               >
@@ -359,14 +390,16 @@ const styles = StyleSheet.create({
   },
   cardsList: {
     gap: 10,
-    flexGrow: 0,
-    maxHeight: 200,
+    flexGrow: 1,
+    maxHeight: 300,
   },
   cardsTitle: {
     fontSize: 13,
     fontWeight: '600',
   },
-  flatList: {},
+  flatList: {
+    flex: 1,
+  },
   cardPreview: {
     flexDirection: 'row',
     paddingHorizontal: 12,
@@ -375,6 +408,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 8,
     alignItems: 'center',
+    marginBottom: 8,
   },
   cardPreviewFront: {
     fontSize: 13,
@@ -466,4 +500,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   }
 });
-

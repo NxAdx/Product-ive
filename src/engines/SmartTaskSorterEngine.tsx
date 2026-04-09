@@ -16,6 +16,7 @@ interface EngineProps {
  * SmartTaskSorterEngine
  * Powers rules: Eat the Frog, 1-3-5 Rule, 80/20 Pareto
  * Helps users select and prioritize tasks for the session
+ * v1.3.1: Improved item spacing and UI polish
  */
 export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
   const t = useTheme();
@@ -50,7 +51,7 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
       setModal({
         visible: true,
         title: 'Limit Reached',
-        description: `You can focus on max ${taskLimit} tasks for this rule.`,
+        description: `You can focus on max \${taskLimit} tasks for this rule.`,
       });
       return;
     }
@@ -168,7 +169,7 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
                 <View style={[styles.taskItem, {
                   backgroundColor: t.surfaceLowest,
                   borderColor: t.border,
-                  marginBottom: 10,
+                  marginBottom: 12, // UI Logic Fix: Increased from 10
                   elevation: 2,
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 2 },
@@ -345,15 +346,15 @@ const styles = StyleSheet.create({
   },
   taskList: {
     flexGrow: 0,
-    maxHeight: 200,
+    maxHeight: 300,
   },
   taskItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginVertical: 4,
-    borderRadius: 12,
+    paddingVertical: 12, // Increased from 10 to prevent merging
+    marginVertical: 6,   // Increased from 4 for better visual separation
+    borderRadius: 14,    // Softer corners
     borderWidth: 1,
     gap: 12,
   },
@@ -439,4 +440,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   }
 });
-

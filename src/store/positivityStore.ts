@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setWidgetData } from 'expo-widgets';
 
 export interface ReflectionEntry {
   ruleId: string;
@@ -103,21 +104,27 @@ export const usePositivityStore = create<PositivityStore>()(
 
           if (isDifferentWeek(state.lastActiveDate, now)) {
             weeklyScore = 0;
-            weeklyStreak = 0;
-            todayRulesUsed = [];
-            // Reset metrics implicitly here on score add, but checkAndResetWeekly handles it explicitly
-          } else if (!isSameDay(state.lastActiveDate, now)) {
+            // Persistence Hardening: Don't reset streak to 0 on Mon if user was active on Sun
             todayRulesUsed = [];
           }
 
           if (!isSameDay(state.lastActiveDate, now)) {
-            weeklyStreak = isYesterday(state.lastActiveDate, now) ? state.weeklyStreak + 1 : 1;
+            // New Day! 
+            if (isYesterday(state.lastActiveDate, now)) {
+              weeklyStreak = state.weeklyStreak + 1;
+            } else if (state.lastActiveDate === '') {
+              weeklyStreak = 1;
+            } else {
+              // Streak broken!
+              weeklyStreak = 1;
+            }
+            todayRulesUsed = [];
           }
 
           const nextWeeklyScore = weeklyScore + amount;
           const nextLifetimeScore = state.lifetimeScore + amount;
 
-          return {
+          const result = {
             weeklyScore: nextWeeklyScore,
             lifetimeScore: nextLifetimeScore,
             weeklyStreak,
@@ -125,6 +132,15 @@ export const usePositivityStore = create<PositivityStore>()(
             lastActiveDate: now.toISOString(),
             todayRulesUsed,
           };
+
+          // Sync to Home Screen Widget
+          setWidgetData('ProductiveGlance', {
+            weeklyScore: result.weeklyScore,
+            weeklyStreak: result.weeklyStreak,
+            currentLevel: result.currentLevel,
+          });
+
+          return result;
         });
       },
 

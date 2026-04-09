@@ -15,6 +15,7 @@ import { RuleConfig } from '../data/rules';
 import { useSessionStore } from '../store/sessionStore';
 import { useTheme } from '../theme/ThemeContext';
 import { resolveRuleSessionSeconds } from '../utils/sessionTiming';
+import { insertSessionContent } from '../db/flashcardRepository';
 
 interface EngineProps {
   rule: RuleConfig;
@@ -84,8 +85,20 @@ export function FreeWriteRecallEngine({ rule, color }: EngineProps) {
     }
   };
 
-  const handleSessionEnd = () => {
+  const handleSessionEnd = async () => {
     if (isCurrentSession) {
+      // Logic Hardening: Save blurting content for later review
+      if (content.length > 10) {
+        // Use a stable ID for the session content link
+        const timestamp = Date.now();
+        const contentId = `${rule.id}_${timestamp}`;
+        
+        await insertSessionContent({
+          session_id: contentId,
+          content: content,
+          created_at: new Date().toISOString(),
+        });
+      }
       session.endSession();
     }
     setSessionStarted(false);

@@ -165,7 +165,7 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
           </View>
 
           <Pressable onPress={handleStart} style={[styles.startBtn, { backgroundColor: color }]}>
-            <ThemedText variant="h3" style={{ color: '#FFF', fontWeight: '800', fontSize: 16 }}>BEGIN RITUAL</ThemedText>
+            <ThemedText variant="h3" style={{ color: '#FFF', fontWeight: '800', fontSize: 14 }}>BEGIN RITUAL</ThemedText>
             <ArrowRight size={18} color="#FFF" strokeWidth={3} style={{ marginLeft: 12 }} />
           </Pressable>
         </View>
@@ -258,7 +258,7 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
             ]}
           >
             <CheckCircle size={20} color="#000" strokeWidth={2.5} />
-            <ThemedText variant="h3" style={{ color: '#000', fontWeight: '800', fontSize: 16 }}>Complete</ThemedText>
+            <ThemedText variant="h3" style={{ color: '#000', fontWeight: '800', fontSize: 14 }}>Complete</ThemedText>
           </Pressable>
         ) : (
           <Pressable
@@ -266,7 +266,7 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
             disabled={!isCurrentStepComplete}
             style={[styles.mainBtn, { backgroundColor: color, opacity: !isCurrentStepComplete ? 0.55 : 1 }]}
           >
-            <ThemedText variant="h3" style={{ color: '#000', fontWeight: '800', fontSize: 16 }}>Next</ThemedText>
+            <ThemedText variant="h3" style={{ color: '#000', fontWeight: '800', fontSize: 14 }}>Next</ThemedText>
             <ChevronRight size={20} color="#000" strokeWidth={2.5} />
           </Pressable>
         )}

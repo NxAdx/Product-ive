@@ -6,6 +6,29 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ---
 
+## [1.3.1] - 2026-04-09
+
+### Added
+- Home Screen Widget (Productive+ Glance):
+  - Weekly XP progress ring.
+  - Daily Consecutive Streak indicator.
+  - Real-time data sync via `setWidgetData`.
+- SQLite Persistence (v3 Hardening):
+  - `flashcards` table for persistent SRS state.
+  - `session_contents` table for "Blurting" session transcripts.
+- SM-2 Spaced Repetition engine with scheduled system-level review reminders.
+
+### Changed
+- Refactored `positivityStore` to support "Daily Consecutive" streaks instead of weekly resets.
+- Improved UI spacing in `SmartTaskSorterEngine` (1-3-5 Ritual) to prevent item merging.
+- Standardized font sizes across ritual action buttons for better visual balance.
+
+### Fixed
+- Fixed data loss issue in SRS and FreeWrite engines where cards/notes were lost on app restart.
+- Fixed oversized "BEGIN RITUAL" text in guided prompts.
+
+---
+
 ## [1.0.0] - 2026-04-08
 
 ### Added
