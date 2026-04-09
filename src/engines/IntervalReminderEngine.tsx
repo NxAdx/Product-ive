@@ -140,7 +140,7 @@ export function IntervalReminderEngine({ rule, color }: EngineProps) {
           ]}
         >
           <Text style={styles.btnText}>
-            {!isRunning ? 'Start' : session.pausedAt ? 'Resume' : 'Pause'}
+            {!isRunning ? 'BEGIN RITUAL' : session.pausedAt ? 'RESUME' : 'PAUSE'}
           </Text>
         </Pressable>
 

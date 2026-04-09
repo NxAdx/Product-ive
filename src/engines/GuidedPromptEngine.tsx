@@ -165,8 +165,8 @@ export function GuidedPromptEngine({ rule, color }: EngineProps) {
           </View>
 
           <Pressable onPress={handleStart} style={[styles.startBtn, { backgroundColor: color }]}>
-            <ThemedText variant="h3" style={{ color: '#FFF', fontWeight: '800' }}>Begin {rule.name}</ThemedText>
-            <ArrowRight size={20} color="#FFF" strokeWidth={3} style={{ marginLeft: 12 }} />
+            <ThemedText variant="h3" style={{ color: '#FFF', fontWeight: '800', fontSize: 16 }}>BEGIN RITUAL</ThemedText>
+            <ArrowRight size={18} color="#FFF" strokeWidth={3} style={{ marginLeft: 12 }} />
           </Pressable>
         </View>
       </View>

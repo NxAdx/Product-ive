@@ -21,7 +21,8 @@ import {
   type ActivityHistoryPoint,
 } from '../../src/db/sessionRepository';
 import { HistoryHeatmap } from '../../src/components/HistoryHeatmap';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 
 const LEVEL_STEPS = [0, 100, 250, 500, 1000];
 
@@ -51,41 +52,34 @@ export default function StatsScreen() {
   const [todayDelta, setTodayDelta] = useState(0);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadHistory = useCallback(async () => {
+    setLoadingHistory(true);
+    try {
+      const [sessions, delta, history, latestWellness, checkedIn] = await Promise.all([
+        getRecentSessions(6),
+        getTodayPointDelta(),
+        getActivityHistory(12),
+        getLatestWellbeingIndex(),
+        hasRecentlyCheckedIn(),
+      ]);
 
-    const loadHistory = async () => {
-      try {
-        const [sessions, delta, history, latestWellness, checkedIn] = await Promise.all([
-          getRecentSessions(6),
-          getTodayPointDelta(),
-          getActivityHistory(12),
-          getLatestWellbeingIndex(),
-          hasRecentlyCheckedIn(),
-        ]);
-
-        if (!cancelled) {
-          setRecentSessions(sessions);
-          setTodayDelta(delta);
-          setHeatmapData(history);
-          setWellnessIndex(latestWellness);
-          setCanCheckIn(!checkedIn);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingHistory(false);
-        }
-      }
-    };
-
-    loadHistory().catch(() => {
-      if (!cancelled) setLoadingHistory(false);
-    });
-
-    return () => {
-      cancelled = true;
-    };
+      setRecentSessions(sessions);
+      setTodayDelta(delta);
+      setHeatmapData(history);
+      setWellnessIndex(latestWellness);
+      setCanCheckIn(!checkedIn);
+    } catch (err) {
+      console.error('Stats reload failed:', err);
+    } finally {
+      setLoadingHistory(false);
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadHistory();
+    }, [loadHistory])
+  );
 
   // Calculate level progress (v4.0 Spec)
   getLevelProgress(positivity.weeklyScore);
@@ -323,16 +317,20 @@ export default function StatsScreen() {
               <ThemedText variant="caption" color={t.positivity} style={{ marginLeft: 'auto', fontWeight: '800' }}>UNLOCKED</ThemedText>
            </View>
            <View style={styles.pathLine} />
-           <View style={[styles.pathStep, { borderColor: t.warning }]}>
-              <Zap size={14} color={t.warning} />
-              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '600', color: t.text }}>Catalyst</ThemedText>
-              <ThemedText variant="caption" color={t.textSecondary} style={{ marginLeft: 'auto' }}>500 Pts</ThemedText>
+           <View style={[styles.pathStep, { borderColor: positivity.weeklyScore >= 500 ? t.warning : t.border, opacity: positivity.weeklyScore >= 500 ? 1 : 0.6 }]}>
+              <Zap size={14} color={positivity.weeklyScore >= 500 ? t.warning : t.textDisabled} />
+              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '600', color: positivity.weeklyScore >= 500 ? t.text : t.textSecondary }}>Catalyst</ThemedText>
+              <ThemedText variant="caption" color={positivity.weeklyScore >= 500 ? t.warning : t.textSecondary} style={{ marginLeft: 'auto', fontWeight: positivity.weeklyScore >= 500 ? '800' : '400' }}>
+                 {positivity.weeklyScore >= 500 ? 'UNLOCKED' : '500 Pts'}
+              </ThemedText>
            </View>
            <View style={styles.pathLine} />
-           <View style={[styles.pathStep, { borderColor: t.textDisabled, opacity: 0.7 }]}>
-              <Trophy size={14} color={t.textDisabled} />
-              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '600', color: t.textSecondary }}>Legend</ThemedText>
-              <ThemedText variant="caption" color={t.textDisabled} style={{ marginLeft: 'auto' }}>1000 Pts</ThemedText>
+           <View style={[styles.pathStep, { borderColor: positivity.weeklyScore >= 1000 ? t.positivity : t.border, opacity: positivity.weeklyScore >= 1000 ? 1 : 0.6 }]}>
+              <Trophy size={14} color={positivity.weeklyScore >= 1000 ? t.positivity : t.textDisabled} />
+              <ThemedText variant="body" style={{ marginLeft: 16, fontWeight: '600', color: positivity.weeklyScore >= 1000 ? t.text : t.textSecondary }}>Legend</ThemedText>
+              <ThemedText variant="caption" color={positivity.weeklyScore >= 1000 ? t.positivity : t.textSecondary} style={{ marginLeft: 'auto', fontWeight: positivity.weeklyScore >= 1000 ? '800' : '400' }}>
+                 {positivity.weeklyScore >= 1000 ? 'UNLOCKED' : '1000 Pts'}
+              </ThemedText>
            </View>
         </View>
 

@@ -166,8 +166,14 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
               scrollEnabled={false}
               renderItem={({ item, index }) => (
                 <View style={[styles.taskItem, {
-                  backgroundColor: t.isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
-                  borderColor: t.border
+                  backgroundColor: t.surfaceLowest,
+                  borderColor: t.border,
+                  marginBottom: 10,
+                  elevation: 2,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
                 }]}>
                   <Text style={[styles.taskNumber, { color }]}>
                     {index + 1}
@@ -191,7 +197,7 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
               style={[styles.startBtn, { backgroundColor: color }]}
             >
               <Zap size={20} color="#FFF" />
-              <Text style={styles.startBtnText}>Start Focus Session</Text>
+              <Text style={styles.startBtnText}>BEGIN RITUAL</Text>
             </Pressable>
           )}
         </View>

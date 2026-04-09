@@ -84,9 +84,12 @@ export function SessionStatusBadge() {
 
   const totalSessionSeconds = resolveRuleSessionSeconds(rule);
 
-  // v1.0.0 Fix: Count down when a rule has a known session duration
+  // v1.1.6 Fix: For interval rules, show time to next reminder rather than total duration
   let displaySeconds = elapsedSeconds;
-  if (totalSessionSeconds !== null) {
+  if (rule.engine === 'interval' && rule.engineConfig?.intervalMinutes) {
+    const intervalS = rule.engineConfig.intervalMinutes * 60;
+    displaySeconds = intervalS - (elapsedSeconds % intervalS);
+  } else if (totalSessionSeconds !== null) {
     displaySeconds = Math.max(0, totalSessionSeconds - elapsedSeconds);
   }
 
