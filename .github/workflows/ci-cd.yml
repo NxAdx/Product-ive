@@ -88,7 +88,7 @@ jobs:
         run: npx expo prebuild --platform android --non-interactive
 
       - name: 2.7.5 Decode Signing Keystore
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/v'))
         run: |
           if [ -n "${{ secrets.RELEASE_KEYSTORE }}" ]; then
             echo "${{ secrets.RELEASE_KEYSTORE }}" | base64 --decode > android/app/release.jks
@@ -113,17 +113,13 @@ jobs:
           MYAPP_RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
           chmod +x ./gradlew
-          # If keystore and secrets exist, sign properly. Otherwise, fall back to unsigned/debug for dev runs.
-          if [ -f "app/release.jks" ] && [ -n "$MYAPP_RELEASE_STORE_PASSWORD" ]; then
-            ./gradlew assembleRelease \
-              -Pandroid.injected.signing.store.file=release.jks \
-              -Pandroid.injected.signing.store.password=$MYAPP_RELEASE_STORE_PASSWORD \
-              -Pandroid.injected.signing.key.alias=$MYAPP_RELEASE_KEY_ALIAS \
-              -Pandroid.injected.signing.key.password=$MYAPP_RELEASE_KEY_PASSWORD \
-              --no-daemon --parallel --max-workers=2 --build-cache
-          else
-            ./gradlew assembleRelease --no-daemon --parallel --max-workers=2 --build-cache
-          fi
+          # Always pass signing properties; Gradle will handle fallback if properties are missing
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=$MYAPP_RELEASE_STORE_FILE \
+            -Pandroid.injected.signing.store.password=$MYAPP_RELEASE_STORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$MYAPP_RELEASE_KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$MYAPP_RELEASE_KEY_PASSWORD \
+            --no-daemon --parallel --max-workers=2 --build-cache
 
       - name: 2.10 Upload Artifact
         uses: actions/upload-artifact@v4
