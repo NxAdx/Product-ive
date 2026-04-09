@@ -129,6 +129,8 @@ export async function initializeNotifications(): Promise<void> {
   }
 }
 
+import { useSettingsStore } from '../store/settingsStore';
+
 /**
  * Fire an immediate local notification for active in-app events.
  */
@@ -140,13 +142,15 @@ export async function notifyNow(
   const Notifications = getNotifications();
   if (!Notifications) return;
 
+  const { hapticsEnabled } = useSettingsStore.getState();
+
   try {
     await Notifications.scheduleNotificationAsync({
       content: {
         title,
         body,
         data: data || {},
-        sound: true,
+        sound: hapticsEnabled,
       },
       trigger: null,
     });
@@ -162,9 +166,10 @@ export async function scheduleWellnessReminders(notifications: any[]): Promise<v
   const Notifications = getNotifications();
   if (!Notifications) return;
 
+  const { hapticsEnabled } = useSettingsStore.getState();
+
   try {
     // 1. Cancel all existing scheduled wellness notifications to avoid duplicates
-    // In a production app, we'd use specific IDs, but for simplicity we clear and reset
     await Notifications.cancelAllScheduledNotificationsAsync();
 
     for (const notification of notifications) {
@@ -179,7 +184,7 @@ export async function scheduleWellnessReminders(notifications: any[]): Promise<v
             title: label,
             body: description,
             data: { id, type: 'wellness' },
-            sound: true,
+            sound: hapticsEnabled,
           },
           trigger: {
             type: 'daily',
@@ -196,7 +201,7 @@ export async function scheduleWellnessReminders(notifications: any[]): Promise<v
             title: label,
             body: description,
             data: { id, type: 'wellness' },
-            sound: true,
+            sound: hapticsEnabled,
           },
           trigger: {
             type: 'timeInterval',

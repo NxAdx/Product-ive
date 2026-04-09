@@ -28,18 +28,7 @@ export interface PositivityStore {
   dismissRecommendation: (ruleId: string) => void;
 }
 
-const LEVELS = [
-  { min: 0, name: 'Getting Started' },
-  { min: 100, name: 'Building Momentum' },
-  { min: 250, name: 'In the Zone' },
-  { min: 500, name: 'Rule Master' },
-  { min: 1000, name: 'Productively Positive' },
-];
-
-const getLevel = (score: number) => {
-  const level = [...LEVELS].reverse().find((l) => score >= l.min);
-  return level ? level.name : LEVELS[0].name;
-};
+import { XP_LEVELS, getLevelName } from './constants';
 
 const startOfWeekMonday = (d: Date) => {
   const date = new Date(d);
@@ -132,7 +121,7 @@ export const usePositivityStore = create<PositivityStore>()(
             weeklyScore: nextWeeklyScore,
             lifetimeScore: nextLifetimeScore,
             weeklyStreak,
-            currentLevel: getLevel(nextWeeklyScore),
+            currentLevel: getLevelName(nextWeeklyScore),
             lastActiveDate: now.toISOString(),
             todayRulesUsed,
           };

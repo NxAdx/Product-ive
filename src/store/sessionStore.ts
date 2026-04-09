@@ -33,6 +33,9 @@ interface SessionState {
   setPhase: (phase: SessionPhase) => void;
 }
 
+import { SESSION_THRESHOLDS } from '../data/constants';
+import { resolveRuleSessionSeconds } from '../utils/sessionTiming';
+
 export const useSessionStore = create<SessionState>((set, get) => ({
   activeRuleId: null,
   phase: 'idle',
@@ -111,22 +114,33 @@ export const useSessionStore = create<SessionState>((set, get) => ({
           sessionDuration = Math.max(0, Math.floor((completedAt - state.startTime) / 1000));
         }
 
+        const targetSeconds = resolveRuleSessionSeconds(rule) || 0;
+        const minRequiredSeconds = targetSeconds * SESSION_THRESHOLDS.MIN_PERCENTAGE_FOR_XP;
+        const isLegitSession = sessionDuration >= minRequiredSeconds || targetSeconds === 0;
+
+        const pointsToAward = isLegitSession ? rule.pointsPerSession : 0;
+
         const positivity = usePositivityStore.getState();
         positivity.checkAndResetWeekly();
         positivity.addSessionMetric(sessionDuration);
-        positivity.addPoints(rule.pointsPerSession, 'session_complete', activeRuleId);
+        
+        if (pointsToAward > 0) {
+          positivity.addPoints(pointsToAward, 'session_complete', activeRuleId);
+        }
+
         const isFirstTimeRule = positivity.markRuleUsed(activeRuleId);
         let discoveryPoints = 0;
-        if (isFirstTimeRule) {
+        if (isFirstTimeRule && isLegitSession) {
           discoveryPoints = rule.discoveryBonus;
           positivity.addPoints(rule.discoveryBonus, 'rule_discovery', activeRuleId);
         }
+        
         if (typeof options?.reflectionScore === 'number') {
           positivity.addReflectionScore(activeRuleId, options.reflectionScore);
         }
 
         const sessionId = `${activeRuleId}_${completedAt}`;
-        const totalPoints = rule.pointsPerSession + discoveryPoints;
+        const totalPoints = pointsToAward + discoveryPoints;
         insertSessionRecord({
           id: sessionId,
           ruleId: activeRuleId,

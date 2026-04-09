@@ -24,7 +24,9 @@ import { HistoryHeatmap } from '../../src/components/HistoryHeatmap';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 
-const LEVEL_STEPS = [0, 100, 250, 500, 1000];
+import { XP_THRESHOLDS } from '../../src/data/constants';
+
+const LEVEL_STEPS = [0, 100, 250, XP_THRESHOLDS.CATALYST, XP_THRESHOLDS.LEGEND];
 
 function getLevelProgress(score: number) {
   const currentStart = [...LEVEL_STEPS].reverse().find((v) => score >= v) ?? 0;
@@ -83,7 +85,7 @@ export default function StatsScreen() {
 
   // Calculate level progress (v4.0 Spec)
   getLevelProgress(positivity.weeklyScore);
-  const displayProgress = Math.min(positivity.weeklyScore / 500, 1); // v4.5 Catalyst Goal
+  const displayProgress = Math.min(positivity.weeklyScore / XP_THRESHOLDS.CATALYST, 1);
   const radius = 80;
   const stroke = 12;
   const circumference = 2 * Math.PI * radius;
@@ -156,7 +158,7 @@ export default function StatsScreen() {
              </ThemedText>
           </View>
           <ThemedText variant="caption" color={t.textDisabled} style={{ marginTop: 12 }}>
-            {500 - positivity.weeklyScore > 0 ? `${500 - positivity.weeklyScore} pts until Catalyst` : 'Catalyst Achievement Unlocked'}
+            {XP_THRESHOLDS.CATALYST - positivity.weeklyScore > 0 ? `${XP_THRESHOLDS.CATALYST - positivity.weeklyScore} pts until Catalyst` : 'Catalyst Achievement Unlocked'}
           </ThemedText>
           
           {/* Daily Delta (v7.0 Retention Engine) */}
