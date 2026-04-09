@@ -183,10 +183,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   timeText: {
-    fontSize: 56,
+    fontSize: 48,
     fontWeight: '700',
     fontFamily: 'JetBrainsMono_700Bold',
-    lineHeight: 64,
+    lineHeight: 56,
   },
   label: {
     fontSize: 14,

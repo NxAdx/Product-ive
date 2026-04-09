@@ -215,7 +215,7 @@ export function SmartTaskSorterEngine({ rule, color }: EngineProps) {
           borderColor: color + '40'
         }]}>
           <Text style={[styles.progressTitle, { color: t.ink }]}>
-            Let&apos;s focus on {taskLimit} task{taskLimit > 1 ? 's' : ''}
+            Let&apos;s focus on {sessionTasks.length} task{sessionTasks.length !== 1 ? 's' : ''}
           </Text>
           <Text style={[styles.progressSub, { color: t.inkMid }]}>
             {completedCount} / {sessionTasks.length} completed

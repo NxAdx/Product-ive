@@ -250,12 +250,12 @@ export default function StatsScreen() {
             <View style={styles.summaryContent}>
               <View style={styles.summaryItem}>
                 <ThemedText variant="label" color={t.textDisabled}>Focus Sessions</ThemedText>
-                <ThemedText variant="h3" style={{ fontSize: 18 }}>{positivity.weeklySessionsCompleted} this week</ThemedText>
+                <ThemedText variant="h2" style={{ fontSize: 22, marginTop: 4 }}>{positivity.weeklySessionsCompleted}</ThemedText>
               </View>
               <View style={[styles.divider, { backgroundColor: t.border }]} />
               <View style={styles.summaryItem}>
                 <ThemedText variant="label" color={t.textDisabled}>Focus Time</ThemedText>
-                <ThemedText variant="h3" style={{ fontSize: 18 }}>{(positivity.weeklyFocusTimeSeconds / 3600).toFixed(1)} hrs</ThemedText>
+                <ThemedText variant="h2" style={{ fontSize: 22, marginTop: 4 }}>{(positivity.weeklyFocusTimeSeconds / 3600).toFixed(1)} hrs</ThemedText>
               </View>
             </View>
           </BentoCard>
