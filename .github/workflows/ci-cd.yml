@@ -3,6 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [main, develop]
+    tags: ['v*']
     paths-ignore: [ 'docs/**', '.agents/**', 'ss/**' ]
   pull_request:
     branches: [main, develop]
@@ -46,7 +47,7 @@ jobs:
   build-android:
     name: 2. Build Android APK
     needs: lint-typecheck-test
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/tags/v')) && github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -75,7 +76,6 @@ jobs:
           eas-cache: true
           token: ${{ secrets.EXPO_TOKEN || '' }}
 
-      # Cache the prebuild output — skip expensive prebuild when app.json/package.json haven't changed
       - name: 2.6 Cache Prebuild
         id: prebuild-cache
         uses: actions/cache@v4
@@ -93,7 +93,6 @@ jobs:
             keytool -genkey -v -keystore android/app/debug.keystore -alias androiddebugkey -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           fi
 
-      # Cache Gradle build outputs for faster recompilation
       - name: 2.8 Cache Gradle
         uses: actions/cache@v4
         with:
@@ -120,3 +119,29 @@ jobs:
           name: productive-release-apk
           path: android/app/build/outputs/apk/release/
           retention-days: 14
+
+  create-release:
+    name: 3. Create GitHub Release
+    needs: build-android
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 3.1 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 3.2 Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: productive-release-apk
+          path: release-assets
+
+      - name: 3.3 Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/**/*.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
