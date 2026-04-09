@@ -57,36 +57,49 @@ export function HistoryHeatmap({ data }: HeatmapProps) {
     ? Math.floor((containerWidth - (WEEKS * gap)) / WEEKS) 
     : 20;
 
+  const actualGridWidth = (cellSize + gap) * WEEKS - gap;
+
   return (
     <View 
       style={styles.container} 
       onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
     >
-      <View style={[styles.grid, { height: (cellSize + gap) * DAYS_PER_WEEK }]}>
-        {grid.map((cell) => (
-          <View 
-            key={cell.id} 
-            style={[
-              styles.cell, 
-              { 
-                width: cellSize,
-                height: cellSize,
-                backgroundColor: getColor(cell.level),
-                borderColor: t.isDark ? '#000' : '#fff'
-              }
-            ]} 
-          />
-        ))}
+      <View style={styles.gridWrapper}>
+        <View style={[
+          styles.grid, 
+          { 
+            height: (cellSize + gap) * DAYS_PER_WEEK - gap,
+            width: actualGridWidth
+          }
+        ]}>
+          {grid.map((cell) => (
+            <View 
+              key={cell.id} 
+              style={[
+                styles.cell, 
+                { 
+                  width: cellSize,
+                  height: cellSize,
+                  backgroundColor: getColor(cell.level),
+                  borderColor: t.isDark ? '#000' : '#fff'
+                }
+              ]} 
+            />
+          ))}
+        </View>
       </View>
-      <View style={styles.footer}>
-        <ThemedText variant="caption" color={t.textSecondary}>Last 12 Weeks</ThemedText>
-        <View style={styles.legend}>
-          <ThemedText variant="caption" color={t.textSecondary} style={{ marginRight: 4 }}>Less</ThemedText>
-          <View style={[styles.cellSmall, { backgroundColor: getColor(0) }]} />
-          <View style={[styles.cellSmall, { backgroundColor: getColor(1) }]} />
-          <View style={[styles.cellSmall, { backgroundColor: getColor(2) }]} />
-          <View style={[styles.cellSmall, { backgroundColor: getColor(3) }]} />
-          <ThemedText variant="caption" color={t.textSecondary} style={{ marginLeft: 4 }}>More</ThemedText>
+      
+      <View style={styles.footerWrapper}>
+        <View style={[styles.footer, { width: actualGridWidth }]}>
+          <ThemedText variant="caption" color={t.textSecondary}>Last 12 Weeks</ThemedText>
+          <View style={styles.legend}>
+            <ThemedText variant="caption" color={t.textSecondary} style={{ marginRight: 4 }}>Less</ThemedText>
+            <View style={[styles.cellSmall, { backgroundColor: getColor(0) }]} />
+            <View style={[styles.cellSmall, { backgroundColor: getColor(1) }]} />
+            <View style={[styles.cellSmall, { backgroundColor: getColor(2) }]} />
+            <View style={[styles.cellSmall, { backgroundColor: getColor(3) }]} />
+            <ThemedText variant="caption" color={t.textSecondary} style={{ marginLeft: 4 }}>More</ThemedText>
+          </View>
         </View>
       </View>
     </View>
@@ -96,6 +109,10 @@ export function HistoryHeatmap({ data }: HeatmapProps) {
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 8,
+    width: '100%',
+  },
+  gridWrapper: {
+    alignItems: 'center',
     width: '100%',
   },
   grid: {
@@ -112,6 +129,10 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 1,
     marginHorizontal: 1,
+  },
+  footerWrapper: {
+    alignItems: 'center',
+    width: '100%',
   },
   footer: {
     flexDirection: 'row',
