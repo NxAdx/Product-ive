@@ -145,7 +145,7 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
       setModal({
         visible: true,
         title: 'Review Complete',
-        description: \`\${cards.length} cards reviewed.\`,
+        description: `${cards.length} cards reviewed.`,
       });
     }
   };
@@ -206,7 +206,7 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
           {/* Card List */}
           <View style={styles.cardsList}>
               <Text style={[styles.cardsTitle, { color: t.ink }]}>
-                {isLoading ? 'Loading...' : \`\${cards.length} card\${cards.length !== 1 ? 's' : ''}\`}
+                {isLoading ? 'Loading...' : `${cards.length} card${cards.length !== 1 ? 's' : ''}`}
               </Text>
               {isLoading ? (
                 <ActivityIndicator color={color} style={{ marginTop: 20 }} />
@@ -323,7 +323,7 @@ export function SpacedRepetitionEngine({ rule, color }: EngineProps) {
               <Pressable
                 onPress={() => handleCardResponse(5)}
                 style={[styles.ratingBtn, {
-                  backgroundColor: \`\${color}15\`,
+                  backgroundColor: `${color}15`,
                   borderColor: color
                 }]}
               >

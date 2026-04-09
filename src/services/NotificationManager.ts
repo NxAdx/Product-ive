@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { logRuntimeEvent } from '../utils/runtimeLogs';
+import { useSettingsStore } from '../store/settingsStore';
 
 /**
  * NotificationManager - Handles all notification permissions and setup
@@ -129,7 +130,6 @@ export async function initializeNotifications(): Promise<void> {
   }
 }
 
-import { useSettingsStore } from '../store/settingsStore';
 
 /**
  * Fire an immediate local notification for active in-app events.

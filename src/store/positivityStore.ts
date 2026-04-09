@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setWidgetData } from 'expo-widgets';
+import { ProductiveGlance } from '../widgets/ProductiveGlance';
+import { XP_LEVELS, getLevelName } from '../data/constants';
 
 export interface ReflectionEntry {
   ruleId: string;
@@ -28,8 +29,6 @@ export interface PositivityStore {
   checkAndResetWeekly: () => void;
   dismissRecommendation: (ruleId: string) => void;
 }
-
-import { XP_LEVELS, getLevelName } from './constants';
 
 const startOfWeekMonday = (d: Date) => {
   const date = new Date(d);
@@ -134,7 +133,7 @@ export const usePositivityStore = create<PositivityStore>()(
           };
 
           // Sync to Home Screen Widget
-          setWidgetData('ProductiveGlance', {
+          ProductiveGlance.updateSnapshot({
             weeklyScore: result.weeklyScore,
             weeklyStreak: result.weeklyStreak,
             currentLevel: result.currentLevel,

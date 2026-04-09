@@ -202,7 +202,7 @@ export default function StatsScreen() {
                 )}
               </View>
               <Pressable
-                onPress={() => router.push('/wellbeing')}
+                onPress={() => router.push('/wellbeing' as any)}
                 disabled={!canCheckIn}
                 style={[
                   styles.checkInBtn, 

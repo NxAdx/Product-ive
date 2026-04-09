@@ -33,8 +33,8 @@ export async function getFlashcardsByRule(ruleId: string): Promise<FlashCardReco
 export async function upsertFlashcard(card: FlashCardRecord): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(
-    \`INSERT OR REPLACE INTO flashcards (id, rule_id, front, back, ease_factor, interval, repetitions, next_review, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)\`,
+    `INSERT OR REPLACE INTO flashcards (id, rule_id, front, back, ease_factor, interval, repetitions, next_review, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [card.id, card.rule_id, card.front, card.back, card.ease_factor, card.interval, card.repetitions, card.next_review, card.created_at]
   );
 }
