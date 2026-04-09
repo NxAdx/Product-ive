@@ -4,17 +4,27 @@ import { useSettingsStore } from '../store/settingsStore';
 
 const NOTIFICATION_ID = 'pomodoro_timer_foreground';
 const CHANNEL_ID = 'active_session_timers';
+const SILENT_CHANNEL_ID = 'active_session_timers_silent';
 
 /**
- * Ensures the Android Notification Channel exists
+ * Ensures the Android Notification Channel exists based on haptics setting
  */
-async function ensureChannel() {
-  await notifee.createChannel({
-    id: CHANNEL_ID,
-    name: 'Active Session Timers',
-    importance: AndroidImportance.HIGH,
-    vibration: true,
-  });
+async function ensureChannel(hapticsEnabled: boolean) {
+  if (hapticsEnabled) {
+    await notifee.createChannel({
+      id: CHANNEL_ID,
+      name: 'Active Session (Vibrate)',
+      importance: AndroidImportance.HIGH,
+      vibration: true,
+    });
+  } else {
+    await notifee.createChannel({
+      id: SILENT_CHANNEL_ID,
+      name: 'Active Session (Silent)',
+      importance: AndroidImportance.DEFAULT,
+      vibration: false,
+    });
+  }
 }
 
 let activeTimer: ReturnType<typeof setTimeout> | null = null;
@@ -55,13 +65,13 @@ function scheduleCompletionTimer(remainingMs: number) {
   }, remainingMs);
 }
 
-async function showRunningNotification(title: string, deadlineAtMs: number) {
+async function showRunningNotification(title: string, deadlineAtMs: number, hapticsEnabled: boolean) {
   await notifee.displayNotification({
     id: NOTIFICATION_ID,
     title,
     body: 'Time remaining...',
     android: {
-      channelId: CHANNEL_ID,
+      channelId: hapticsEnabled ? CHANNEL_ID : SILENT_CHANNEL_ID,
       asForegroundService: true,
       color: AndroidColor.GREEN,
       chronometerDirection: 'down',
@@ -79,13 +89,13 @@ async function showRunningNotification(title: string, deadlineAtMs: number) {
   });
 }
 
-async function showPausedNotification(title: string, remainingMs: number) {
+async function showPausedNotification(title: string, remainingMs: number, hapticsEnabled: boolean) {
   await notifee.displayNotification({
     id: NOTIFICATION_ID,
     title,
     body: `Paused - ${formatRemaining(remainingMs)} remaining`,
     android: {
-      channelId: CHANNEL_ID,
+      channelId: hapticsEnabled ? CHANNEL_ID : SILENT_CHANNEL_ID,
       asForegroundService: true,
       color: AndroidColor.GREEN,
       showChronometer: false,
@@ -109,14 +119,13 @@ interface StartTimerOptions {
 
 /**
  * Starts a foreground service that displays a ticking chronometer.
- * Automatically vibrates at the expected payload end manually using headless background task if needed,
- * but primarily we schedule an exact notification or rely on state.
  */
 export async function startForegroundTimer(options: StartTimerOptions) {
   const { durationMs, title = 'Deep Focus', deadlineAtMs } = options;
   clearCompletionTimer();
 
-  await ensureChannel();
+  const { hapticsEnabled } = useSettingsStore.getState();
+  await ensureChannel(hapticsEnabled);
 
   const safeDurationMs = Math.max(1000, Math.floor(durationMs));
 
@@ -127,8 +136,7 @@ export async function startForegroundTimer(options: StartTimerOptions) {
     deadlineAtMs,
   };
 
-  await showRunningNotification(title, deadlineAtMs);
-  // Background JS task is kept awake via _layout.tsx notifee.registerForegroundService hook.
+  await showRunningNotification(title, deadlineAtMs, hapticsEnabled);
   scheduleCompletionTimer(safeDurationMs);
 }
 
@@ -146,8 +154,9 @@ export async function pauseForegroundTimer(): Promise<void> {
     deadlineAtMs: null,
   };
 
-  await ensureChannel();
-  await showPausedNotification(timerState.title, remainingMs);
+  const { hapticsEnabled } = useSettingsStore.getState();
+  await ensureChannel(hapticsEnabled);
+  await showPausedNotification(timerState.title, remainingMs, hapticsEnabled);
 }
 
 export async function resumeForegroundTimer(deadlineAtMs: number): Promise<void> {
@@ -166,8 +175,9 @@ export async function resumeForegroundTimer(deadlineAtMs: number): Promise<void>
     deadlineAtMs,
   };
 
-  await ensureChannel();
-  await showRunningNotification(timerState.title, deadlineAtMs);
+  const { hapticsEnabled } = useSettingsStore.getState();
+  await ensureChannel(hapticsEnabled);
+  await showRunningNotification(timerState.title, deadlineAtMs, hapticsEnabled);
   scheduleCompletionTimer(remainingMs);
 }
 
@@ -177,27 +187,26 @@ export async function resumeForegroundTimer(deadlineAtMs: number): Promise<void>
 export async function stopForegroundTimer(completed: boolean = false) {
   clearCompletionTimer();
   timerState = null;
-  // If the timer completed organically, vibrate!
+  const { hapticsEnabled } = useSettingsStore.getState();
+
   if (completed) {
-    const { hapticsEnabled } = useSettingsStore.getState();
     if (hapticsEnabled) {
-      Vibration.vibrate([0, 500, 200, 500, 200, 1000]); // Heavy vibration pattern
+      Vibration.vibrate([0, 500, 200, 500, 200, 1000]);
     }
     
-    await ensureChannel();
+    await ensureChannel(hapticsEnabled);
     await notifee.displayNotification({
       id: `${NOTIFICATION_ID}_complete`,
       title: 'Session Complete!',
       body: 'Excellent focus. Take a short break.',
       android: {
-        channelId: CHANNEL_ID,
+        channelId: hapticsEnabled ? CHANNEL_ID : SILENT_CHANNEL_ID,
         color: AndroidColor.GREEN,
-        importance: AndroidImportance.HIGH,
+        importance: hapticsEnabled ? AndroidImportance.HIGH : AndroidImportance.DEFAULT,
       },
     });
   }
 
-  // Remove the active foreground sticky notification
   await notifee.stopForegroundService();
   await notifee.cancelNotification(NOTIFICATION_ID);
 }

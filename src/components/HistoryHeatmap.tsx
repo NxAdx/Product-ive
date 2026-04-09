@@ -18,15 +18,14 @@ const TOTAL_DAYS = WEEKS * DAYS_PER_WEEK;
 
 export function HistoryHeatmap({ data }: HeatmapProps) {
   const t = useTheme();
+  const [containerWidth, setContainerWidth] = React.useState(0);
 
   const grid = useMemo(() => {
     const cells = [];
     const now = new Date();
-    // Start from the beginning of the week 12 weeks ago
     const start = new Date(now);
     start.setDate(now.getDate() - TOTAL_DAYS + 1);
     
-    // Normalize date lookup
     const dataMap = new Map(data.map(d => [d.date, d.count]));
 
     for (let i = 0; i < TOTAL_DAYS; i++) {
@@ -46,22 +45,32 @@ export function HistoryHeatmap({ data }: HeatmapProps) {
 
   const getColor = (level: number) => {
     switch (level) {
-      case 3: return t.positivity; // High activity
+      case 3: return t.positivity;
       case 2: return t.isDark ? 'rgba(0, 255, 127, 0.6)' : 'rgba(0, 200, 100, 0.6)';
       case 1: return t.isDark ? 'rgba(0, 255, 127, 0.2)' : 'rgba(0, 200, 100, 0.2)';
-      default: return t.isDark ? '#111' : '#f0f0f0'; // Zero activity
+      default: return t.isDark ? '#111' : '#f0f0f0';
     }
   };
 
+  const gap = 3;
+  const cellSize = containerWidth > 0 
+    ? Math.floor((containerWidth - (WEEKS * gap)) / WEEKS) 
+    : 20;
+
   return (
-    <View style={styles.container}>
-      <View style={styles.grid}>
+    <View 
+      style={styles.container} 
+      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+    >
+      <View style={[styles.grid, { height: (cellSize + gap) * DAYS_PER_WEEK }]}>
         {grid.map((cell) => (
           <View 
             key={cell.id} 
             style={[
               styles.cell, 
               { 
+                width: cellSize,
+                height: cellSize,
                 backgroundColor: getColor(cell.level),
                 borderColor: t.isDark ? '#000' : '#fff'
               }
@@ -84,24 +93,17 @@ export function HistoryHeatmap({ data }: HeatmapProps) {
   );
 }
 
-const screenWidth = Dimensions.get('window').width;
-const padding = 40;
-const gap = 3;
-const cellSize = Math.floor((screenWidth - padding - (WEEKS * gap)) / WEEKS);
-
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 8,
+    width: '100%',
   },
   grid: {
     flexDirection: 'column',
     flexWrap: 'wrap',
-    height: (cellSize + gap) * DAYS_PER_WEEK,
-    gap: gap,
+    gap: 3,
   },
   cell: {
-    width: cellSize,
-    height: cellSize,
     borderRadius: 2,
     borderWidth: 0.5,
   },
@@ -115,7 +117,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 12,
   },
   legend: {
     flexDirection: 'row',

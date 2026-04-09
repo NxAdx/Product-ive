@@ -10,6 +10,9 @@ docs/
 .agent/
 ss/
 skills-lock.json
+IMPLEMENTATION_SUMMARY.md
+DELIVERY_SUMMARY.md
+RELEASE_PACKAGE.md
 
 # ----- Dependencies -----
 node_modules/
