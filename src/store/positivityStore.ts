@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ProductiveGlance } from '../widgets/ProductiveGlance';
+import { Platform } from 'react-native';
 import { getLevelName } from '../data/constants';
 
 export interface ReflectionEntry {
@@ -59,6 +59,21 @@ const isSameDay = (lastDateStr: string, now: Date) => {
   if (!lastDateStr) return false;
   return new Date(lastDateStr).toDateString() === now.toDateString();
 };
+
+function syncHomeWidgetSnapshot(payload: { weeklyScore: number; weeklyStreak: number; currentLevel: string }) {
+  // Guard iOS-only widget runtime modules from being evaluated on Android startup.
+  if (Platform.OS !== 'ios') return;
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { ProductiveGlance } = require('../widgets/ProductiveGlance') as {
+      ProductiveGlance?: { updateSnapshot?: (data: typeof payload) => void };
+    };
+    ProductiveGlance?.updateSnapshot?.(payload);
+  } catch (error) {
+    console.warn('Widget snapshot sync skipped:', error);
+  }
+}
 
 export const usePositivityStore = create<PositivityStore>()(
   persist(
@@ -129,8 +144,8 @@ export const usePositivityStore = create<PositivityStore>()(
             todayRulesUsed,
           };
 
-          // Sync to Home Screen Widget
-          ProductiveGlance.updateSnapshot({
+          // Sync to Home Screen Widget (safe no-op on Android)
+          syncHomeWidgetSnapshot({
             weeklyScore: result.weeklyScore,
             weeklyStreak: result.weeklyStreak,
             currentLevel: result.currentLevel,

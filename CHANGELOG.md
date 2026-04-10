@@ -36,6 +36,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Fixed
 - Fixed critical "Unsigned APK" issue where the build would fallback to unsigned in CI.
+- Fixed Android startup crash caused by eager import of iOS widget runtime modules in `positivityStore`.
+- Added platform-safe widget sync guard so Android no longer evaluates `expo-widgets` / `@expo/ui/swift-ui` on app boot.
 - Fixed data loss issue in SRS and FreeWrite engines where cards/notes were lost on app restart.
 - Fixed oversized "BEGIN RITUAL" text in guided prompts.
 - Resolved severe source code regressions and non-ASCII character corruption in core engines.
