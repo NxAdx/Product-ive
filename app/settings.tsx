@@ -23,13 +23,11 @@ import { tokens } from '../src/theme/tokens';
 import { AppModal } from '../src/components/AppModal';
 
 const CURRENT_VERSION_CHANGES = [
-  'Native background timer — sessions keep ticking in your notification bar even when minimized.',
-  '20 scientifically-backed rules across Focus, Learning, Productivity & Wellness.',
-  'Gamified positivity system with scores, streaks, levels & post-session reflection.',
-  'In-app updater — download and install new versions directly from within the app.',
-  'SQLite-backed session history visible on the Stats screen.',
-  'System theme follow mode + manual dark/light override.',
-  'Bug report export and wellness reminder controls in Settings.',
+  'Spaced Repetition System (SRS) — Integrated SM-2 algorithm for optimized learning intervals.',
+  'Active Recall Engine — Dedicated review sessions with difficulty grading for mental retention.',
+  'Home Screen Widgets — Real-time XP and Streak tracking via premium Swift-UI Glance widgets.',
+  'SQLite V3 Persistence — Durable storage for flashcards and session transcripts to prevent data loss.',
+  'CI/CD Signing Hardening — Fully stabilized and signed production build pipeline.',
 ];
 
 function WellnessNotificationsSection({ permGranted, onFixPermissions }: { permGranted: boolean; onFixPermissions: () => void }) {
@@ -689,7 +687,7 @@ export default function SettingsScreen() {
             VERSION {currentVersion}
           </ThemedText>
           <ThemedText variant="caption" color={t.textDisabled} align="center" style={{ marginTop: 4, letterSpacing: 1 }}>
-              PRISTINE PRECISION • v1.0.0
+              PRISTINE PRECISION • v1.3.1
           </ThemedText>
         </View>
       </ScrollView>
