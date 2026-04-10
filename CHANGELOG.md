@@ -6,6 +6,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ---
 
+## [Unreleased]
+
+### 🛡 Security Hardening
+- **Repository Purge**: Removed and untracked `docs/` folder from the remote repository to protect sensitive internal documentation.
+- **Agent Governance**: Enforced a strict **Local-Only** directive for `docs/`, `.agents/`, and `ss/` paths. Force-adding ignored paths is now strictly forbidden in the project core.
+
+---
+
 ## [1.3.1] - 2026-04-10
 
 ### Added
