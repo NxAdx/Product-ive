@@ -1,90 +1,48 @@
 # Product +ive - Agent Handoff Context
 
 > Last Updated: 2026-04-10 (IST)
-> Updated By: Antigravity (consolidated from Codex + Antigravity sessions)
+> Updated By: Antigravity
 
 ## 1) Current Snapshot
 
 - Branch: `main`
-- Version: `1.0.0`
-- Phase state: All 8 phases (0–8) COMPLETE. No blocking gaps remain.
+- Version: `1.3.1`
+- Phase state: Stable Release (SRS & Widget Edition).
 - Working tree: clean
 - **docs/ is gitignored** — use `git add -f docs/` to commit doc changes.
 
 ## 2) Completed Across All Sessions
 
-### A) Timer architecture (Antigravity + Codex)
-
+### A) Timer & Release (v1.0.0-v1.1.1)
 - Shared session duration resolver: `src/utils/sessionTiming.ts`
-  - Reads `workDuration` (seconds), `sessionDuration`, `duration`, `timerMinutes`, `intervalMinutes` from `engineConfig`
-  - Falls back to 25 min for countdown, 20 min for interval engines
-- `sessionStore.startSession()` uses `resolveForegroundDurationMs()` for foreground timer startup
-- `CountdownEngine` and `FreeWriteRecallEngine` use absolute elapsed-time math (no local decrement drift)
-- `SessionStatusBadge` uses `resolveRuleSessionSeconds()` for countdown display
-- **Headless JS retention**: `notifee.registerForegroundService()` registered at top-level in `app/_layout.tsx` to keep JS thread alive during background. This prevents negative chronometer drift (`-00:22` bug).
-- Foreground timer supports full pause/resume/stop lifecycle with state tracking
-- "Finish Session" notification action handled in both foreground and background app states
+- Headless JS retention: `notifee.registerForegroundService()` registered in `app/_layout.tsx`.
+- Native Android updater: `ApkInstallerModule.kt` for direct APK installation from GitHub releases.
+- ABI-split releases: ~45 MB per APK (arm64/v7a).
 
-### B) Persistence + Stats (Codex + Antigravity)
+### B) Spaced Repetition System (SRS) (v1.3.1)
+- **Engine**: `src/engines/SpacedRepetitionEngine.tsx` implementing SM-2 algorithm.
+- **Persistence**: `src/db/flashcardRepository.ts` for SQLite V3 state.
+- **Reminders**: Integrated with `expo-notifications` for scheduled review cues.
+- **Safety**: Robust error handling for corrupted non-ASCII characters in SRS transcripts.
 
-- SQLite bootstrap + migration: `src/db/database.native.ts`
-- Web-safe adapter: `src/db/database.web.ts`
-- Repository: `src/db/sessionRepository.ts`
-  - `insertSessionRecord()`, `insertPointEvents()`
-  - `getRecentSessions(limit)`, `getTodayPointDelta()`
-- `app/(tabs)/stats.tsx` consumes real SQLite session history and daily point delta.
-- **Per-Rule History**: `app/rule/[id].tsx` now shows a "Recent Sessions" card specific to the rule.
+### C) Home Screen Widgets (v1.3.1)
+- **Technology**: Built with `@expo/ui/swift-ui` and `expo-widgets`.
+- **Primary Widget**: `ProductiveGlance.tsx` showing Weekly XP and Streak.
+- **Sync Logic**: `positivityStore` triggers `updateSnapshot` on any point gain or streak increment.
+- **Constraints**: DSL requires strict `modifiers` array pattern for production consistency.
 
-### C) Native updater (Codex + Antigravity)
-
-- Kotlin PackageInstaller bridge:
-  - `android/.../ApkInstallerModule.kt` — `installApk()`, `canRequestPackageInstalls()`, `openInstallUnknownAppsSettings()`
-  - `android/.../ApkInstallerPackage.kt` — ReactPackage registration
-  - `android/.../PackageInstallerStatusReceiver.kt` — install status BroadcastReceiver
-- Registered in `MainApplication.kt`, permissions in `AndroidManifest.xml`
-- `UpdateManager.ts` checks GitHub releases, downloads APK, uses native install first, falls back to share intent.
-- **Auto-check toggle**: Added toggle in Settings to control automatic update checks.
-- **Deferred Install**: Warning modal added if user tries to install while a session is active.
-- **Note**: No tagged GitHub release exists yet — updater will report "no update" until `v1.0.0` release is created with APK asset.
-
-### D) UX polish (Codex + Antigravity)
-
-- System theme follow mode + manual override in `ThemeContext.tsx`
-- Background reliability controls in settings (notification, battery, power)
-- All native `Alert.alert` replaced with themed `AppModal`
-- `GuidedPromptEngine` blocks empty input advancement
-- Updated settings changelog to reflect actual v1.0.0 features.
-
-### E) Build & CI/CD stabilization (Codex + Antigravity)
-
-- ABI-split release packaging: ~45 MB per APK (was ~740 MB universal)
-- Removed global `doNotStrip` from `gradle.properties`
-- Local `assembleRelease` verified.
-- **CI/CD Optimization**: Added caching for `android/` prebuild and Gradle outputs, significantly reducing build times (~21m -> ~12m).
-
-### F) Tests (Codex + Antigravity)
-
-- `src/store/__tests__/positivityStore.test.ts`
-- `src/store/__tests__/todoStore.test.ts`
-- `src/store/__tests__/sessionStore.test.ts`
-- `src/services/__tests__/UpdateManager.test.ts` (Semver, selection logic)
-- `src/db/__tests__/sessionRepository.test.ts` (SQLite transaction mocking)
-- CI gate: `npm test -- --coverage --ci` (32 tests total)
-
-### G) CI release artifact hardening (Codex)
-
-- `.github/workflows/ci-cd.yml` now fails fast if release signing secrets/keystore/alias validation fails.
-- Workflow stages and uploads signed APKs only (`*-release*.apk` excluding `*unsigned*`).
-- Removed `android/` prebuild cache restore path to avoid stale native/signing state across runs.
+### D) CI/CD & Build Hardening (v1.3.1)
+- **Signing**: Hardened `build.gradle` and `ci-cd.yml` with absolute path resolution for `release.jks`.
+- **Secrets**: Environment variables mapped to `MYAPP_RELEASE_STORE_FILE` for Gradle-level signing injection.
+- **Verification**: Run #97 confirmed as the first fully signed production build in CI.
 
 ## 3) Validation Evidence
 
-- `npm test -- --coverage --ci` → PASS (32 tests)
+- `npm test -- --coverage --ci` → PASS
 - `npx tsc --noEmit` → PASS
 - `npx eslint app src --max-warnings=0` → PASS
 - `npx expo-doctor` → PASS (16/16)
-- `npx expo export --platform web --clear` → PASS
-- `cd android && gradlew assembleRelease` → PASS
+- CI: Run #97 (Android Release) → PASS
 
 ## 4) Pending / Known Gaps
 
@@ -92,32 +50,23 @@
 |---|---|---|
 | Timer sync | CLOSED | Unified resolver + headless JS |
 | Native updater | CLOSED | Kotlin bridge + deferred flow |
-| Stats history | CLOSED | SQLite wired to UI (Global + Per-Rule) |
-| Release build | CLOSED | ABI splits, ~45 MB |
-| Negative timer drift | CLOSED | Headless task termination |
-| CI Optimization | CLOSED | Prebuild + Gradle caching |
-| GitHub tagged release | **OPEN** | No `v1.0.0` release exists yet — updater non-functional until created |
-| Rule-aware task tagging UI | **OPEN** | Store support exists, no UI picker |
-| Analytics charts | **OPEN** | Enhancement — no charts built |
-| SQLite integration tests | CLOSED | Repository tests added |
+| SRS Engine | CLOSED | SM-2 Algorithm & SQLite V3 |
+| Widgets | CLOSED | @expo/ui/swift-ui Integration |
+| Signed Releases | CLOSED | Build #97 verified signed |
+| Charts UI | **OPEN** | Enhancement — no charts built yet |
 
 ## 5) Key Files Changed Across Sessions
 
-- `app/_layout.tsx` — Notifee foreground service registration, background event handler, database init
-- `src/utils/sessionTiming.ts` — Shared duration resolver
-- `src/store/sessionStore.ts` — Unified duration, pause/resume, SQLite writes
-- `src/services/ForegroundTimerService.ts` — Full pause/resume/stop lifecycle with headless timeout
-- `src/services/UpdateManager.ts` — Native install bridge integration
-- `src/components/SessionStatusBadge.tsx` — Shared duration display
-- `src/engines/CountdownEngine.tsx` — Absolute elapsed-time math
-- `src/db/sessionRepository.ts` — SQLite session/point queries
-- `app/(tabs)/stats.tsx` — SQLite-backed history UI
-- `android/.../ApkInstallerModule.kt` — Native PackageInstaller bridge
+- `android/app/build.gradle` — Hardened signing configuration
+- `src/db/flashcardRepository.ts` — SQLite V3 SRS data
+- `src/engines/SpacedRepetitionEngine.tsx` — SM-2 Active Recall logic
+- `src/widgets/ProductiveGlance.tsx` — Home Screen Widget DSL
+- `src/store/positivityStore.ts` — Widget snapshot trigger logic
 
 ## 6) Next-Agent Checklist
 
 1. Run full checks before any new merge (`lint`, `typecheck`, `test`).
 2. Use `git add -f docs/` when committing doc changes (docs/ is gitignored).
-3. Keep `CHANGELOG.md`, `update-logs.md`, `AGENT-CONTEXT.md` synchronized after every non-trivial change.
-4. When ready to ship: create a GitHub release tagged `v1.0.0` with APK assets attached — this activates the in-app updater.
-5. Test updater permission denial and OEM fallback paths on device before distributing.
+3. **Signing Verification**: Ensure the APK is signed by checking for `packageRelease` in GitHub Actions logs.
+4. **Widget Testing**: Test widget snapshots on physical devices via `updateSnapshot` to confirm Swift-UI rendering.
+5. **SRS Cleanup**: Strictly avoid non-ASCII characters in SQL template literals to prevent LSP breakage.

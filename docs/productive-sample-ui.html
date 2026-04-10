@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product+ive — Sample UI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0D0D0D; --bg-r:#1A1A1A; --bg-c:#1E1E1E;
+  --card-l:#F2F1EE; --card-ld:#1E1E1E;
+  --ink:#0D0D0D; --ink-inv:#F2F1EE;
+  --mid:rgba(242,241,238,0.5); --dim:rgba(242,241,238,0.3);
+  --border:rgba(242,241,238,0.08); --border-l:rgba(13,13,13,0.07);
+  --learn:#7C3AED; --learn-bg:rgba(124,58,237,0.15);
+  --focus:#1D4ED8; --focus-bg:rgba(29,78,216,0.15);
+  --prod:#059669; --prod-bg:rgba(5,150,105,0.15);
+  --study:#B45309; --study-bg:rgba(180,83,9,0.15);
+  --pos:#059669;
+  --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+  --fd:'DM Serif Display',Georgia,serif;
+  --fb:'DM Sans',system-ui,sans-serif;
+  --fm:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb);background:#111;color:var(--ink-inv);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px 80px}
+
+/* PAGE HEADER */
+.page-header{text-align:center;margin-bottom:40px}
+.page-title{font-family:var(--fd);font-size:28px;font-weight:400;letter-spacing:-0.02em;color:var(--ink-inv)}
+.page-title em{font-style:italic;color:var(--pos)}
+.page-sub{font-family:var(--fm);font-size:10px;color:rgba(242,241,238,0.35);letter-spacing:0.12em;text-transform:uppercase;margin-top:6px}
+
+/* SCREEN TABS */
+.tabs{display:flex;gap:6px;margin-bottom:40px;background:rgba(242,241,238,0.06);border:1px solid var(--border);border-radius:9999px;padding:5px}
+.tab{padding:8px 18px;border-radius:9999px;font-size:12px;font-weight:600;letter-spacing:0.03em;cursor:pointer;color:rgba(242,241,238,0.45);transition:all 0.2s;font-family:var(--fb)}
+.tab.active{background:var(--ink-inv);color:var(--ink)}
+.tab:hover:not(.active){color:rgba(242,241,238,0.75);background:rgba(242,241,238,0.06)}
+
+/* PHONE FRAME */
+.phone-stage{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.phone-label{font-family:var(--fm);font-size:9px;color:rgba(242,241,238,0.3);letter-spacing:0.1em;text-transform:uppercase}
+.phone{width:300px;background:#000;border-radius:44px;overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px rgba(242,241,238,0.1),0 32px 80px rgba(0,0,0,0.7);flex-shrink:0}
+.phone.light .phone-inner{background:#F9F8F5}
+.phone.dark .phone-inner{background:#0D0D0D}
+.notch{width:90px;height:24px;background:#000;border-radius:0 0 16px 16px;margin:0 auto;position:relative;z-index:5}
+.phone-inner{min-height:560px;display:flex;flex-direction:column;position:relative}
+
+/* ─── COMPONENTS INSIDE PHONES ─── */
+
+/* TOP BAR */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px}
+.tb-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s var(--ease-spring)}
+.tb-btn:hover{transform:scale(1.08)}
+.tb-btn svg{width:18px;height:18px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.tb-btn.light{background:rgba(13,13,13,0.06);border:1px solid rgba(13,13,13,0.08)}
+.tb-btn.light svg{stroke:var(--ink)}
+.tb-btn.dark-v{background:rgba(242,241,238,0.08);border:1px solid rgba(242,241,238,0.06)}
+.tb-btn.dark-v svg{stroke:var(--ink-inv)}
+.tb-title{font-family:var(--fd);font-size:17px;letter-spacing:-0.01em}
+.tb-title.lm{color:var(--ink)}
+.tb-title.dm{color:var(--ink-inv)}
+
+/* CATEGORY CARDS HOME */
+.cat-grid-phone{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 18px 18px;flex:1}
+.cat-card-p{border-radius:24px;padding:16px 14px 14px;aspect-ratio:1;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:transform 0.2s var(--ease-spring);box-shadow:0 2px 0 rgba(13,13,13,0.14),0 6px 16px rgba(13,13,13,0.06)}
+.cat-card-p:active{transform:scale(0.95)}
+.cat-card-p.lm{background:var(--card-l);border:1px solid rgba(13,13,13,0.06)}
+.cat-card-p.dm{background:var(--card-ld);border:1px solid rgba(242,241,238,0.06)}
+.ccp-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ccp-name{font-family:var(--fd);font-size:14px;letter-spacing:-0.01em;line-height:1.2}
+.ccp-name.lm{color:var(--ink)}
+.ccp-name.dm{color:var(--ink-inv)}
+.ccp-count{font-family:var(--fm);font-size:9px;margin-top:2px}
+.ccp-count.lm{color:#9A9A9A}
+.ccp-count.dm{color:rgba(242,241,238,0.35)}
+
+/* BOTTOM NAV */
+.bottom-nav-p{padding:10px 16px 16px;display:flex;justify-content:center}
+.bnav-p{background:rgba(242,241,238,0.97);border-radius:9999px;padding:8px 10px;display:flex;align-items:center;gap:3px;box-shadow:0 -1px 0 rgba(13,13,13,0.06),0 8px 24px rgba(13,13,13,0.15)}
+.bnav-p.dm{background:rgba(30,30,30,0.97);border:1px solid rgba(242,241,238,0.06)}
+.nitem-p{width:44px;height:38px;border-radius:9999px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s}
+.nitem-p svg{width:20px;height:20px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nitem-p.lm svg{stroke:#9A9A9A}
+.nitem-p.lm.act svg{stroke:var(--ink)}
+.nitem-p.dm svg{stroke:rgba(242,241,238,0.4)}
+.nitem-p.dm.act svg{stroke:var(--ink-inv)}
+.ncenter-p{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.2s var(--ease-spring);margin:0 2px}
+.ncenter-p:active{transform:scale(0.93)}
+.ncenter-p.lm{background:var(--ink);box-shadow:0 4px 12px rgba(13,13,13,0.3)}
+.ncenter-p.dm{background:var(--ink-inv);box-shadow:0 4px 12px rgba(242,241,238,0.15)}
+.ncenter-p svg{width:22px;height:22px;fill:none;stroke-width:2.2;stroke-linecap:round}
+.ncenter-p.lm svg{stroke:var(--ink-inv)}
+.ncenter-p.dm svg{stroke:var(--ink)}
+
+/* RULE ROWS */
+.rule-list-p{display:flex;flex-direction:column;gap:9px;padding:6px 18px 18px;flex:1}
+.rule-row-p{border-radius:20px;padding:14px 12px 14px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:transform 0.15s;box-shadow:0 2px 0 rgba(13,13,13,0.12),0 4px 12px rgba(13,13,13,0.05)}
+.rule-row-p.lm{background:var(--card-l);border:1px solid rgba(13,13,13,0.05)}
+.rule-row-p.dm{background:var(--card-ld);border:1px solid rgba(242,241,238,0.05)}
+.rule-row-p:active{transform:scale(0.98)}
+.rrp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.rrp-text{flex:1;min-width:0}
+.rrp-name{font-weight:600;font-size:13px;line-height:1.3}
+.rrp-name.lm{color:var(--ink)}
+.rrp-name.dm{color:var(--ink-inv)}
+.rrp-desc{font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rrp-desc.lm{color:#9A9A9A}
+.rrp-desc.dm{color:rgba(242,241,238,0.35)}
+.rrp-arrow{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 8px rgba(13,13,13,0.2)}
+.rrp-arrow.lm{background:var(--ink)}
+.rrp-arrow.dm{background:var(--ink-inv)}
+.rrp-arrow svg{width:16px;height:16px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rrp-arrow.lm svg{stroke:var(--ink-inv)}
+.rrp-arrow.dm svg{stroke:var(--ink)}
+
+/* RULE PAGE */
+.rule-page{display:flex;flex-direction:column;flex:1;padding:0 18px 18px}
+.rp-timer{display:flex;justify-content:center;align-items:center;flex:1;flex-direction:column;gap:16px}
+.rp-ring{position:relative;width:140px;height:140px}
+.rp-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.rp-ring .rbg{fill:none;stroke-width:7}
+.rp-ring .rfill{fill:none;stroke-width:7;stroke-linecap:round}
+.rp-centre{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rp-time{font-family:var(--fd);font-size:28px;letter-spacing:-0.04em;line-height:1}
+.rp-label{font-family:var(--fm);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px}
+.rp-cycles{display:flex;gap:5px;justify-content:center}
+.cycle-dot{width:7px;height:7px;border-radius:50%}
+.rp-actions{display:flex;gap:10px;padding:0 0 4px}
+.rp-btn{flex:1;padding:13px;border-radius:9999px;font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;border:none;text-align:center;transition:transform 0.2s var(--ease-spring)}
+.rp-btn:active{transform:scale(0.97)}
+
+/* GUIDED STEP PAGE */
+.guided-page{display:flex;flex-direction:column;flex:1;padding:0 18px 18px;gap:14px}
+.step-dots-p{display:flex;gap:5px;justify-content:center}
+.sdot-p{height:7px;border-radius:4px;transition:width 0.25s var(--ease-spring)}
+.sdot-p.done{width:20px}
+.sdot-p.active{width:22px}
+.sdot-p.todo{width:7px;border-radius:50%}
+.step-card{border-radius:18px;padding:18px;flex:1}
+.step-num{font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.step-title-p{font-family:var(--fd);font-size:20px;letter-spacing:-0.01em;line-height:1.2;margin-bottom:10px}
+.step-body{font-size:13px;line-height:1.65}
+.step-input{width:100%;border-radius:12px;padding:12px;font-family:var(--fb);font-size:13px;border:none;outline:none;resize:none;margin-top:10px}
+
+/* METER PAGE */
+.meter-page{display:flex;flex-direction:column;flex:1;padding:0 18px 18px;gap:12px}
+.meter-hero{display:flex;align-items:center;justify-content:center;padding:16px 0 8px;flex-direction:column;gap:12px}
+.meter-ring-p{position:relative;width:120px;height:120px}
+.meter-ring-p svg{width:100%;height:100%;transform:rotate(-90deg)}
+.mrp-centre{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mrp-score{font-family:var(--fd);font-size:26px;letter-spacing:-0.04em;color:var(--pos);line-height:1}
+.mrp-total{font-family:var(--fm);font-size:9px;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+.mrp-level{font-family:var(--fd);font-size:15px;letter-spacing:-0.01em}
+.stat-cards-p{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.scard-p{border-radius:14px;padding:12px 8px;text-align:center}
+.scard-val{font-family:var(--fd);font-size:22px;letter-spacing:-0.03em}
+.scard-lbl{font-family:var(--fm);font-size:8px;text-transform:uppercase;letter-spacing:0.07em;margin-top:2px}
+.streak-p{border-radius:14px;padding:12px 14px}
+.streak-title{font-family:var(--fm);font-size:8px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px}
+.streak-dots-p{display:flex;gap:5px}
+.sdot-streak{width:30px;height:30px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:8px;font-family:var(--fm)}
+.activity-log{border-radius:14px;padding:12px 14px}
+.al-title{font-family:var(--fm);font-size:8px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px}
+.al-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid}
+.al-row:last-child{border-bottom:none}
+.al-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.al-text{flex:1;font-size:11px;line-height:1.4}
+.al-pts{font-family:var(--fm);font-size:10px;font-weight:500;color:var(--pos)}
+.al-time{font-family:var(--fm);font-size:9px}
+
+/* TODO PAGE */
+.todo-page{display:flex;flex-direction:column;flex:1;padding:0 18px 18px;gap:10px}
+.todo-section{border-radius:16px;padding:12px 14px}
+.ts-header{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.ts-title{font-size:13px;font-weight:700}
+.ts-count{font-family:var(--fm);font-size:9px;padding:2px 7px;border-radius:9999px}
+.todo-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid}
+.todo-item:last-child{border-bottom:none}
+.todo-check{width:20px;height:20px;border-radius:6px;border:1.5px solid;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center}
+.todo-check.done{border-color:var(--pos);background:var(--pos)}
+.todo-check.done svg{width:11px;height:11px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.todo-text{flex:1;min-width:0}
+.tt-name{font-size:13px;font-weight:500;line-height:1.3}
+.tt-rule{font-size:10px;font-family:var(--fm);margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">Product<em>+</em>ive · Sample UI</div>
+  <div class="page-sub">5 screens · Light & Dark modes · Interactive</div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" onclick="show('home')">Home</div>
+  <div class="tab" onclick="show('category')">Category List</div>
+  <div class="tab" onclick="show('rule')">Rule Page</div>
+  <div class="tab" onclick="show('meter')">Positivity Meter</div>
+  <div class="tab" onclick="show('todo')">Todo</div>
+</div>
+
+<div class="phone-stage">
+
+<!-- ───────────── SCREEN 1: HOME ───────────── -->
+<div id="s-home" class="phone-stage" style="width:100%;justify-content:center">
+  <!-- Light mode home -->
+  <div class="phone-wrap">
+    <div class="phone-label">Home · Light Mode</div>
+    <div class="phone light">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div class="tb-btn light">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <div class="tb-title lm" style="font-family:'DM Serif Display';font-style:italic">Product+ive</div>
+          <div class="tb-btn light">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+          </div>
+        </div>
+        <div class="cat-grid-phone">
+          <div class="cat-card-p lm">
+            <div class="ccp-icon" style="background:rgba(124,58,237,0.12)">🧠</div>
+            <div><div class="ccp-name lm">Learning &<br>Memory</div><div class="ccp-count lm">4 rules</div></div>
+          </div>
+          <div class="cat-card-p lm">
+            <div class="ccp-icon" style="background:rgba(29,78,216,0.12)">⏱</div>
+            <div><div class="ccp-name lm">Focus &<br>Sessions</div><div class="ccp-count lm">3 rules</div></div>
+          </div>
+          <div class="cat-card-p lm">
+            <div class="ccp-icon" style="background:rgba(5,150,105,0.12)">⚡</div>
+            <div><div class="ccp-name lm">Produc-<br>tivity</div><div class="ccp-count lm">5 rules</div></div>
+          </div>
+          <div class="cat-card-p lm">
+            <div class="ccp-icon" style="background:rgba(180,83,9,0.12)">📖</div>
+            <div><div class="ccp-name lm">Study<br>Techniques</div><div class="ccp-count lm">8 rules</div></div>
+          </div>
+        </div>
+        <div class="bottom-nav-p">
+          <div class="bnav-p">
+            <div class="nitem-p lm act"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p lm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p lm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dark mode home -->
+  <div class="phone-wrap">
+    <div class="phone-label">Home · Dark Mode (AMOLED)</div>
+    <div class="phone dark">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div class="tb-btn dark-v">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <div class="tb-title dm" style="font-family:'DM Serif Display';font-style:italic">Product+ive</div>
+          <div class="tb-btn dark-v">
+            <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </div>
+        </div>
+        <div class="cat-grid-phone">
+          <div class="cat-card-p dm">
+            <div class="ccp-icon" style="background:rgba(124,58,237,0.18)">🧠</div>
+            <div><div class="ccp-name dm">Learning &<br>Memory</div><div class="ccp-count dm">4 rules</div></div>
+          </div>
+          <div class="cat-card-p dm">
+            <div class="ccp-icon" style="background:rgba(29,78,216,0.18)">⏱</div>
+            <div><div class="ccp-name dm">Focus &<br>Sessions</div><div class="ccp-count dm">3 rules</div></div>
+          </div>
+          <div class="cat-card-p dm">
+            <div class="ccp-icon" style="background:rgba(5,150,105,0.18)">⚡</div>
+            <div><div class="ccp-name dm">Produc-<br>tivity</div><div class="ccp-count dm">5 rules</div></div>
+          </div>
+          <div class="cat-card-p dm">
+            <div class="ccp-icon" style="background:rgba(180,83,9,0.18)">📖</div>
+            <div><div class="ccp-name dm">Study<br>Techniques</div><div class="ccp-count dm">8 rules</div></div>
+          </div>
+        </div>
+        <div class="bottom-nav-p">
+          <div class="bnav-p dm">
+            <div class="nitem-p dm act"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p dm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p dm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── SCREEN 4: CATEGORY LIST ───────────── -->
+<div id="s-category" class="phone-stage" style="display:none;width:100%;justify-content:center">
+  <!-- Light -->
+  <div class="phone-wrap">
+    <div class="phone-label">Category List · Light (Study Techniques)</div>
+    <div class="phone light">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div class="tb-btn light"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:18px">📖</span>
+            <div class="tb-title lm" style="font-size:15px">Study Techniques</div>
+          </div>
+          <div style="font-family:var(--fm);font-size:9px;background:rgba(180,83,9,0.1);color:var(--study);padding:4px 10px;border-radius:9999px;border:1px solid rgba(180,83,9,0.2)">8 rules</div>
+        </div>
+        <div class="rule-list-p">
+          <div class="rule-row-p lm"><div class="rrp-dot" style="background:var(--study)"></div><div class="rrp-text"><div class="rrp-name lm">Active Recall</div><div class="rrp-desc lm">Test memory instead of re-reading</div></div><div class="rrp-arrow lm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+          <div class="rule-row-p lm"><div class="rrp-dot" style="background:var(--study)"></div><div class="rrp-text"><div class="rrp-name lm">Cornell Note Method</div><div class="rrp-desc lm">Structured notes with cue column</div></div><div class="rrp-arrow lm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+          <div class="rule-row-p lm"><div class="rrp-dot" style="background:var(--study)"></div><div class="rrp-text"><div class="rrp-name lm">Blurting Method</div><div class="rrp-desc lm">Write everything you remember</div></div><div class="rrp-arrow lm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+          <div class="rule-row-p lm"><div class="rrp-dot" style="background:var(--study)"></div><div class="rrp-text"><div class="rrp-name lm">Mind Mapping</div><div class="rrp-desc lm">Visual idea connections</div></div><div class="rrp-arrow lm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+          <div class="rule-row-p lm"><div class="rrp-dot" style="background:var(--study)"></div><div class="rrp-text"><div class="rrp-name lm">The SQ3R Method</div><div class="rrp-desc lm">Survey, Question, Read, Recite, Review</div></div><div class="rrp-arrow lm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+        </div>
+        <div class="bottom-nav-p">
+          <div class="bnav-p">
+            <div class="nitem-p lm"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p lm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p lm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Dark -->
+  <div class="phone-wrap">
+    <div class="phone-label">Category List · Dark (Productivity)</div>
+    <div class="phone dark">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div class="tb-btn dark-v"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--ink-inv);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:18px">⚡</span>
+            <div class="tb-title dm" style="font-size:15px">Productivity</div>
+          </div>
+          <div style="font-family:var(--fm);font-size:9px;background:rgba(5,150,105,0.12);color:var(--prod);padding:4px 10px;border-radius:9999px;border:1px solid rgba(5,150,105,0.2)">5 rules</div>
+        </div>
+        <div class="rule-list-p">
+          <div class="rule-row-p dm"><div class="rrp-dot" style="background:var(--prod)"></div><div class="rrp-text"><div class="rrp-name dm">Eat the Frog</div><div class="rrp-desc dm">Do your hardest task first</div></div><div class="rrp-arrow dm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+          <div class="rule-row-p dm"><div class="rrp-dot" style="background:var(--prod)"></div><div class="rrp-text"><div class="rrp-name dm">2-Minute Rule</div><div class="rrp-desc dm">If it takes 2 min, do it now</div></div><div class="rrp-arrow dm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+          <div class="rule-row-p dm"><div class="rrp-dot" style="background:var(--prod)"></div><div class="rrp-text"><div class="rrp-name dm">1-3-5 Rule</div><div class="rrp-desc dm">1 big · 3 medium · 5 small tasks</div></div><div class="rrp-arrow dm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+          <div class="rule-row-p dm"><div class="rrp-dot" style="background:var(--prod)"></div><div class="rrp-text"><div class="rrp-name dm">Parkinson's Law</div><div class="rrp-desc dm">Work expands to fill the time given</div></div><div class="rrp-arrow dm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+          <div class="rule-row-p dm"><div class="rrp-dot" style="background:var(--prod)"></div><div class="rrp-text"><div class="rrp-name dm">5-Second Rule</div><div class="rrp-desc dm">Count 5-4-3-2-1 and act</div></div><div class="rrp-arrow dm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+        </div>
+        <div class="bottom-nav-p">
+          <div class="bnav-p dm">
+            <div class="nitem-p dm"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p dm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p dm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── SCREEN 5: RULE PAGE ───────────── -->
+<div id="s-rule" class="phone-stage" style="display:none;width:100%;justify-content:center">
+  <!-- Pomodoro timer (light) -->
+  <div class="phone-wrap">
+    <div class="phone-label">Pomodoro · CountdownTimerEngine · Light</div>
+    <div class="phone light">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div class="tb-btn light"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+          <div class="tb-title lm">Pomodoro</div>
+          <div class="tb-btn light"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+        </div>
+        <div style="padding:0 18px 4px;display:flex;justify-content:center"><span style="font-family:var(--fm);font-size:10px;color:#9A9A9A;letter-spacing:0.06em;text-transform:uppercase">Round 2 of 4</span></div>
+        <div class="rule-page">
+          <div class="rp-timer">
+            <div class="rp-ring">
+              <svg viewBox="0 0 140 140">
+                <circle class="rbg" cx="70" cy="70" r="60" style="stroke:rgba(13,13,13,0.08)"/>
+                <circle class="rfill" cx="70" cy="70" r="60" style="stroke:var(--ink);stroke-dasharray:377;stroke-dashoffset:94"/>
+              </svg>
+              <div class="rp-centre">
+                <div class="rp-time" style="color:var(--ink)">18:34</div>
+                <div class="rp-label" style="color:#9A9A9A">Focus</div>
+              </div>
+            </div>
+            <div class="rp-cycles">
+              <div class="cycle-dot" style="background:var(--ink)"></div>
+              <div class="cycle-dot" style="background:var(--ink)"></div>
+              <div class="cycle-dot" style="background:rgba(13,13,13,0.15)"></div>
+              <div class="cycle-dot" style="background:rgba(13,13,13,0.15)"></div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:12px;color:#9A9A9A;font-family:var(--fm)">
+            <span>SESSIONS TODAY: 1</span><span>+20 PTS ON COMPLETE</span>
+          </div>
+          <div class="rp-actions">
+            <button class="rp-btn" style="background:var(--ink);color:var(--ink-inv);flex:2">⏸ Pause</button>
+            <button class="rp-btn" style="background:rgba(13,13,13,0.06);color:var(--ink);flex:1;border:1px solid rgba(13,13,13,0.1)">End</button>
+          </div>
+        </div>
+        <div class="bottom-nav-p" style="padding-top:4px">
+          <div class="bnav-p">
+            <div class="nitem-p lm act"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p lm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p lm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feynman guided (dark) -->
+  <div class="phone-wrap">
+    <div class="phone-label">Feynman Technique · GuidedPromptEngine · Dark</div>
+    <div class="phone dark">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div class="tb-btn dark-v"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--ink-inv);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+          <div class="tb-title dm">Feynman</div>
+          <div class="tb-btn dark-v"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+        </div>
+        <div class="guided-page">
+          <div class="step-dots-p">
+            <div class="sdot-p done" style="background:var(--learn)"></div>
+            <div class="sdot-p active" style="background:var(--learn)"></div>
+            <div class="sdot-p todo" style="background:rgba(242,241,238,0.2)"></div>
+            <div class="sdot-p todo" style="background:rgba(242,241,238,0.2)"></div>
+          </div>
+          <div class="step-card" style="background:var(--bg-c);border:1px solid rgba(242,241,238,0.06);flex:1">
+            <div class="step-num" style="color:var(--learn)">Step 2 of 4</div>
+            <div class="step-title-p" style="color:var(--ink-inv)">Explain it simply</div>
+            <div class="step-body" style="color:rgba(242,241,238,0.55)">Write an explanation of the concept as if teaching a 12-year-old. Use no jargon.</div>
+            <textarea class="step-input" rows="4" style="background:rgba(242,241,238,0.06);color:var(--ink-inv);border:1px solid rgba(242,241,238,0.08);" placeholder="Start writing your explanation..."></textarea>
+          </div>
+          <button class="rp-btn" style="background:var(--ink-inv);color:var(--ink)">Next Step →</button>
+        </div>
+        <div class="bottom-nav-p" style="padding-top:0">
+          <div class="bnav-p dm">
+            <div class="nitem-p dm"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p dm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p dm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── SCREEN 3: POSITIVITY METER ───────────── -->
+<div id="s-meter" class="phone-stage" style="display:none;width:100%;justify-content:center">
+  <div class="phone-wrap">
+    <div class="phone-label">Positivity Meter · Light</div>
+    <div class="phone light">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div style="width:36px"></div>
+          <div class="tb-title lm">My Progress</div>
+          <div class="tb-btn light"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/></svg></div>
+        </div>
+        <div class="meter-page">
+          <div class="meter-hero">
+            <div class="meter-ring-p">
+              <svg viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(5,150,105,0.1)" stroke-width="8"/>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--pos)" stroke-width="8" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="94" transform="rotate(-90 60 60)"/>
+              </svg>
+              <div class="mrp-centre">
+                <div class="mrp-score">340</div>
+                <div class="mrp-total" style="color:#9A9A9A">/ 500 pts</div>
+              </div>
+            </div>
+            <div style="text-align:center">
+              <div class="mrp-level" style="color:var(--ink)">In the Zone ⚡</div>
+              <div style="font-size:11px;color:#9A9A9A;margin-top:2px">68% to Rule Master</div>
+            </div>
+          </div>
+          <div class="stat-cards-p">
+            <div class="scard-p" style="background:var(--card-l)"><div class="scard-val" style="color:var(--focus)">12</div><div class="scard-lbl" style="color:#9A9A9A">Sessions</div></div>
+            <div class="scard-p" style="background:var(--card-l)"><div class="scard-val" style="color:var(--pos)">34</div><div class="scard-lbl" style="color:#9A9A9A">Tasks</div></div>
+            <div class="scard-p" style="background:var(--card-l)"><div class="scard-val" style="color:var(--learn)">7</div><div class="scard-lbl" style="color:#9A9A9A">Rules</div></div>
+          </div>
+          <div class="streak-p" style="background:var(--card-l)">
+            <div class="streak-title" style="color:#9A9A9A">This week</div>
+            <div class="streak-dots-p">
+              <div class="sdot-streak" style="background:var(--pos);color:white"><span>M</span></div>
+              <div class="sdot-streak" style="background:var(--pos);color:white"><span>T</span></div>
+              <div class="sdot-streak" style="background:var(--pos);color:white"><span>W</span></div>
+              <div class="sdot-streak" style="background:var(--ink);color:white"><span>T</span></div>
+              <div class="sdot-streak" style="background:rgba(13,13,13,0.06);color:#9A9A9A"><span>F</span></div>
+              <div class="sdot-streak" style="background:rgba(13,13,13,0.06);color:#9A9A9A"><span>S</span></div>
+              <div class="sdot-streak" style="background:rgba(13,13,13,0.06);color:#9A9A9A"><span>S</span></div>
+            </div>
+          </div>
+          <div class="activity-log" style="background:var(--card-l);flex:1">
+            <div class="al-title" style="color:#9A9A9A">Recent activity</div>
+            <div class="al-row" style="border-color:rgba(13,13,13,0.06)"><div class="al-dot" style="background:var(--focus)"></div><div class="al-text" style="color:var(--ink)">Completed Pomodoro session</div><div class="al-pts">+20</div><div class="al-time" style="color:#9A9A9A;margin-left:4px">2m</div></div>
+            <div class="al-row" style="border-color:rgba(13,13,13,0.06)"><div class="al-dot" style="background:var(--prod)"></div><div class="al-text" style="color:var(--ink)">Finished Eat the Frog task</div><div class="al-pts">+10</div><div class="al-time" style="color:#9A9A9A;margin-left:4px">1h</div></div>
+            <div class="al-row" style="border-color:rgba(13,13,13,0.06)"><div class="al-dot" style="background:var(--learn)"></div><div class="al-text" style="color:var(--ink)">First time: Feynman Technique</div><div class="al-pts">+25</div><div class="al-time" style="color:#9A9A9A;margin-left:4px">3h</div></div>
+          </div>
+        </div>
+        <div class="bottom-nav-p" style="padding-top:4px">
+          <div class="bnav-p">
+            <div class="nitem-p lm"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p lm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p lm act"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meter Dark -->
+  <div class="phone-wrap">
+    <div class="phone-label">Positivity Meter · Dark</div>
+    <div class="phone dark">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div style="width:36px"></div>
+          <div class="tb-title dm">My Progress</div>
+          <div class="tb-btn dark-v"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+        </div>
+        <div class="meter-page">
+          <div class="meter-hero">
+            <div class="meter-ring-p">
+              <svg viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(5,150,105,0.12)" stroke-width="8"/>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="var(--pos)" stroke-width="8" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="94" transform="rotate(-90 60 60)"/>
+              </svg>
+              <div class="mrp-centre">
+                <div class="mrp-score">340</div>
+                <div class="mrp-total" style="color:rgba(242,241,238,0.35)">/ 500 pts</div>
+              </div>
+            </div>
+            <div style="text-align:center">
+              <div class="mrp-level" style="color:var(--ink-inv)">In the Zone ⚡</div>
+              <div style="font-size:11px;color:rgba(242,241,238,0.4);margin-top:2px">68% to Rule Master</div>
+            </div>
+          </div>
+          <div class="stat-cards-p">
+            <div class="scard-p" style="background:var(--bg-c)"><div class="scard-val" style="color:var(--focus)">12</div><div class="scard-lbl" style="color:rgba(242,241,238,0.35)">Sessions</div></div>
+            <div class="scard-p" style="background:var(--bg-c)"><div class="scard-val" style="color:var(--pos)">34</div><div class="scard-lbl" style="color:rgba(242,241,238,0.35)">Tasks</div></div>
+            <div class="scard-p" style="background:var(--bg-c)"><div class="scard-val" style="color:var(--learn)">7</div><div class="scard-lbl" style="color:rgba(242,241,238,0.35)">Rules</div></div>
+          </div>
+          <div class="streak-p" style="background:var(--bg-c)">
+            <div class="streak-title" style="color:rgba(242,241,238,0.35)">This week</div>
+            <div class="streak-dots-p">
+              <div class="sdot-streak" style="background:var(--pos);color:white"><span>M</span></div>
+              <div class="sdot-streak" style="background:var(--pos);color:white"><span>T</span></div>
+              <div class="sdot-streak" style="background:var(--pos);color:white"><span>W</span></div>
+              <div class="sdot-streak" style="background:var(--ink-inv);color:var(--ink)"><span>T</span></div>
+              <div class="sdot-streak" style="background:rgba(242,241,238,0.07);color:rgba(242,241,238,0.3)"><span>F</span></div>
+              <div class="sdot-streak" style="background:rgba(242,241,238,0.07);color:rgba(242,241,238,0.3)"><span>S</span></div>
+              <div class="sdot-streak" style="background:rgba(242,241,238,0.07);color:rgba(242,241,238,0.3)"><span>S</span></div>
+            </div>
+          </div>
+          <div class="activity-log" style="background:var(--bg-c);flex:1">
+            <div class="al-title" style="color:rgba(242,241,238,0.35)">Recent activity</div>
+            <div class="al-row" style="border-color:rgba(242,241,238,0.05)"><div class="al-dot" style="background:var(--focus)"></div><div class="al-text" style="color:var(--ink-inv)">Completed Pomodoro session</div><div class="al-pts">+20</div><div class="al-time" style="color:rgba(242,241,238,0.3);margin-left:4px">2m</div></div>
+            <div class="al-row" style="border-color:rgba(242,241,238,0.05)"><div class="al-dot" style="background:var(--prod)"></div><div class="al-text" style="color:var(--ink-inv)">Finished Eat the Frog task</div><div class="al-pts">+10</div><div class="al-time" style="color:rgba(242,241,238,0.3);margin-left:4px">1h</div></div>
+            <div class="al-row" style="border-color:rgba(242,241,238,0.05)"><div class="al-dot" style="background:var(--learn)"></div><div class="al-text" style="color:var(--ink-inv)">First time: Feynman Technique</div><div class="al-pts">+25</div><div class="al-time" style="color:rgba(242,241,238,0.3);margin-left:4px">3h</div></div>
+          </div>
+        </div>
+        <div class="bottom-nav-p" style="padding-top:4px">
+          <div class="bnav-p dm">
+            <div class="nitem-p dm"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p dm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p dm act"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── SCREEN 2: TODO ───────────── -->
+<div id="s-todo" class="phone-stage" style="display:none;width:100%;justify-content:center">
+  <div class="phone-wrap">
+    <div class="phone-label">Todo · Light · Rule-aware tasks</div>
+    <div class="phone light">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div style="width:36px"></div>
+          <div class="tb-title lm">Today</div>
+          <div style="font-family:var(--fm);font-size:9px;background:rgba(13,13,13,0.06);color:#9A9A9A;padding:4px 10px;border-radius:9999px">Apr 2</div>
+        </div>
+        <div class="todo-page">
+          <!-- Frog section -->
+          <div class="todo-section" style="background:#FEF3C7;border:1px solid rgba(180,83,9,0.1)">
+            <div class="ts-header">
+              <span style="font-size:16px">🐸</span>
+              <div class="ts-title" style="color:var(--study)">Frog of the Day</div>
+              <div class="ts-count" style="background:rgba(180,83,9,0.1);color:var(--study)">1 task</div>
+            </div>
+            <div class="todo-item" style="border-color:rgba(180,83,9,0.08)">
+              <div class="todo-check" style="border-color:rgba(13,13,13,0.2)"></div>
+              <div class="todo-text">
+                <div class="tt-name" style="color:var(--ink)">Finish project proposal draft</div>
+                <div class="tt-rule" style="color:var(--study)">Eat the Frog · do first</div>
+              </div>
+            </div>
+          </div>
+          <!-- Quick tasks -->
+          <div class="todo-section" style="background:var(--card-l);border:1px solid rgba(13,13,13,0.06)">
+            <div class="ts-header">
+              <span style="font-size:16px">⚡</span>
+              <div class="ts-title" style="color:var(--ink)">Quick (2 min)</div>
+              <div class="ts-count" style="background:rgba(13,13,13,0.06);color:#9A9A9A">2 tasks</div>
+            </div>
+            <div class="todo-item" style="border-color:rgba(13,13,13,0.06)">
+              <div class="todo-check done"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="todo-text">
+                <div class="tt-name" style="color:#9A9A9A;text-decoration:line-through">Reply to Rahul's email</div>
+                <div class="tt-rule" style="color:#B5B5B5">2-Minute Rule · done</div>
+              </div>
+            </div>
+            <div class="todo-item" style="border-color:rgba(13,13,13,0.06)">
+              <div class="todo-check" style="border-color:rgba(13,13,13,0.2)"></div>
+              <div class="todo-text">
+                <div class="tt-name" style="color:var(--ink)">Book dentist appointment</div>
+                <div class="tt-rule" style="color:var(--prod)">2-Minute Rule · do now</div>
+              </div>
+            </div>
+          </div>
+          <!-- 1-3-5 -->
+          <div class="todo-section" style="background:var(--card-l);border:1px solid rgba(13,13,13,0.06);flex:1">
+            <div class="ts-header">
+              <span style="font-size:16px">📋</span>
+              <div class="ts-title" style="color:var(--ink)">1-3-5 Plan</div>
+              <div class="ts-count" style="background:rgba(13,13,13,0.06);color:#9A9A9A">4/9 done</div>
+            </div>
+            <div class="todo-item" style="border-color:rgba(13,13,13,0.06)">
+              <div class="todo-check" style="border-color:rgba(13,13,13,0.2)"></div>
+              <div class="todo-text">
+                <div class="tt-name" style="color:var(--ink);font-size:12px">Review product strategy doc</div>
+                <div class="tt-rule" style="color:#9A9A9A">Big task · 1-3-5 Rule</div>
+              </div>
+            </div>
+            <div class="todo-item" style="border-color:rgba(13,13,13,0.06)">
+              <div class="todo-check done"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="todo-text">
+                <div class="tt-name" style="color:#9A9A9A;text-decoration:line-through;font-size:12px">Team standup notes</div>
+                <div class="tt-rule" style="color:#B5B5B5">Medium · done</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav-p" style="padding-top:4px">
+          <div class="bnav-p">
+            <div class="nitem-p lm"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p lm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p lm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Todo dark -->
+  <div class="phone-wrap">
+    <div class="phone-label">Todo · Dark · Rule-aware tasks</div>
+    <div class="phone dark">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="top-bar">
+          <div style="width:36px"></div>
+          <div class="tb-title dm">Today</div>
+          <div style="font-family:var(--fm);font-size:9px;background:rgba(242,241,238,0.07);color:rgba(242,241,238,0.4);padding:4px 10px;border-radius:9999px">Apr 2</div>
+        </div>
+        <div class="todo-page">
+          <div class="todo-section" style="background:rgba(180,83,9,0.12);border:1px solid rgba(180,83,9,0.15)">
+            <div class="ts-header">
+              <span style="font-size:16px">🐸</span>
+              <div class="ts-title" style="color:#FBBF24">Frog of the Day</div>
+            </div>
+            <div class="todo-item" style="border-color:rgba(180,83,9,0.1)">
+              <div class="todo-check" style="border-color:rgba(251,191,36,0.3)"></div>
+              <div class="todo-text">
+                <div class="tt-name" style="color:var(--ink-inv)">Finish project proposal draft</div>
+                <div class="tt-rule" style="color:#FBBF24">Eat the Frog · do first</div>
+              </div>
+            </div>
+          </div>
+          <div class="todo-section" style="background:var(--bg-c);border:1px solid rgba(242,241,238,0.06);flex:1">
+            <div class="ts-header">
+              <span style="font-size:16px">⚡</span>
+              <div class="ts-title" style="color:var(--ink-inv)">Quick (2 min)</div>
+              <div class="ts-count" style="background:rgba(242,241,238,0.07);color:rgba(242,241,238,0.35)">2 tasks</div>
+            </div>
+            <div class="todo-item" style="border-color:rgba(242,241,238,0.05)">
+              <div class="todo-check done"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="todo-text">
+                <div class="tt-name" style="color:rgba(242,241,238,0.3);text-decoration:line-through">Reply to Rahul's email</div>
+                <div class="tt-rule" style="color:rgba(242,241,238,0.2)">2-Minute Rule · done</div>
+              </div>
+            </div>
+            <div class="todo-item" style="border-color:rgba(242,241,238,0.05)">
+              <div class="todo-check" style="border-color:rgba(242,241,238,0.15)"></div>
+              <div class="todo-text">
+                <div class="tt-name" style="color:var(--ink-inv)">Book dentist appointment</div>
+                <div class="tt-rule" style="color:var(--prod)">2-Minute Rule · do now</div>
+              </div>
+            </div>
+          </div>
+          <div class="todo-section" style="background:var(--bg-c);border:1px solid rgba(242,241,238,0.06)">
+            <div class="ts-header">
+              <span style="font-size:16px">📋</span>
+              <div class="ts-title" style="color:var(--ink-inv)">1-3-5 Plan</div>
+              <div class="ts-count" style="background:rgba(242,241,238,0.07);color:rgba(242,241,238,0.35)">4/9</div>
+            </div>
+            <div class="todo-item" style="border-color:rgba(242,241,238,0.05)">
+              <div class="todo-check" style="border-color:rgba(242,241,238,0.15)"></div>
+              <div class="todo-text">
+                <div class="tt-name" style="color:var(--ink-inv);font-size:12px">Review product strategy doc</div>
+                <div class="tt-rule" style="color:rgba(242,241,238,0.35)">Big task · 1-3-5 Rule</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav-p" style="padding-top:4px">
+          <div class="bnav-p dm">
+            <div class="nitem-p dm"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+            <div class="ncenter-p dm"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+            <div class="nitem-p dm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end phone-stage -->
+
+<script>
+function show(id) {
+  const screens = ['home','category','rule','meter','todo'];
+  const labels = ['Home','Category List','Rule Page','Positivity Meter','Todo'];
+  screens.forEach((s,i) => {
+    document.getElementById('s-'+s).style.display = (s===id) ? 'flex' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', screens[i]===id);
+  });
+}
+</script>
+</body>
+</html>

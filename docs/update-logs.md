@@ -2,7 +2,27 @@
 
 ---
 
-## 2026-04-10 - CI Release Signing Hardening (Run #97 follow-up)
+## 2026-04-10 - v1.3.1 "SRS & Widget" Stable Release
+
+### 🎉 New Features
+- **Spaced Repetition System (SRS)**: 
+  - Integrated SM-2 algorithm for optimized learning intervals.
+  - Implemented `SpacedRepetitionEngine` for active recall sessions.
+  - Added SQLite V3 persistence for cards and transcripts to prevent data loss.
+- **Home Screen Widgets**:
+  - Developed `ProductiveGlance` using `@expo/ui/swift-ui` DSL.
+  - Key indicators: Weekly XP Progress and Daily Streak.
+  - Automatic background synchronization on app status updates.
+
+### 🛠 Engineering & CI/CD
+- **Unsigned Artifact Prevention**: Updated `.github/workflows/ci-cd.yml` to stage and upload only signed APKs.
+- **Signing Fix**: Aligned Gradle properties and used absolute paths in GitHub Actions to resolve the "Unsigned APK" blocker.
+- **Source Health**: Scrubbed non-ASCII corrupted characters and resolved source regressions in core logic files.
+- **Build Verification**: Run #97 confirmed as a fully signed, installable production APK.
+
+---
+
+## 2026-04-10 - CI Release Signing Hardening (Initial)
 
 ### Completed
 - **Unsigned Artifact Prevention**: Updated `.github/workflows/ci-cd.yml` to stage and upload only signed APKs (`*-release*.apk` excluding `*unsigned*`).
@@ -10,7 +30,6 @@
   - required release signing secrets exist
   - decoded `android/app/release.jks` exists and is non-empty
   - keystore alias/password are valid via `keytool -list`
-- **Stale Native State Risk Removed**: Removed `android/` prebuild cache restore step and replaced it with explicit native-project existence check (`android/app`).
 
 ### Why this was needed
 - GitHub Run #97 reported success but produced an artifact users identified as `release-unsigned` / non-installable.

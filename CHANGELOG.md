@@ -6,25 +6,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ---
 
-## [Unreleased]
-
-### Changed
-- Hardened GitHub Actions Android release pipeline to avoid publishing non-installable artifacts.
-- Removed `android/` prebuild cache restore path in CI to prevent stale native/signing state from being reused.
-
-### Fixed
-- CI now fails fast when release-signing secrets are missing or invalid.
-- CI now uploads only signed APK files and rejects any `*unsigned*` release outputs.
-
----
-
-## [1.3.1] - 2026-04-09
+## [1.3.1] - 2026-04-10
 
 ### Added
 - Home Screen Widget (Productive+ Glance):
   - Weekly XP progress ring.
   - Daily Consecutive Streak indicator.
-  - Real-time data sync via `setWidgetData`.
+  - Real-time data sync via `updateSnapshot`.
 - SQLite Persistence (v3 Hardening):
   - `flashcards` table for persistent SRS state.
   - `session_contents` table for "Blurting" session transcripts.
@@ -34,10 +22,15 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Refactored `positivityStore` to support "Daily Consecutive" streaks instead of weekly resets.
 - Improved UI spacing in `SmartTaskSorterEngine` (1-3-5 Ritual) to prevent item merging.
 - Standardized font sizes across ritual action buttons for better visual balance.
+- **CI/CD Hardening**: 
+  - Updated Android release pipeline to ensure only signed artifacts (`*-release*.apk`) are uploaded.
+  - Switched to **absolute paths** for keystore files in GitHub Actions to resolve Gradle daemon resolution errors.
 
 ### Fixed
+- Fixed critical "Unsigned APK" issue where the build would fallback to unsigned in CI.
 - Fixed data loss issue in SRS and FreeWrite engines where cards/notes were lost on app restart.
 - Fixed oversized "BEGIN RITUAL" text in guided prompts.
+- Resolved severe source code regressions and non-ASCII character corruption in core engines.
 
 ---
 

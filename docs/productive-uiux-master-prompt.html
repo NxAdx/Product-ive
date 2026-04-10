@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product+ive — UI/UX Master Prompt</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D0D0D;
+  --bg2: #161616;
+  --bg3: #1E1E1E;
+  --ink: #F2F1EE;
+  --ink2: rgba(242,241,238,0.6);
+  --ink3: rgba(242,241,238,0.3);
+  --acc: #059669;
+  --acc2: rgba(5,150,105,0.15);
+  --rule: rgba(242,241,238,0.08);
+  --learn: #A78BFA;
+  --focus: #60A5FA;
+  --prod: #34D399;
+  --study: #FBBF24;
+  --fd: 'DM Serif Display', Georgia, serif;
+  --fb: 'DM Sans', system-ui, sans-serif;
+  --fm: 'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--fb);
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(13,13,13,0.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 48px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand { font-family: var(--fd); font-size: 17px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+.nav-brand em { font-style: italic; color: var(--acc); }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-tag { font-family: var(--fm); font-size: 9px; color: var(--ink3); letter-spacing: 0.1em; text-transform: uppercase; }
+.copy-all-btn {
+  background: var(--acc); color: white; border: none; border-radius: 9999px;
+  padding: 7px 16px; font-family: var(--fb); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em;
+}
+.copy-all-btn:hover { background: #047857; transform: scale(1.03); }
+.copy-all-btn:active { transform: scale(0.97); }
+
+/* ── LAYOUT ── */
+.wrap { max-width: 900px; margin: 0 auto; padding: 0 48px 120px; }
+
+/* ── HERO ── */
+.hero {
+  padding: 72px 0 56px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 64px;
+}
+.hero-eyebrow {
+  font-family: var(--fm); font-size: 9px; color: var(--ink3);
+  letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--acc); }
+.hero-title {
+  font-family: var(--fd); font-size: clamp(48px, 7vw, 80px);
+  font-weight: 400; letter-spacing: -0.03em; line-height: 1.0;
+  margin-bottom: 20px;
+}
+.hero-title em { font-style: italic; color: var(--acc); }
+.hero-sub { font-size: 16px; color: var(--ink2); line-height: 1.75; max-width: 580px; margin-bottom: 32px; }
+.hero-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  padding: 4px 12px; border-radius: 9999px; font-family: var(--fm);
+  font-size: 9px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase;
+}
+.pill-acc { background: var(--acc2); color: var(--acc); border: 1px solid rgba(5,150,105,0.3); }
+.pill-neu { background: rgba(242,241,238,0.06); color: var(--ink3); border: 1px solid var(--rule); }
+
+/* ── SECTION ── */
+.section { margin-bottom: 56px; }
+.sec-label {
+  font-family: var(--fm); font-size: 9px; color: var(--ink3);
+  letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+.sec-title {
+  font-family: var(--fd); font-size: 28px; font-weight: 400;
+  letter-spacing: -0.02em; margin-bottom: 8px; color: var(--ink);
+}
+.sec-sub { font-size: 14px; color: var(--ink2); line-height: 1.7; max-width: 560px; margin-bottom: 20px; }
+.divider { height: 1px; background: var(--rule); margin: 56px 0; }
+
+/* ── PROMPT BLOCK ── */
+.prompt-block {
+  border-radius: 16px; overflow: hidden;
+  border: 1px solid var(--rule); margin-bottom: 16px;
+}
+.prompt-header {
+  background: var(--bg3); padding: 12px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--rule);
+}
+.ph-left { display: flex; align-items: center; gap: 10px; }
+.ph-label { font-family: var(--fm); font-size: 9px; color: var(--ink3); letter-spacing: 0.1em; text-transform: uppercase; }
+.ph-badge {
+  font-family: var(--fm); font-size: 8px; padding: 2px 8px;
+  border-radius: 9999px; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.ph-badge.screen { background: rgba(96,165,250,0.15); color: var(--focus); border: 1px solid rgba(96,165,250,0.25); }
+.ph-badge.component { background: rgba(167,139,250,0.12); color: var(--learn); border: 1px solid rgba(167,139,250,0.22); }
+.ph-badge.system { background: rgba(52,211,153,0.12); color: var(--prod); border: 1px solid rgba(52,211,153,0.22); }
+.ph-badge.flow { background: rgba(251,191,36,0.12); color: var(--study); border: 1px solid rgba(251,191,36,0.22); }
+.ph-badge.master { background: var(--acc2); color: var(--acc); border: 1px solid rgba(5,150,105,0.3); }
+.copy-btn {
+  background: rgba(242,241,238,0.06); border: 1px solid var(--rule);
+  border-radius: 9999px; padding: 5px 12px;
+  font-family: var(--fm); font-size: 9px; color: var(--ink3);
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+  transition: all 0.15s;
+}
+.copy-btn:hover { background: rgba(242,241,238,0.1); color: var(--ink2); }
+.copy-btn.copied { background: var(--acc2); color: var(--acc); border-color: rgba(5,150,105,0.3); }
+.prompt-body {
+  background: var(--bg2); padding: 20px 22px;
+  font-family: var(--fm); font-size: 12px; color: rgba(242,241,238,0.72);
+  line-height: 1.85; white-space: pre-wrap; word-break: break-word;
+}
+.prompt-body .kw { color: var(--acc); }
+.prompt-body .cat { color: var(--learn); }
+.prompt-body .val { color: var(--study); }
+.prompt-body .dim { color: var(--ink3); }
+
+/* ── USAGE TABLE ── */
+.usage-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+.usage-table th {
+  font-family: var(--fm); font-size: 9px; color: var(--ink3); text-transform: uppercase;
+  letter-spacing: 0.1em; font-weight: 500; padding: 9px 12px; text-align: left;
+  border-bottom: 1px solid var(--rule); background: var(--bg3);
+}
+.usage-table td { padding: 9px 12px; color: var(--ink2); border-bottom: 1px solid rgba(242,241,238,0.04); vertical-align: top; line-height: 1.6; }
+.usage-table tr:last-child td { border-bottom: none; }
+code { font-family: var(--fm); background: rgba(242,241,238,0.07); padding: 2px 6px; border-radius: 4px; font-size: 11px; color: var(--ink); }
+
+/* ── HOW TO USE PANEL ── */
+.how-panel {
+  background: var(--bg3); border: 1px solid var(--rule);
+  border-radius: 16px; padding: 24px 28px; margin-bottom: 24px;
+}
+.hp-title { font-family: var(--fd); font-size: 20px; font-weight: 400; letter-spacing: -0.01em; margin-bottom: 12px; }
+.hp-steps { display: flex; flex-direction: column; gap: 10px; }
+.hp-step { display: flex; gap: 12px; align-items: flex-start; }
+.hp-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--acc); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fm); font-size: 10px; flex-shrink: 0; margin-top: 2px;
+}
+.hp-text { font-size: 13px; color: var(--ink2); line-height: 1.65; flex: 1; }
+.hp-text strong { color: var(--ink); }
+
+/* ── CALLOUT ── */
+.callout {
+  padding: 14px 18px; border-radius: 12px; margin: 14px 0;
+  font-size: 14px; line-height: 1.7; display: flex; gap: 10px;
+  background: var(--acc2); border: 1px solid rgba(5,150,105,0.25); color: rgba(52,211,153,0.9);
+}
+.callout-neutral {
+  background: var(--bg3); border: 1px solid var(--rule); color: var(--ink2);
+}
+.ci { font-size: 16px; flex-shrink: 0; }
+
+p { font-size: 14px; color: var(--ink2); line-height: 1.75; margin-bottom: 10px; }
+strong { color: var(--ink); font-weight: 600; }
+h3 { font-family: var(--fd); font-size: 20px; font-weight: 400; letter-spacing: -0.01em; margin: 28px 0 10px; color: var(--ink); }
+ul { padding-left: 18px; margin-bottom: 10px; }
+li { font-size: 14px; color: var(--ink2); line-height: 1.75; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">Product<em>+</em>ive <span style="color:var(--ink3);font-family:var(--fm);font-size:10px;margin-left:6px;font-weight:400">UI/UX Master Prompt</span></div>
+  <div class="nav-right">
+    <span class="nav-tag">9 prompts · copy-ready</span>
+    <button class="copy-all-btn" onclick="copyAll()">Copy Master Prompt</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">UI/UX Generation Prompt · April 2026</div>
+  <div class="hero-title">Generate any screen.<br><em>Instantly.</em></div>
+  <div class="hero-sub">Copy any prompt below — paste it into Claude, Cursor, v0, or Figma AI — and get a production-ready Product+ive screen that perfectly matches the design system. No context needed beyond the prompt itself.</div>
+  <div class="hero-pills">
+    <span class="pill pill-acc">DM Serif Display + DM Sans + DM Mono</span>
+    <span class="pill pill-acc">Light & Dark Mode</span>
+    <span class="pill pill-neu">5 Screens · 7 Engines</span>
+    <span class="pill pill-neu">React Native Ready</span>
+    <span class="pill pill-neu">Figma / HTML / Code</span>
+  </div>
+</div>
+
+<!-- HOW TO USE -->
+<div class="how-panel">
+  <div class="hp-title">How to use these prompts</div>
+  <div class="hp-steps">
+    <div class="hp-step"><div class="hp-num">1</div><div class="hp-text"><strong>Pick a prompt</strong> — choose by screen name or component type. Each prompt is self-contained — no extra context file needed.</div></div>
+    <div class="hp-step"><div class="hp-num">2</div><div class="hp-text"><strong>Customise the variables</strong> — every prompt has <code>[BRACKETED]</code> placeholders. Swap in your specific rule name, category, or mode before pasting.</div></div>
+    <div class="hp-step"><div class="hp-num">3</div><div class="hp-text"><strong>Paste into your tool</strong> — works with Claude (html/jsx), v0, Cursor, Lovable, or Figma AI. Specify your output format at the end if needed (e.g. "output as JSX with StyleSheet").</div></div>
+    <div class="hp-step"><div class="hp-num">4</div><div class="hp-text"><strong>Use the Master Prompt</strong> (top-right button) to paste the full system context — use this when starting a brand-new session with an AI assistant that has no prior context on this project.</div></div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+  SECTION 1 — MASTER SYSTEM PROMPT
+──────────────────────────────────────── -->
+<div class="section" id="master">
+  <div class="sec-label">00 — Master Context</div>
+  <div class="sec-title">Full System Prompt</div>
+  <div class="sec-sub">Paste this first when opening a fresh AI session. It sets the complete design system, app identity, all tokens, and screen architecture. Everything else builds on top of this.</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Master Context Prompt</span>
+        <span class="ph-badge master">Full System</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'master')">Copy</button>
+    </div>
+    <div class="prompt-body" id="master">
+<span class="kw">ROLE:</span> You are a senior UI/UX designer and React Native developer building screens for <span class="val">"Product+ive"</span> — a productivity rules app. Reproduce the design system exactly as described below. Never deviate from the tokens, font choices, or component patterns.
+
+<span class="kw">APP IDENTITY:</span>
+- Name: Product+ive (the + is always green, #059669)
+- Logo reads: PRO + duck-mascot + ive = PRODUCTIVE
+- Tagline: "Rules that work. Habits that last."
+- Platform: React Native (Expo SDK 51) — cross-platform iOS + Android
+- Theme: User-togglable Light / Dark. Toggle is a circular icon button top-right of Home screen.
+
+<span class="kw">DESIGN LANGUAGE:</span>
+Brutally minimal. Pure black (#0D0D0D) or pure off-white (#F9F8F5) backgrounds.
+Cards are large, rounded rectangles — no glassmorphism, no gradients on surfaces.
+The ONLY decorative element is the dark filled circle with white arrow (→) used as the
+action/navigation button on every rule row. This circle is the visual signature of the app.
+Everything else is restraint: generous whitespace, bold typography, sharp contrast.
+
+<span class="kw">TYPOGRAPHY — DM FAMILY ONLY. NO OTHER FONTS.</span>
+- DM Serif Display (regular + italic): App name, screen titles, card names, large headings
+- DM Sans (300–700): All UI body text, button labels, descriptions, metadata
+- DM Mono (300–500): Labels, timestamps, rule counts, ALL CAPS section tags, hex values
+Font rules: Never use Inter, Roboto, SF Pro, or system fonts. Always import from Google Fonts.
+
+<span class="kw">COLOR TOKENS:</span>
+Light mode:
+  --bg:         #F9F8F5   (screen background)
+  --bg-card:    #F2F1EE   (card/row surface)
+  --ink:        #0D0D0D   (primary text + action button fill)
+  --ink-mid:    #6B6B6B   (secondary text, descriptions)
+  --ink-dim:    #9A9A9A   (timestamps, counts, placeholder)
+  --border:     rgba(13,13,13,0.07)
+
+Dark mode (AMOLED):
+  --bg:         #0D0D0D   (pure black screen — never #111 or #1C1C1C for bg)
+  --bg-card:    #1E1E1E   (card surface — slightly lighter than bg)
+  --ink:        #F2F1EE   (primary text)
+  --ink-mid:    rgba(242,241,238,0.55)
+  --ink-dim:    rgba(242,241,238,0.30)
+  --border:     rgba(242,241,238,0.08)
+
+Category accents (light / dark):
+  Learning & Memory:   #7C3AED  /  #A78BFA   bg: #EDE9FE / rgba(124,58,237,0.15)
+  Focus & Sessions:    #1D4ED8  /  #60A5FA   bg: #DBEAFE / rgba(29,78,216,0.15)
+  Productivity:        #059669  /  #34D399   bg: #D1FAE5 / rgba(5,150,105,0.15)
+  Study Techniques:    #B45309  /  #FBBF24   bg: #FEF3C7 / rgba(180,83,9,0.15)
+  Positivity Meter:    #059669  /  #34D399   (always green)
+
+Action button (the signature dark circle):
+  Light: background #0D0D0D, icon white, shadow 0 4px 12px rgba(13,13,13,0.25)
+  Dark:  background #F2F1EE, icon #0D0D0D
+
+<span class="kw">RADIUS TOKENS:</span>
+  Cards (home 2×2 grid): 28px
+  Rule rows (pill shape): 22px
+  Buttons: 9999px (full pill)
+  Icon containers: 14px
+  Small elements: 10px
+
+<span class="kw">SHADOWS:</span>
+  Card: 0 2px 0 rgba(13,13,13,0.12), 0 8px 24px rgba(13,13,13,0.06)
+  Action circle: 0 4px 12px rgba(13,13,13,0.25)
+  Nav bar: 0 -1px 0 rgba(13,13,13,0.06), 0 8px 32px rgba(13,13,13,0.12)
+  Dark mode: reduce all shadow opacity by 60%
+
+<span class="kw">MOTION:</span>
+  Primary easing: cubic-bezier(0.34, 1.56, 0.64, 1)  — spring, slight overshoot
+  Card press: scale(0.95) on active, spring back to 1.0
+  Action button hover: scale(1.1) with spring
+  Rule row hover: translateX(3px), 120ms ease-out
+  Timer ring: stroke-dashoffset linear 1s per second
+  Step dots: width 8→24px spring, 240ms
+  Duration fast: 120ms | Standard: 240ms | Slow: 420ms
+
+<span class="kw">THE 5 SCREENS:</span>
+1. Home — 2×2 category card grid. Top-left: About ⓘ button. Top-right: Theme toggle.
+   Bottom: floating pill nav (Home · + · Compass). Cards are 1:1 aspect ratio.
+2. Todo — Rule-aware task list. Sections: 🐸 Frog of Day / ⚡ Quick / 📋 1-3-5 / General.
+3. Positivity Meter — Circular SVG ring (green), score, stats grid, streak dots, activity log.
+4. Category List — Full-width pill rows, each with rule name + description + dark circle → arrow.
+5. Rule Page — Engine UI (timer/guided/etc.) + Start Session button + Info ⓘ top-right.
+
+<span class="kw">BOTTOM NAV (floating pill, always visible):</span>
+3 items inside a pill-shaped container with white/dark-surface background:
+  Left: House icon (Home) — outline, fills on active
+  Centre: + in a filled circle (black light / white dark) — always elevated, 54px diameter
+  Right: Compass/dial icon (Positivity Meter)
+Shadow: 0 -1px 0 border-color, 0 8px 32px rgba(13,13,13,0.12)
+
+<span class="kw">CATEGORY CARD ANATOMY (home screen):</span>
+- Background: --bg-card (opaque, no glassmorphism)
+- Top-left: 48×48px icon container (border-radius 14px, category bg color, emoji/SVG icon)
+- Bottom-left: Category name in DM Serif Display 16px
+- Bottom-right: Rule count in DM Mono 11px --ink-dim
+- On press: scale(0.95), spring back. On hover: icon scale(1.1) rotate(-4deg)
+
+<span class="kw">RULE ROW ANATOMY (category list screen):</span>
+- Background: --bg-card (pill shape, radius 22px)
+- Left: 8px colour dot (category accent) + Rule name (DM Sans 600 15px) + description (DM Sans 12px --ink-dim, truncated)
+- Right: Dark filled circle 44px with white → arrow icon. Protrudes slightly at right edge.
+- Height: ~72px. Gap between rows: 9–10px.
+
+<span class="kw">THE 7 ENGINES (rule session UI types):</span>
+countdown    — Large circular SVG ring countdown. Pomodoro / 90-min / 2-min.
+interval     — Session timer + periodic action confirmation. 20-20-20 Rule.
+guided       — Step-by-step prompt cards + step-dot progress indicator. Feynman / Cornell / SQ3R.
+sorter       — Task slot UI. Eat the Frog / 1-3-5 / 80-20.
+spaced       — Topic input + visual schedule timeline. SRS / 1-4-7.
+awareness    — Reflection cards / commitment / countdown. Parkinson / 5-Second Rule.
+freewrite    — Topic input + large text area + optional timer. Active Recall / Blurting / Chunking.
+
+<span class="kw">POSITIVITY METER:</span>
+- SVG circle ring, stroke-width 8–10, colour always --prod green (#059669 light / #34D399 dark)
+- Ring bg: rgba(5,150,105,0.10–0.15)
+- Centre: score in DM Serif Display italic + "/ 500 pts" in DM Mono 9px
+- Below: Level name (DM Serif Display 15px) + % to next level (DM Sans 11px --ink-mid)
+- Stats: 3-column grid of cards — Sessions / Tasks / Rules. Value DM Serif Display 22px + label DM Mono 8px
+- Streak: 7 day dots — 30×30px rounded squares. Done=green, Today=ink, Future=border-only.
+- Activity log: rows with 6px category-coloured dot + event text + "+N pts" in green + timestamp
+
+<span class="kw">COMPONENT RULES (NEVER BREAK THESE):</span>
+1. Never use glassmorphism or backdrop-filter blur.
+2. Never use gradient fills on cards or backgrounds.
+3. Never use Inter, Roboto, SF Pro, or system-ui as primary font.
+4. Action circle buttons are ALWAYS the opposite of the surface (dark on light, light on dark).
+5. Category colour is ONLY used for: the dot indicator, icon bg, tag pill, accent text. Never as card bg.
+6. The + centre button is always filled circle, never ghost/outline.
+7. All rule rows are pill-shaped (radius 22px), never sharp-cornered rectangles.
+8. DM Serif Display is ITALIC for the app name/tagline emotional moments. Regular for titles.
+9. Spacing unit: 4px base. Common: 8/16/20/24/40px.
+10. Touch targets minimum 44×44px on all interactive elements.
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ────────────────────────────────────────
+  SECTION 2 — SCREEN PROMPTS
+──────────────────────────────────────── -->
+<div class="section">
+  <div class="sec-label">01 — Screen Prompts</div>
+  <div class="sec-title">Home Screen</div>
+  <div class="sec-sub">The 2×2 category grid with floating pill nav. Works for both light and dark mode — specify which at the end.</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Screen 1 — Home</span>
+        <span class="ph-badge screen">Screen</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'home')">Copy</button>
+    </div>
+    <div class="prompt-body" id="home">
+<span class="dim">Using the Product+ive design system above, design the</span> <span class="kw">Home Screen</span> <span class="dim">in</span> <span class="val">[LIGHT / DARK]</span> <span class="dim">mode.</span>
+
+<span class="kw">LAYOUT (top to bottom):</span>
+1. Top bar: About ⓘ button (circular, 36px, outline style) LEFT — "Product+ive" in DM Serif Display italic CENTRE — Theme toggle button (sun/moon icon, circular 36px) RIGHT. No background on the bar — floats over content.
+2. 2×2 grid of Category Cards filling the middle of the screen, with 18px horizontal padding and 10px gap between cards.
+3. Floating pill navigation bar BOTTOM — centred, not full-width. Contains: House icon (left) · + in filled circle 54px (centre) · Compass icon (right). Pill has white (light) or #1E1E1E (dark) background with shadow.
+
+<span class="kw">THE 4 CATEGORY CARDS (each 1:1 aspect ratio, radius 28px):</span>
+Top-left:     Learning & Memory   — 🧠 icon, accent purple #7C3AED, "4 rules"
+Top-right:    Focus & Sessions    — ⏱ icon, accent blue #1D4ED8, "3 rules"
+Bottom-left:  Productivity        — ⚡ icon, accent green #059669, "5 rules"
+Bottom-right: Study Techniques    — 📖 icon, accent amber #B45309, "8 rules"
+
+<span class="kw">CARD INTERIOR:</span>
+- 48×48px icon container: radius 14px, category accent bg at 12% opacity, emoji centred
+- Category name: DM Serif Display 16px, bottom-left of card
+- Rule count: DM Mono 11px --ink-dim, bottom-right of card
+- Card bg: #F2F1EE light / #1E1E1E dark
+- Card shadow: 0 2px 0 rgba(13,13,13,0.12), 0 8px 24px rgba(13,13,13,0.06)
+
+<span class="kw">OUTPUT:</span> Single-screen phone mockup (375×812px). Pixel-accurate. Include all spacing values.
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Category List Screen</div>
+  <div class="sec-sub">The rule rows screen — this must match the reference screenshot exactly (black bg, white pill rows, dark circle arrow).</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Screen 4 — Category List</span>
+        <span class="ph-badge screen">Screen</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'catlist')">Copy</button>
+    </div>
+    <div class="prompt-body" id="catlist">
+<span class="dim">Using the Product+ive design system above, design the</span> <span class="kw">Category List Screen</span> <span class="dim">for the</span> <span class="val">[CATEGORY NAME]</span> <span class="dim">category in</span> <span class="val">[LIGHT / DARK]</span> <span class="dim">mode.</span>
+
+<span class="kw">HEADER:</span>
+Back arrow ← (circular button, 36px) LEFT — category icon + category name in DM Serif Display 16px CENTRE — rule count badge "[N] rules" in DM Mono 9px with category accent bg RIGHT. 20px horizontal padding.
+
+<span class="kw">RULE ROWS — this is the defining UI element of the app:</span>
+Each row is a pill-shaped card (border-radius 22px, height ~72px):
+- Background: #F2F1EE light / #1E1E1E dark
+- Shadow: 0 2px 0 rgba(13,13,13,0.12), 0 4px 12px rgba(13,13,13,0.05)
+- Gap between rows: 9px
+- Horizontal padding from screen edge: 18px
+
+ROW INTERIOR (left to right):
+  [8px colour dot] [Rule name DM Sans 600 15px] + [Description DM Sans 12px --ink-dim, single line truncated]
+  [RIGHT EDGE: filled circle 44px diameter — #0D0D0D light / #F2F1EE dark — with white/dark → arrow icon, shadow 0 3px 8px rgba(13,13,13,0.2)]
+
+The circle protrudes slightly to the right (sits at right edge of the row, centred vertically).
+
+<span class="kw">RULES TO SHOW (replace with actual rules for the chosen category):</span>
+<span class="val">[PASTE THE RELEVANT RULES FROM THE LIST BELOW]</span>
+
+Full rule list by category:
+Learning & Memory: 1-4-7 Rule · Feynman Technique · 80/20 Rule · Spaced Repetition (SRS)
+Focus & Sessions:  20-20-20 Rule · Pomodoro Technique · 90-Minute Ultradian Rule
+Productivity:      2-Minute Rule · 5-Second Rule · Eat the Frog · Parkinson's Law · 1-3-5 Rule
+Study Techniques:  Active Recall · Cornell Note Method · Interleaving · Mind Mapping · SQ3R Method · Blurting Method · Elaborative Interrogation · Chunking
+
+<span class="kw">BOTTOM:</span> Same floating pill nav as home screen.
+<span class="kw">OUTPUT:</span> Full phone mockup (375×812px). Show at least 5–6 rule rows. Include correct colour dot per category.
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Rule Page — Timer Engine</div>
+  <div class="sec-sub">For rules that use CountdownTimerEngine: Pomodoro, 90-min Ultradian, 2-Minute Rule.</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Screen 5 — Rule Page (Timer)</span>
+        <span class="ph-badge screen">Screen</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'ruletimer')">Copy</button>
+    </div>
+    <div class="prompt-body" id="ruletimer">
+<span class="dim">Using the Product+ive design system above, design the</span> <span class="kw">Rule Page</span> <span class="dim">for</span> <span class="val">[RULE NAME — e.g. "Pomodoro Technique"]</span> <span class="dim">using the CountdownTimerEngine in</span> <span class="val">[LIGHT / DARK]</span> <span class="dim">mode. Show the</span> <span class="val">[work / break]</span> <span class="dim">phase.</span>
+
+<span class="kw">HEADER:</span>
+← back button LEFT — Rule name DM Serif Display 16px CENTRE — Info ⓘ circular button RIGHT.
+
+<span class="kw">SUBHEADER (below header):</span>
+"Round [N] of [TOTAL]" in DM Mono 10px --ink-dim, centred.
+
+<span class="kw">TIMER RING (dominant element, centred, ~65% of screen height above controls):</span>
+- SVG circle, radius 60 in 140×140 viewBox (so diameter 140px rendered as 160px)
+- Ring background stroke: rgba(13,13,13,0.08) light / rgba(242,241,238,0.08) dark, stroke-width 7–8
+- Ring fill stroke: #0D0D0D light / #F2F1EE dark (work phase), OR #059669 (break phase)
+- stroke-linecap: round. Transform: rotate(-90deg) so fill starts at top.
+- Fill amount: based on time remaining / total duration (e.g. 18:34 remaining of 25:00 = ~74% filled)
+- CENTRE of ring: Large time "18:34" in DM Serif Display 28px + "FOCUS" or "BREAK" label DM Mono 9px --ink-dim
+
+<span class="kw">CYCLE INDICATOR (below ring):</span>
+Row of [N] dots — filled (#0D0D0D) for completed rounds, rgba(13,13,13,0.15) for remaining.
+
+<span class="kw">METADATA ROW:</span>
+"SESSIONS TODAY: [N]" left — "+[N] PTS ON COMPLETE" right. DM Mono 9px --ink-dim.
+
+<span class="kw">ACTION BUTTONS (bottom, above nav):</span>
+If running: "⏸ Pause" primary button (full black pill, full width 60%) + "End" ghost button (40%)
+If paused: "▶ Resume" primary + "End" ghost
+If not started: Single large "Start Session" primary button, full width.
+Primary: bg #0D0D0D light / #F2F1EE dark. Ghost: transparent + border.
+Both: border-radius 9999px, padding 13px, DM Sans 600 14px.
+
+<span class="kw">BELOW FOLD — History mini card:</span>
+"YOUR HISTORY" DM Mono 9px label + "X sessions · Last: [date] · [N] mins total" in smaller type.
+
+<span class="kw">OUTPUT:</span> Full phone screen mockup (375×812px). Show the timer actively running (not at 0:00).
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Rule Page — Guided Engine</div>
+  <div class="sec-sub">For rules with step-by-step prompt cards: Feynman, Cornell, SQ3R, Mind Mapping, Elaborative Interrogation.</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Screen 5 — Rule Page (Guided)</span>
+        <span class="ph-badge screen">Screen</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'ruleguided')">Copy</button>
+    </div>
+    <div class="prompt-body" id="ruleguided">
+<span class="dim">Using the Product+ive design system above, design the</span> <span class="kw">Rule Page</span> <span class="dim">for</span> <span class="val">[RULE NAME — e.g. "Feynman Technique"]</span> <span class="dim">using the GuidedPromptEngine. Show step</span> <span class="val">[N]</span> <span class="dim">of</span> <span class="val">[TOTAL]</span> <span class="dim">in</span> <span class="val">[LIGHT / DARK]</span> <span class="dim">mode.</span>
+
+<span class="kw">HEADER:</span>
+← back LEFT — Rule name DM Serif Display 16px CENTRE — Info ⓘ RIGHT.
+
+<span class="kw">STEP PROGRESS DOTS (below header, centred):</span>
+Row of [TOTAL] dots. Completed steps: 8px circle, accent colour. Active step: pill shape 24×8px, accent colour.
+Future steps: 8px circle, --ink-dim. Animation: width springs from 8→24px on activation.
+Use the category accent colour (e.g. purple for Learning rules, amber for Study rules).
+
+<span class="kw">STEP CARD (fills remaining vertical space above buttons):</span>
+bg: --bg-card. radius 18px. padding 20px.
+- "Step [N] of [TOTAL]" DM Mono 9px in category accent colour, top
+- Step title DM Serif Display 20px
+- Step instruction DM Sans 13px --ink-mid, 1.65 line-height
+- Multi-line text area: radius 12px, --bg-raised, DM Sans 13px, placeholder text in --ink-dim.
+  No visible border on focus in light mode — subtle on dark. Minimum 4 rows.
+
+<span class="kw">STEP CONTENT FOR</span> <span class="val">[RULE NAME]</span><span class="dim">:</span>
+Feynman Technique steps: [1. Choose a topic] [2. Explain it simply] [3. Find your gaps] [4. Review and simplify]
+Cornell Notes steps: [1. Choose topic] [2. Take cue-column notes] [3. Write summary] [4. Self-quiz from cues]
+SQ3R steps: [1. Survey] [2. Question] [3. Read] [4. Recite] [5. Review]
+Mind Mapping steps: [1. Central topic] [2. Add 5+ branches] [3. Sub-branches] [4. Connect related] [5. Review map]
+
+<span class="kw">NAVIGATION BUTTONS:</span>
+"← Previous" ghost (if not step 1) + "Next Step →" primary pill button. Full-width split.
+On last step: "Next Step →" becomes "Complete Session ✓" in accent green.
+
+<span class="kw">OUTPUT:</span> Full phone mockup. Show step card with some text already typed in the textarea.
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Positivity Meter Screen</div>
+  <div class="sec-sub">The emotional core of the app. Green ring, score, stats, streak, activity log.</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Screen 3 — Positivity Meter</span>
+        <span class="ph-badge screen">Screen</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'meter')">Copy</button>
+    </div>
+    <div class="prompt-body" id="meter">
+<span class="dim">Using the Product+ive design system above, design the</span> <span class="kw">Positivity Meter Screen</span> <span class="dim">in</span> <span class="val">[LIGHT / DARK]</span> <span class="dim">mode. Score is</span> <span class="val">[SCORE]</span> <span class="dim">out of</span> <span class="val">[MAX — e.g. 500]</span><span class="dim">. Level is</span> <span class="val">[LEVEL NAME — e.g. "In the Zone ⚡"]</span><span class="dim">.</span>
+
+<span class="kw">HEADER:</span>
+No back button (this is a tab screen). "My Progress" DM Serif Display 16px CENTRE. Theme toggle RIGHT.
+
+<span class="kw">POSITIVITY RING (centred, ~120px diameter rendered):</span>
+SVG circle with:
+- Background track: rgba(5,150,105,0.10) light / rgba(52,211,153,0.10) dark, stroke-width 8–10
+- Fill stroke: #059669 light / #34D399 dark. stroke-linecap: round. Starts at top (rotate -90deg).
+- Fill amount: [SCORE / MAX] as a fraction of circumference (2π × r ≈ 314 for r=50)
+- CENTRE: [SCORE] in DM Serif Display italic 26px colour #059669/#34D399 + "/ [MAX] pts" DM Mono 9px --ink-dim
+Below ring: Level name DM Serif Display 15px + "68% to next level" DM Sans 11px --ink-mid
+
+<span class="kw">STATS GRID (3 equal columns):</span>
+Each cell: bg --bg-card, radius 14px, padding 12px, text-align centre.
+  Sessions: value DM Serif Display 22px colour --focus | label "SESSIONS" DM Mono 8px --ink-dim
+  Tasks Done: value colour --prod | label "TASKS"
+  Rules Used: value colour --learn | label "RULES"
+
+<span class="kw">WEEKLY STREAK (below stats):</span>
+Card bg --bg-card, radius 14px, padding 12px 14px.
+"THIS WEEK" DM Mono 8px --ink-dim label.
+7 day dots in a row (M T W T F S S):
+  Done days (Mon–Wed): 30×30px rounded square, bg #059669 light / #34D399 dark, white text
+  Today (Thu): bg #0D0D0D light / #F2F1EE dark, inverted text
+  Future (Fri–Sun): bg rgba(13,13,13,0.06) / rgba(242,241,238,0.07), --ink-dim text
+
+<span class="kw">ACTIVITY LOG (below streak):</span>
+"RECENT ACTIVITY" DM Mono 8px --ink-dim label.
+Each row: 6px coloured dot (category colour) + event text DM Sans 11px + "+[N]" DM Mono 10px green + timestamp DM Mono 9px --ink-dim. Divider between rows: 1px --border.
+Show 3–5 entries:
+  • [category dot] "Completed Pomodoro session" +20 2m ago
+  • [category dot] "Finished Eat the Frog task" +10 1h ago
+  • [category dot] "First time: Feynman Technique" +25 3h ago
+
+<span class="kw">BOTTOM:</span> Same floating pill nav. Compass icon is active.
+<span class="kw">OUTPUT:</span> Full phone mockup (375×812px). Ring should appear partially filled.
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">Todo Screen</div>
+  <div class="sec-sub">Rule-aware task list with three intelligent sections: Frog, Quick (2-min), and 1-3-5 plan.</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Screen 2 — Todo</span>
+        <span class="ph-badge screen">Screen</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'todo')">Copy</button>
+    </div>
+    <div class="prompt-body" id="todo">
+<span class="dim">Using the Product+ive design system above, design the</span> <span class="kw">Todo Screen</span> <span class="dim">in</span> <span class="val">[LIGHT / DARK]</span> <span class="dim">mode.</span>
+
+<span class="kw">HEADER:</span>
+No back. "Today" DM Serif Display 16px CENTRE. Date pill "[Month Day]" DM Mono 9px, --bg-card bg, RIGHT.
+
+<span class="kw">SECTION 1 — FROG OF THE DAY 🐸 (Eat the Frog rule):</span>
+Card bg: #FEF3C7 light / rgba(180,83,9,0.12) dark. Radius 16px.
+Header: 🐸 emoji + "Frog of the Day" DM Sans 700 13px amber colour + task count badge.
+Task row: 20px checkbox (unfilled, amber border light) + task name DM Sans 500 13px + rule tag "Eat the Frog · do first" DM Mono 10px amber.
+Divider between rows: 1px rgba(180,83,9,0.08).
+
+<span class="kw">SECTION 2 — QUICK TASKS ⚡ (2-Minute Rule):</span>
+Card bg: --bg-card. Radius 16px.
+Header: ⚡ + "Quick (2 min)" + "[done/total]" count badge.
+Show one DONE task (checkbox filled green, task text strikethrough, dimmed) and one PENDING task.
+Rule tag: "2-Minute Rule · do now" DM Mono 10px --prod colour on pending. "done" on completed.
+
+<span class="kw">SECTION 3 — 1-3-5 PLAN 📋:</span>
+Card bg: --bg-card. Radius 16px.
+Header: 📋 + "1-3-5 Plan" + "[N/9]" count badge.
+Sub-sections: "Big task" (1 slot) / "Medium tasks" (3 slots) / "Small tasks" (5 slots)
+Sub-section label: DM Mono 9px --ink-dim. Task rows: same as above.
+Show a mix of done and pending tasks.
+
+<span class="kw">CHECKBOX DESIGN:</span>
+Unfilled: 20×20px, radius 6px, 1.5px border in --ink-dim (light) or rgba(242,241,238,0.2) dark.
+Filled (done): bg #059669, border same, white ✓ icon inside.
+
+<span class="kw">TASK ROW ANATOMY:</span>
+[checkbox] [task name DM Sans 500 13px] — right: nothing (clean)
+Below task name: [rule tag DM Mono 10px in category colour]
+Divider between tasks: 1px --border.
+
+<span class="kw">BOTTOM:</span> Floating pill nav. + button in centre (this screen is accessed via it).
+<span class="kw">OUTPUT:</span> Full phone mockup. Show real task names, not placeholders.
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ────────────────────────────────────────
+  SECTION 3 — COMPONENT PROMPTS
+──────────────────────────────────────── -->
+<div class="section">
+  <div class="sec-label">02 — Component Prompts</div>
+  <div class="sec-title">Individual Components</div>
+  <div class="sec-sub">Use these to generate specific components in isolation — useful for Figma component libraries or Storybook.</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Category Card</span>
+        <span class="ph-badge component">Component</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'comp-card')">Copy</button>
+    </div>
+    <div class="prompt-body" id="comp-card">
+<span class="dim">Using the Product+ive design system, design all 4 states of the</span> <span class="kw">Category Card</span> <span class="dim">component:</span>
+
+<span class="kw">STATES TO SHOW (in a 2×2 grid of phone-context cards):</span>
+1. Default Light — #F2F1EE bg, normal shadow
+2. Default Dark — #1E1E1E bg, reduced shadow
+3. Hover/Focus — icon scaled up 10% + rotated -4deg, slight lift
+4. Active/Pressed — scale(0.95), shadow reduced
+
+<span class="kw">CARD SPEC:</span>
+Size: square, ~148×148px in a 375px phone context (2 cards per row, 10px gap, 18px margin)
+Radius: 28px. Background: see states above.
+Shadow default: 0 2px 0 rgba(13,13,13,0.12), 0 8px 24px rgba(13,13,13,0.06)
+
+TOP-LEFT: Icon container 48×48px, radius 14px, category accent at 12% opacity bg, emoji 22px centred
+BOTTOM-LEFT: Category name — DM Serif Display 16px, line-height 1.2, max 2 lines, letter-spacing -0.01em
+BOTTOM-RIGHT: Rule count — DM Mono 11px --ink-dim
+
+<span class="kw">SHOW ALL 4 CATEGORIES:</span>
+🧠 Learning & Memory — purple #7C3AED / #A78BFA — "4 rules"
+⏱ Focus & Sessions   — blue #1D4ED8 / #60A5FA  — "3 rules"
+⚡ Productivity       — green #059669 / #34D399  — "5 rules"
+📖 Study Techniques   — amber #B45309 / #FBBF24  — "8 rules"
+
+<span class="kw">OUTPUT:</span> 8 cards total (4 categories × light + dark). Show on a neutral dark grey background for context.
+    </div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Rule Row</span>
+        <span class="ph-badge component">Component</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'comp-row')">Copy</button>
+    </div>
+    <div class="prompt-body" id="comp-row">
+<span class="dim">Using the Product+ive design system, design the</span> <span class="kw">Rule Row</span> <span class="dim">component in all states:</span>
+
+<span class="kw">THE RULE ROW is the most important UI component in the app. It must be pixel-perfect.</span>
+
+ANATOMY (left to right, inside a pill-shaped container):
+[16px left padding] [8px colour dot, border-radius 50%] [12px gap] [text block flex:1] [circle arrow button] [0px right — button sits at right edge]
+
+TEXT BLOCK:
+  Line 1: Rule name — DM Sans font-weight 600, 15px, --ink colour, line-height 1.3
+  Line 2: Description — DM Sans 12px, --ink-dim colour, single line, overflow ellipsis
+
+CIRCLE ARROW BUTTON:
+  Size: 44×44px, border-radius: 50%
+  Light mode: bg #0D0D0D, icon white
+  Dark mode: bg #F2F1EE, icon #0D0D0D
+  Icon: → (right arrow, not >, not ›), 18px, 2px stroke-width, stroke-linecap round
+  Shadow: 0 3px 8px rgba(13,13,13,0.2)
+  The button overlaps the right edge of the pill row slightly (translateX +2px)
+
+PILL ROW CONTAINER:
+  height: ~72px (auto with 16px vertical padding), width: 100% minus 18px margin each side
+  radius: 22px
+  Light: bg #F2F1EE, border 1px solid rgba(13,13,13,0.05), shadow 0 2px 0 rgba(13,13,13,0.12)
+  Dark: bg #1E1E1E, border 1px solid rgba(242,241,238,0.05)
+  Gap between rows: 9px
+
+<span class="kw">STATES:</span>
+1. Default light    2. Default dark
+3. Hover light (row translateX 3px, button scale 1.08)
+4. Hover dark
+5. Active/pressed (row scale 0.99)
+
+<span class="kw">SAMPLE ROWS (show 4 different categories):</span>
+• [purple dot] "Feynman Technique" · "Explain it simply to understand deeply"
+• [blue dot]   "Pomodoro Technique" · "25-min focus blocks with 5-min breaks"
+• [green dot]  "Eat the Frog" · "Do your most important task first thing"
+• [amber dot]  "Active Recall" · "Test your memory instead of re-reading"
+
+<span class="kw">OUTPUT:</span> Component sheet showing all states. Include measurements and colour annotations.
+    </div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Bottom Navigation</span>
+        <span class="ph-badge component">Component</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'comp-nav')">Copy</button>
+    </div>
+    <div class="prompt-body" id="comp-nav">
+<span class="dim">Using the Product+ive design system, design the</span> <span class="kw">Bottom Navigation Bar</span> <span class="dim">component in all states.</span>
+
+<span class="kw">STRUCTURE:</span>
+A floating pill-shaped container. NOT full-width — centred, with natural width fitting 3 items.
+The container does NOT have visible left/right edges touching the screen — it floats.
+
+CONTAINER:
+  Light: bg white (#FFFFFF), border 1px solid rgba(13,13,13,0.07), radius 9999px
+  Dark: bg #1E1E1E, border 1px solid rgba(242,241,238,0.08), radius 9999px
+  Shadow: 0 -1px 0 rgba(13,13,13,0.06), 0 8px 32px rgba(13,13,13,0.12)
+  Padding: 10px 12px (vertical/horizontal)
+  Position: centred horizontally, 16px from bottom of screen
+
+ITEMS:
+  Left — Home: House/home icon, 20×20px, stroke 1.8px
+  Centre — Add: Filled circle 54×54px. Light: bg #0D0D0D, icon white. Dark: bg #F2F1EE, icon dark.
+    + icon inside: 22×22px, 2.2px stroke. Shadow: 0 4px 12px rgba(13,13,13,0.3). margin 0 4px.
+  Right — Meter: Compass/dial icon, 20×20px, stroke 1.8px
+
+STATES per icon (not for centre +):
+  Default: stroke --ink-dim (light) or rgba(242,241,238,0.4) (dark)
+  Active: stroke --ink (light) or rgba(242,241,238,1.0) (dark) — no bg highlight, just icon fill change
+
+<span class="kw">SHOW:</span>
+Row 1: Home active, light mode
+Row 2: Meter active, light mode
+Row 3: Home active, dark mode
+Row 4: Meter active, dark mode
+Row 5: + button hover state (scale 1.1, enlarged shadow)
+
+<span class="kw">OUTPUT:</span> Component sheet. Show actual pixel dimensions: container height ~68px, item hit areas 44×44px.
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ────────────────────────────────────────
+  SECTION 4 — FLOW & SPECIAL PROMPTS
+──────────────────────────────────────── -->
+<div class="section">
+  <div class="sec-label">03 — Flow & Special</div>
+  <div class="sec-title">Onboarding Flow</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Onboarding (3 screens)</span>
+        <span class="ph-badge flow">Flow</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'onboarding')">Copy</button>
+    </div>
+    <div class="prompt-body" id="onboarding">
+<span class="dim">Using the Product+ive design system, design the</span> <span class="kw">3-screen Onboarding Flow</span> <span class="dim">in</span> <span class="val">[LIGHT / DARK]</span> <span class="dim">mode.</span>
+
+<span class="kw">GLOBAL ONBOARDING RULES:</span>
+- No form fields. No account creation. No email.
+- "Skip" text button always top-right (DM Sans 14px --ink-dim).
+- Page indicator dots at the bottom (3 dots — current dot is wider pill shape).
+- Primary CTA button: full-width pill, bg #0D0D0D / #F2F1EE, DM Sans 600 15px.
+- Duck mascot appears on all 3 screens as a black silhouette SVG (simple, matches the PRO+ive logo duck).
+
+<span class="kw">SCREEN 1 — Welcome:</span>
+Large duck mascot illustration centred (120×120px, simple silhouette).
+Title: "Rules that work." — DM Serif Display 40px, letter-spacing -0.03em.
+Subtitle (italic): "Habits that last." — DM Serif Display italic 28px, colour #059669.
+Body: "20 science-backed rules to help you focus, learn and get more done." — DM Sans 15px --ink-mid, max-width 280px, centred.
+CTA: "Get Started →"
+
+<span class="kw">SCREEN 2 — The Positivity Meter:</span>
+Animated Positivity Ring (show at ~65% filled, green #059669).
+Ring size 140px diameter, same spec as Positivity Meter screen.
+Small "+20 pts" badge floating near the ring (DM Mono, rounded rect, green bg).
+Title: "Your effort," DM Serif Display 32px + "rewarded." italic green 32px — stacked.
+Body: "Every session fills your Positivity Meter. Watch it grow as you build habits."
+CTA: "Next →"
+
+<span class="kw">SCREEN 3 — Pick your category:</span>
+Title: "Where do you want to start?" DM Serif Display 28px.
+Subtitle: DM Sans 14px --ink-mid.
+Mini 2×2 category grid (same card design as home screen, slightly smaller ~120×120px each).
+One card is highlighted (selected state: category accent border 2px, slight scale up 1.03).
+CTA: "Start Exploring →"
+
+<span class="kw">OUTPUT:</span> 3 phone screens side by side (375×812px each). Dark background between screens.
+    </div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="ph-left">
+        <span class="ph-label">Dark Mode Showcase</span>
+        <span class="ph-badge flow">Special</span>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt(this, 'darkmode')">Copy</button>
+    </div>
+    <div class="prompt-body" id="darkmode">
+<span class="dim">Using the Product+ive design system, create a</span> <span class="kw">Dark Mode Showcase</span> <span class="dim">showing all 5 screens in AMOLED dark mode, arranged in a row on a pure black background.</span>
+
+<span class="kw">DARK MODE RULES (reinforce these):</span>
+- Screen bg: #0D0D0D (pure black — not #111, not #1C1C1E)
+- Card/row surfaces: #1E1E1E (off-black, clearly distinct from screen bg)
+- Primary text: #F2F1EE (warm off-white — not pure white #FFFFFF)
+- Action circles: bg #F2F1EE, icon #0D0D0D (inverted from light)
+- Category accents shift to lighter shades: purple #A78BFA · blue #60A5FA · green #34D399 · amber #FBBF24
+- Nav bar: bg #1E1E1E + centre button bg #F2F1EE
+
+<span class="kw">ARRANGE:</span> 5 phones in a row at slight scale (320px wide each):
+1. Home (dark) — showing 2×2 cards
+2. Category List (dark) — Productivity rules
+3. Rule Page (dark) — Pomodoro timer at 18:34, break phase (green ring)
+4. Positivity Meter (dark) — 340/500 pts
+5. Todo (dark) — Frog task + 2-min section
+
+<span class="kw">PRESENTATION STYLE:</span>
+Black (#000000) background. Each phone has a subtle glow below it.
+Small label under each phone: screen name, DM Mono 9px white 40% opacity.
+Title at top: "Product+ive · Dark Mode" DM Serif Display 28px white.
+
+<span class="kw">OUTPUT:</span> Wide marketing image, 1600×900px or similar landscape format.
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ────────────────────────────────────────
+  QUICK REFERENCE
+──────────────────────────────────────── -->
+<div class="section">
+  <div class="sec-label">04 — Quick Reference</div>
+  <div class="sec-title">Variable Cheatsheet</div>
+  <div class="sec-sub">Every <code>[BRACKET]</code> variable used across all prompts, with all valid values.</div>
+
+  <table class="usage-table">
+    <tr><th>Variable</th><th>Valid Values</th><th>Used In</th></tr>
+    <tr><td><code>[LIGHT / DARK]</code></td><td><code>LIGHT</code> or <code>DARK</code></td><td>All screen prompts</td></tr>
+    <tr><td><code>[CATEGORY NAME]</code></td><td>Learning & Memory · Focus & Sessions · Productivity · Study Techniques</td><td>Category List</td></tr>
+    <tr><td><code>[RULE NAME]</code></td><td>Any of the 20 rules — see Master Prompt for full list</td><td>Rule Page prompts</td></tr>
+    <tr><td><code>[SCORE]</code></td><td>Any integer 0–999 (e.g. 340)</td><td>Positivity Meter</td></tr>
+    <tr><td><code>[MAX]</code></td><td>500 (weekly) or use any milestone number</td><td>Positivity Meter</td></tr>
+    <tr><td><code>[LEVEL NAME]</code></td><td>Getting Started 🌱 · Building Momentum 🔥 · In the Zone ⚡ · Rule Master 🧠 · Productively Positive 🏆</td><td>Positivity Meter</td></tr>
+    <tr><td><code>[N]</code> (step)</td><td>1, 2, 3, 4, or 5 depending on rule</td><td>Guided Rule Page</td></tr>
+    <tr><td><code>[TOTAL]</code> (steps)</td><td>4 (Feynman/Cornell) · 5 (SQ3R/Mind Map)</td><td>Guided Rule Page</td></tr>
+    <tr><td><code>[work / break]</code></td><td><code>work</code> (dark ring) or <code>break</code> (green ring)</td><td>Timer Rule Page</td></tr>
+    <tr><td><code>[N of TOTAL]</code> (round)</td><td>e.g. "Round 2 of 4" for Pomodoro</td><td>Timer Rule Page</td></tr>
+  </table>
+</div>
+
+<div class="callout">
+  <span class="ci">💡</span>
+  <div><strong>Pro tip:</strong> Combine the Master System Prompt (Section 00) with any individual screen prompt for the most accurate output. Paste the master prompt first, then immediately follow with the specific screen prompt in the same message. The AI will use the master as full context and the screen prompt as the specific instruction.</div>
+</div>
+
+<div class="callout callout-neutral" style="margin-top:12px">
+  <span class="ci">🎨</span>
+  <div><strong>For Figma AI / design tools:</strong> Add "Output as annotated Figma frame with component labels" at the end of any prompt. For code output: add "Output as React Native JSX with StyleSheet" or "Output as HTML+CSS" based on your target.</div>
+</div>
+
+</div><!-- end wrap -->
+
+<script>
+const allPromptIds = ['master','home','catlist','ruletimer','ruleguided','meter','todo','onboarding','darkmode','comp-card','comp-row','comp-nav'];
+
+function copyPrompt(btn, id) {
+  const el = document.getElementById(id);
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyAll() {
+  const parts = allPromptIds.map(id => {
+    const el = document.getElementById(id);
+    return `=== ${id.toUpperCase()} ===\n\n${el.innerText}`;
+  });
+  const text = parts.join('\n\n' + '─'.repeat(60) + '\n\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-all-btn');
+    btn.textContent = 'Copied! ✓';
+    setTimeout(() => { btn.textContent = 'Copy Master Prompt'; }, 2500);
+  });
+}
+</script>
+</body>
+</html>
