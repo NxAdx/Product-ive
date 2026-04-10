@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import { getLevelName } from '../data/constants';
 
 export interface ReflectionEntry {
@@ -61,7 +61,21 @@ const isSameDay = (lastDateStr: string, now: Date) => {
 };
 
 function syncHomeWidgetSnapshot(payload: { weeklyScore: number; weeklyStreak: number; currentLevel: string }) {
-  // Guard iOS-only widget runtime modules from being evaluated on Android startup.
+  if (Platform.OS === 'android') {
+    try {
+      const module = (NativeModules as {
+        ProductiveWidget?: {
+          updateSnapshot?: (weeklyScore: number, weeklyStreak: number, currentLevel: string) => void;
+        };
+      }).ProductiveWidget;
+      module?.updateSnapshot?.(payload.weeklyScore, payload.weeklyStreak, payload.currentLevel);
+    } catch (error) {
+      console.warn('Android widget snapshot sync skipped:', error);
+    }
+    return;
+  }
+
+  // Guard iOS-only widget runtime modules from being evaluated on non-iOS startup.
   if (Platform.OS !== 'ios') return;
 
   try {
@@ -199,6 +213,17 @@ export const usePositivityStore = create<PositivityStore>()(
         }));
       },
     }),
-    { name: 'positivity', storage: createJSONStorage(() => AsyncStorage) }
+    {
+      name: 'positivity',
+      storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        syncHomeWidgetSnapshot({
+          weeklyScore: state.weeklyScore,
+          weeklyStreak: state.weeklyStreak,
+          currentLevel: state.currentLevel,
+        });
+      },
+    }
   )
 );

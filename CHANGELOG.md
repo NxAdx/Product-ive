@@ -12,6 +12,18 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Repository Purge**: Removed and untracked `docs/` folder from the remote repository to protect sensitive internal documentation.
 - **Agent Governance**: Enforced a strict **Local-Only** directive for `docs/`, `.agents/`, and `ss/` paths. Force-adding ignored paths is now strictly forbidden in the project core.
 
+### Added
+- Native Android home screen widget (`Productive Glance`) with weekly XP, streak, level, and progress bar.
+- Android React Native bridge module (`ProductiveWidget`) for widget snapshot updates from JS state.
+
+### Changed
+- `positivityStore` now syncs widget snapshots cross-platform:
+  - iOS: lazy `expo-widgets` update path
+  - Android: native `ProductiveWidget.updateSnapshot(...)` path
+
+### Fixed
+- Widget support now works on Android (previously iOS-only implementation).
+
 ---
 
 ## [1.3.1] - 2026-04-10
