@@ -6,6 +6,18 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ---
 
+## [Unreleased]
+
+### Changed
+- Hardened GitHub Actions Android release pipeline to avoid publishing non-installable artifacts.
+- Removed `android/` prebuild cache restore path in CI to prevent stale native/signing state from being reused.
+
+### Fixed
+- CI now fails fast when release-signing secrets are missing or invalid.
+- CI now uploads only signed APK files and rejects any `*unsigned*` release outputs.
+
+---
+
 ## [1.3.1] - 2026-04-09
 
 ### Added
