@@ -229,6 +229,7 @@ export const usePositivityStore = create<PositivityStore>()(
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
+        // Immediate sync on app load to populate widget storage
         syncHomeWidgetSnapshot({
           weeklyScore: state.weeklyScore,
           weeklyStreak: state.weeklyStreak,

@@ -8,7 +8,10 @@ const WIDGET_DATA_KEY = 'PRODUCTIVE_WIDGET_DATA';
 export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
   const { widgetAction, renderWidget } = props;
 
-  if (widgetAction === 'WIDGET_ADDED' || widgetAction === 'WIDGET_UPDATE') {
+  // Logging for adb logcat visibility
+  console.log(`[ProductiveWidget] Action: ${widgetAction}`);
+
+  if (widgetAction === 'WIDGET_ADDED' || widgetAction === 'WIDGET_UPDATE' || widgetAction === 'WIDGET_RESIZED') {
     let data = {
       weeklyScore: 0,
       weeklyStreak: 0,
@@ -17,11 +20,18 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
 
     try {
       const storedData = await AsyncStorage.getItem(WIDGET_DATA_KEY);
+      console.log(`[ProductiveWidget] Stored Data: ${storedData}`);
+      
       if (storedData) {
-        data = JSON.parse(storedData);
+        const parsed = JSON.parse(storedData);
+        data = {
+          weeklyScore: typeof parsed.weeklyScore === 'number' ? parsed.weeklyScore : 0,
+          weeklyStreak: typeof parsed.weeklyStreak === 'number' ? parsed.weeklyStreak : 0,
+          currentLevel: parsed.currentLevel || 'Beginner',
+        };
       }
     } catch (e) {
-      console.warn('Failed to load widget data from AsyncStorage', e);
+      console.warn('[ProductiveWidget] Storage Retrieval Failed:', e);
     }
 
     renderWidget(<ProductiveAndroidWidget {...data} />);

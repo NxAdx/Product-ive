@@ -8,11 +8,17 @@ export interface AndroidWidgetProps {
 }
 
 export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLevel }: AndroidWidgetProps) {
+  // Robustness check for data
+  const safeScore = Number.isFinite(weeklyScore) ? weeklyScore : 0;
+  const safeStreak = Number.isFinite(weeklyStreak) ? weeklyStreak : 0;
+  const safeLevel = currentLevel || 'Active';
+
   const xpGoal = 500;
   
   // Weights for the progress bar (RemoteViews does not support % width easily)
-  const progressWeight = Math.max(0.001, Math.min(weeklyScore, xpGoal));
-  const remainingWeight = Math.max(0.001, xpGoal - progressWeight);
+  // MUST be finite numbers. flex: NaN will crash the widget layout.
+  const progressWeight = Math.max(0.1, Math.min(safeScore, xpGoal));
+  const remainingWeight = Math.max(0.1, xpGoal - progressWeight);
 
   return (
     <FlexWidget
@@ -40,7 +46,7 @@ export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLeve
       {/* Main Stats */}
       <FlexWidget style={{ marginTop: 12, marginBottom: 12, flexDirection: 'column', flex: 1 }}>
         <TextWidget
-          text={`🔥 ${weeklyStreak}`}
+          text={`🔥 ${safeStreak}`}
           style={{
             fontSize: 28,
             fontWeight: 'bold',
@@ -48,7 +54,7 @@ export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLeve
           }}
         />
         <TextWidget
-          text={currentLevel}
+          text={safeLevel}
           style={{
             fontSize: 13,
             fontWeight: 'normal',
@@ -61,7 +67,7 @@ export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLeve
       <FlexWidget style={{ width: 'match_parent', flexDirection: 'column' }}>
         <FlexWidget style={{ width: 'match_parent', marginBottom: 4, flexDirection: 'row' }}>
           <TextWidget
-            text={`${weeklyScore} XP`}
+            text={`${safeScore} XP`}
             style={{ fontSize: 9, color: '#FFFFFF' }}
           />
           <FlexWidget style={{ flex: 1 }} />
