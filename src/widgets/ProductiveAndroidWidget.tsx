@@ -1,3 +1,5 @@
+'use no memo';
+
 import React from 'react';
 import { FlexWidget, TextWidget } from 'react-native-android-widget';
 
@@ -7,16 +9,17 @@ export interface AndroidWidgetProps {
   currentLevel: string;
 }
 
-export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLevel }: AndroidWidgetProps) {
-  // Robustness check for data
+export function ProductiveAndroidWidget({
+  weeklyScore,
+  weeklyStreak,
+  currentLevel,
+}: AndroidWidgetProps) {
   const safeScore = Number.isFinite(weeklyScore) ? weeklyScore : 0;
   const safeStreak = Number.isFinite(weeklyStreak) ? weeklyStreak : 0;
   const safeLevel = currentLevel || 'Active';
-
   const xpGoal = 500;
-  
-  // Weights for the progress bar (RemoteViews does not support % width easily)
-  // MUST be finite numbers. flex: NaN will crash the widget layout.
+
+  // RemoteViews cannot express percentage widths directly, so use flex weights.
   const progressWeight = Math.max(0.1, Math.min(safeScore, xpGoal));
   const remainingWeight = Math.max(0.1, xpGoal - progressWeight);
 
@@ -31,7 +34,6 @@ export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLeve
         flexDirection: 'column',
       }}
     >
-      {/* Header */}
       <FlexWidget style={{ width: 'match_parent', flexDirection: 'row' }}>
         <TextWidget
           text="PRODUCTIVE+"
@@ -43,10 +45,9 @@ export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLeve
         />
       </FlexWidget>
 
-      {/* Main Stats */}
       <FlexWidget style={{ marginTop: 12, marginBottom: 12, flexDirection: 'column', flex: 1 }}>
         <TextWidget
-          text={`🔥 ${safeStreak}`}
+          text={`Streak ${safeStreak}`}
           style={{
             fontSize: 28,
             fontWeight: 'bold',
@@ -63,7 +64,6 @@ export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLeve
         />
       </FlexWidget>
 
-      {/* Progress Section */}
       <FlexWidget style={{ width: 'match_parent', flexDirection: 'column' }}>
         <FlexWidget style={{ width: 'match_parent', marginBottom: 4, flexDirection: 'row' }}>
           <TextWidget
@@ -77,7 +77,6 @@ export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLeve
           />
         </FlexWidget>
 
-        {/* Weighted Flex Progress Bar */}
         <FlexWidget
           style={{
             height: 6,

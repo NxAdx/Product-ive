@@ -73,12 +73,25 @@ function syncHomeWidgetSnapshot(payload: { weeklyScore: number; weeklyStreak: nu
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const React = require('react') as typeof import('react');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { requestWidgetUpdate } = require('react-native-android-widget') as {
-        requestWidgetUpdate: (config: { name: string }) => void;
+        requestWidgetUpdate: (config: {
+          widgetName: string;
+          renderWidget: () => ReturnType<typeof React.createElement>;
+          widgetNotFound?: () => void;
+        }) => Promise<void>;
       };
-      // Note: In newer versions, props are not passed directly but are read from storage in the handler
-      requestWidgetUpdate({
-        name: 'ProductivePlusWidget',
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { ProductiveAndroidWidget } = require('../widgets/ProductiveAndroidWidget') as {
+        ProductiveAndroidWidget: (props: typeof payload) => ReturnType<typeof React.createElement>;
+      };
+
+      void requestWidgetUpdate({
+        widgetName: 'ProductivePlusWidget',
+        renderWidget: () => React.createElement(ProductiveAndroidWidget, payload),
+      }).catch((error: unknown) => {
+        console.warn('Android widget snapshot sync failed:', error);
       });
     } catch (error) {
       console.warn('Android widget snapshot sync failed:', error);

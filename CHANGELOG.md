@@ -6,16 +6,34 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ---
 
-## [Unreleased]
+## [1.3.3] - 2026-04-11
 
-### 📱 Widget Support
-- **Android Support**: Implemented cross-platform "Productive+ Glance" widget using `react-native-android-widget`.
-- **Feature Parity**: Replicated XP progress rings and fire streaks for Android home screens.
-- **Data Sync**: Integrated `requestWidgetUpdate` for instant background synchronization.
+### Fixed
+- Blank Android widgets by opting the widget component out of React Compiler and rendering updates with the current `react-native-android-widget` API.
+- Duplicate Android widget providers by removing the stale native provider, resources, and manual package registration.
 
-### 🛡 Security Hardening
-- **Repository Purge**: Removed and untracked `docs/` folder from the remote repository to protect sensitive internal documentation.
-- **Agent Governance**: Enforced a strict **Local-Only** directive for `docs/`, `.agents/`, and `ss/` paths. Force-adding ignored paths is now strictly forbidden in the project core.
+### 📱 Widget Stability (Android)
+- **Invisible Widget Hotfix**: Resolved silencing issue on Android home screens by adding numeric safety guards to flex-based layout properties and hardening the JS-to-Native data pipeline.
+- **Improved Sync**: Added proactive widget hydration on app load to ensure data parity during startup.
+- **Logging**: Integrated `adb`-level task logging for easier remote debugging of the Headless task.
+
+### 🎨 Productive+ Rebrand
+- **Omni-Branding**: Unified app logo and launcher assets.
+- **iOS 18+ Integration**: Full support for Light, Dark, and Tinted icon variants.
+- **Adaptive Icons**: Verified thematic launcher support for Android 13+.
+- **Dark Mode Splash**: Added native support for platform-aware dark splash screens.
+
+### 🛡 Build Integrity
+- **AAPT2 Resolution**: Purged duplicate resource ID conflicts and converted masquerading assets to true PNGs.
+
+---
+
+## [1.3.1] - 2026-04-11
+
+### 📱 Android Widget Implementation
+- **Native Provider**: Implemented `ProductivePlusWidget` using `react-native-android-widget` DSL.
+- **Entry Point Sync**: Migrated native entry to `index.js` for Headless JS task registration.
+- **Data Bridge**: Integrated `AsyncStorage` and `requestWidgetUpdate` for background cross-process synchronization.
 
 ### Added
 - Native Android home screen widget (`Productive Glance`) with weekly XP, streak, level, and progress bar.
