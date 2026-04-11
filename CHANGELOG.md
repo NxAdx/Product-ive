@@ -8,6 +8,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### 📱 Widget Support
+- **Android Support**: Implemented cross-platform "Productive+ Glance" widget using `react-native-android-widget`.
+- **Feature Parity**: Replicated XP progress rings and fire streaks for Android home screens.
+- **Data Sync**: Integrated `requestWidgetUpdate` for instant background synchronization.
+
 ### 🛡 Security Hardening
 - **Repository Purge**: Removed and untracked `docs/` folder from the remote repository to protect sensitive internal documentation.
 - **Agent Governance**: Enforced a strict **Local-Only** directive for `docs/`, `.agents/`, and `ss/` paths. Force-adding ignored paths is now strictly forbidden in the project core.

@@ -60,6 +60,21 @@
             }
           ]
         }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "ProductivePlusWidget",
+              "label": "Productive+ Glance",
+              "minWidth": "200dp",
+              "minHeight": "100dp",
+              "description": "Weekly XP and Streak status.",
+              "previewImage": "./assets/images/widget-preview.png"
+            }
+          ]
+        }
       ]
     ],
     "experiments": {

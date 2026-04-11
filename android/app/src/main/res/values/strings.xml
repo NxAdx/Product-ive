@@ -9,4 +9,5 @@
   <string name="widget_xp_placeholder">0 / 500 XP</string>
   <string name="widget_streak_format">Streak: %1$d</string>
   <string name="widget_xp_format">%1$d / %2$d XP</string>
+  <string name="widget_productivepluswidget_description" translatable="false">Weekly XP and Streak status.</string>
 </resources>

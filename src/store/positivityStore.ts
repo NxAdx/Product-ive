@@ -63,14 +63,16 @@ const isSameDay = (lastDateStr: string, now: Date) => {
 function syncHomeWidgetSnapshot(payload: { weeklyScore: number; weeklyStreak: number; currentLevel: string }) {
   if (Platform.OS === 'android') {
     try {
-      const module = (NativeModules as {
-        ProductiveWidget?: {
-          updateSnapshot?: (weeklyScore: number, weeklyStreak: number, currentLevel: string) => void;
-        };
-      }).ProductiveWidget;
-      module?.updateSnapshot?.(payload.weeklyScore, payload.weeklyStreak, payload.currentLevel);
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { requestWidgetUpdate } = require('react-native-android-widget') as {
+        requestWidgetUpdate: (config: { name: string; props: typeof payload }) => void;
+      };
+      requestWidgetUpdate({
+        name: 'ProductivePlusWidget',
+        props: payload,
+      });
     } catch (error) {
-      console.warn('Android widget snapshot sync skipped:', error);
+      console.warn('Android widget snapshot sync failed:', error);
     }
     return;
   }
