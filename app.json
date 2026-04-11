@@ -9,7 +9,12 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.nxadx.productive"
+      "bundleIdentifier": "com.nxadx.productive",
+      "icon": {
+        "light": "./assets/images/icon.png",
+        "dark": "./assets/images/icon-dark.png",
+        "tinted": "./assets/images/icon-tinted.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +39,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#000000",
+            "image": "./assets/images/splash-icon-dark.png"
           }
         }
       ],
