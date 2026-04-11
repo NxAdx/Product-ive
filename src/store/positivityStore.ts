@@ -62,14 +62,23 @@ const isSameDay = (lastDateStr: string, now: Date) => {
 
 function syncHomeWidgetSnapshot(payload: { weeklyScore: number; weeklyStreak: number; currentLevel: string }) {
   if (Platform.OS === 'android') {
+    // Persist to AsyncStorage for the background task to pick up
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default as {
+      setItem: (key: string, value: string) => Promise<void>;
+    };
+    AsyncStorage.setItem('PRODUCTIVE_WIDGET_DATA', JSON.stringify(payload)).catch((e) =>
+      console.warn('Failed to save widget data to AsyncStorage', e)
+    );
+
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { requestWidgetUpdate } = require('react-native-android-widget') as {
-        requestWidgetUpdate: (config: { name: string; props: typeof payload }) => void;
+        requestWidgetUpdate: (config: { name: string }) => void;
       };
+      // Note: In newer versions, props are not passed directly but are read from storage in the handler
       requestWidgetUpdate({
         name: 'ProductivePlusWidget',
-        props: payload,
       });
     } catch (error) {
       console.warn('Android widget snapshot sync failed:', error);

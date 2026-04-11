@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Text, Box, ProgressBar } from 'react-native-android-widget';
+import { FlexWidget, TextWidget } from 'react-native-android-widget';
 
 export interface AndroidWidgetProps {
   weeklyScore: number;
@@ -9,22 +9,25 @@ export interface AndroidWidgetProps {
 
 export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLevel }: AndroidWidgetProps) {
   const xpGoal = 500;
-  const progressPercent = Math.min(100, (weeklyScore / xpGoal) * 100);
+  
+  // Weights for the progress bar (RemoteViews does not support % width easily)
+  const progressWeight = Math.max(0.001, Math.min(weeklyScore, xpGoal));
+  const remainingWeight = Math.max(0.001, xpGoal - progressWeight);
 
   return (
-    <Flex
+    <FlexWidget
       style={{
         height: 'match_parent',
         width: 'match_parent',
         backgroundColor: '#0A0A0A',
         padding: 16,
         borderRadius: 20,
+        flexDirection: 'column',
       }}
-      flexDirection="column"
     >
       {/* Header */}
-      <Flex flexDirection="row" style={{ width: 'match_parent' }}>
-        <Text
+      <FlexWidget style={{ width: 'match_parent', flexDirection: 'row' }}>
+        <TextWidget
           text="PRODUCTIVE+"
           style={{
             fontSize: 10,
@@ -32,11 +35,11 @@ export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLeve
             color: '#888888',
           }}
         />
-      </Flex>
+      </FlexWidget>
 
       {/* Main Stats */}
-      <Flex flexDirection="column" style={{ marginTop: 12, marginBottom: 12 }}>
-        <Text
+      <FlexWidget style={{ marginTop: 12, marginBottom: 12, flexDirection: 'column', flex: 1 }}>
+        <TextWidget
           text={`🔥 ${weeklyStreak}`}
           style={{
             fontSize: 28,
@@ -44,39 +47,56 @@ export function ProductiveAndroidWidget({ weeklyScore, weeklyStreak, currentLeve
             color: '#FFFFFF',
           }}
         />
-        <Text
+        <TextWidget
           text={currentLevel}
           style={{
             fontSize: 13,
-            fontWeight: 'medium',
+            fontWeight: 'normal',
             color: '#6366F1',
           }}
         />
-      </Flex>
+      </FlexWidget>
 
       {/* Progress Section */}
-      <Flex flexDirection="column" style={{ marginTop: 'auto' }}>
-        <Flex flexDirection="row" style={{ width: 'match_parent', marginBottom: 4 }}>
-          <Text
+      <FlexWidget style={{ width: 'match_parent', flexDirection: 'column' }}>
+        <FlexWidget style={{ width: 'match_parent', marginBottom: 4, flexDirection: 'row' }}>
+          <TextWidget
             text={`${weeklyScore} XP`}
             style={{ fontSize: 9, color: '#FFFFFF' }}
           />
-          <Box style={{ flex: 1 }} />
-          <Text
+          <FlexWidget style={{ flex: 1 }} />
+          <TextWidget
             text={`Goal: ${xpGoal}`}
             style={{ fontSize: 9, color: '#888888' }}
           />
-        </Flex>
+        </FlexWidget>
 
-        <ProgressBar
-          progress={progressPercent}
+        {/* Weighted Flex Progress Bar */}
+        <FlexWidget
           style={{
             height: 6,
             width: 'match_parent',
-            color: '#6366F1',
+            backgroundColor: '#1A1A1A',
+            borderRadius: 3,
+            flexDirection: 'row',
           }}
-        />
-      </Flex>
-    </Flex>
+        >
+          <FlexWidget
+            style={{
+              height: 6,
+              flex: progressWeight,
+              backgroundColor: '#6366F1',
+              borderRadius: 3,
+            }}
+          />
+          <FlexWidget
+            style={{
+              height: 6,
+              flex: remainingWeight,
+            }}
+          />
+        </FlexWidget>
+      </FlexWidget>
+    </FlexWidget>
   );
 }
